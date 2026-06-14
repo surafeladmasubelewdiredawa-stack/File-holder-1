@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    :root{--bg:#0e0f14;--fg:#f0ece4;--muted:#6b6872;--accent:#e8553d;--accent-glow:rgba(232,85,61,0.35);--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.07);--teal:#2ec4a2;--teal-glow:rgba(46,196,162,0.3);--gold:#d4a03c;--gold-glow:rgba(212,160,60,0.3);--sky:#3daae8;--sky-glow:rgba(61,170,232,0.3);--purple:#9b59b6;--purple-glow:rgba(155,89,182,0.3)}
+    :root{--bg:#0e0f14;--fg:#f0ece4;--muted:#6b6872;--accent:#e8553d;--accent-glow:rgba(232,85,61,0.35);--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.07);--teal:#2ec4a2;--teal-glow:rgba(46,196,162,0.3);--gold:#d4a03c;--gold-glow:rgba(212,160,60,0.3);--sky:#3daae8;--sky-glow:rgba(61,170,232,0.3);--purple:#9b59b6;--purple-glow:rgba(155,89,182,0.3);--rose:#e85577;--rose-glow:rgba(232,85,119,0.3)}
     *{margin:0;padding:0;box-sizing:border-box}
     body{min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;background:var(--bg);overflow:hidden;position:relative;-webkit-user-select:none;user-select:none}
     .bg-layer{position:fixed;inset:0;z-index:0;overflow:hidden}
@@ -61,6 +61,11 @@
     .btn-view3:hover{border-color:var(--purple);box-shadow:0 0 30px var(--purple-glow),0 8px 32px rgba(0,0,0,.3);transform:translateY(-3px)}
     .btn-view3:hover::before{opacity:1}
     .btn-view3:hover .icon-wrap{transform:scale(1.1) rotate(-5deg);box-shadow:0 6px 24px var(--purple-glow)}
+    .btn-view4 .icon-wrap{background:linear-gradient(135deg,var(--rose),#c23a55);color:#fff;box-shadow:0 4px 16px var(--rose-glow)}
+    .btn-view4::before{background:linear-gradient(135deg,rgba(232,85,119,.1),transparent)}
+    .btn-view4:hover{border-color:var(--rose);box-shadow:0 0 30px var(--rose-glow),0 8px 32px rgba(0,0,0,.3);transform:translateY(-3px)}
+    .btn-view4:hover::before{opacity:1}
+    .btn-view4:hover .icon-wrap{transform:scale(1.1) rotate(-5deg);box-shadow:0 6px 24px var(--rose-glow)}
     .btn-add2 .icon-wrap{background:linear-gradient(135deg,var(--gold),#b8882e);color:#fff;box-shadow:0 4px 16px var(--gold-glow)}
     .btn-add2::before{background:linear-gradient(135deg,rgba(212,160,60,.1),transparent)}
     .btn-add2:hover{border-color:var(--gold);box-shadow:0 0 30px var(--gold-glow),0 8px 32px rgba(0,0,0,.3);transform:translateY(-3px)}
@@ -111,7 +116,7 @@
     .preview-btn:hover{background:rgba(255,255,255,.15)}
     .preview-btn.next-btn{background:linear-gradient(135deg,var(--gold),#b8882e);border-color:var(--gold);color:#fff}
     .preview-btn.next-btn:hover{box-shadow:0 0 20px var(--gold-glow);transform:translateY(-2px)}
-    .save-box{width:340px;max-width:90vw;background:rgba(22,22,30,.95);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:28px;backdrop-filter:blur(20px);display:flex;flex-direction:column;gap:20px}
+    .save-box{width:340px;max-width:90vw;background:rgba(22,22,30,.95);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:28px;backdrop-filter:blur(20px);display:flex;flex-direction:column;gap:20px;max-height:90vh;overflow-y:auto}
     .save-box-title{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--fg);display:flex;align-items:center;gap:10px}
     .save-box-title i{color:var(--gold)}
     .input-group{display:flex;flex-direction:column;gap:6px}
@@ -130,6 +135,7 @@
     .class-btn.c1 .class-dot{border-color:var(--teal)}.class-btn.c1.selected{border-color:var(--teal);background:rgba(46,196,162,.08)}.class-btn.c1.selected .class-dot{background:var(--teal);border-color:var(--teal)}
     .class-btn.c2 .class-dot{border-color:var(--sky)}.class-btn.c2.selected{border-color:var(--sky);background:rgba(61,170,232,.08)}.class-btn.c2.selected .class-dot{background:var(--sky);border-color:var(--sky)}
     .class-btn.c3 .class-dot{border-color:var(--purple)}.class-btn.c3.selected{border-color:var(--purple);background:rgba(155,89,182,.08)}.class-btn.c3.selected .class-dot{background:var(--purple);border-color:var(--purple)}
+    .class-btn.c4 .class-dot{border-color:var(--rose)}.class-btn.c4.selected{border-color:var(--rose);background:rgba(232,85,119,.08)}.class-btn.c4.selected .class-dot{background:var(--rose);border-color:var(--rose)}
     .finished-btn{padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--gold),#b8882e);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:8px}
     .finished-btn:hover{box-shadow:0 6px 24px var(--gold-glow);transform:translateY(-2px)}
     .finished-btn:active{transform:translateY(0) scale(.98)}
@@ -162,6 +168,8 @@
     .sel-btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important;box-shadow:none!important}
     .sel-btn.exit-btn{border-color:rgba(255,77,77,.3);color:#ff6b6b}
     .sel-btn.exit-btn:hover{background:rgba(255,77,77,.1)}
+    .sel-btn.delete-sel-btn{border-color:rgba(255,77,77,.3);color:#ff6b6b}
+    .sel-btn.delete-sel-btn:hover{background:rgba(255,77,77,.15)}
     .sel-count{font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:4px;white-space:nowrap}
     .table-wrap{overflow-y:auto;flex:1;border-radius:10px;border:1px solid var(--border)}
     .table-wrap::-webkit-scrollbar{width:4px}
@@ -261,7 +269,8 @@
     <div class="btn-grid">
       <button class="doc-btn btn-view1" id="btnView1"><div class="icon-wrap"><i class="fa-solid fa-file-lines"></i></div><div class="btn-text"><span class="label">View Doc 1</span><span class="sublabel">Browse recent files</span></div><span class="badge" id="badge1">0</span></button>
       <button class="doc-btn btn-view2" id="btnView2"><div class="icon-wrap"><i class="fa-solid fa-file-magnifying-glass"></i></div><div class="btn-text"><span class="label">View Doc 2</span><span class="sublabel">Search documents</span></div><span class="badge" id="badge2">0</span></button>
-      <button class="doc-btn btn-view3" id="btnView3"><div class="icon-wrap"><i class="fa-solid fa-folder-open"></i></div><div class="btn-text"><span class="label">View Doc 3</span><span class="sublabel">Archived files</span></div><span class="badge" id="badge4">0</span></button>
+      <button class="doc-btn btn-view3" id="btnView3"><div class="icon-wrap"><i class="fa-solid fa-folder-open"></i></div><div class="btn-text"><span class="label">View Doc 3</span><span class="sublabel">Archived files</span></div><span class="badge" id="badge3">0</span></button>
+      <button class="doc-btn btn-view4" id="btnView4"><div class="icon-wrap"><i class="fa-solid fa-box-archive"></i></div><div class="btn-text"><span class="label">View Doc 4</span><span class="sublabel">Other files</span></div><span class="badge" id="badge4">0</span></button>
       <button class="doc-btn btn-add2" id="btnAdd2"><div class="icon-wrap"><i class="fa-solid fa-file-pen"></i></div><div class="btn-text"><span class="label">Add Doc</span><span class="sublabel">Create from template</span></div></button>
       <div class="sub-choice" id="subChoice"><button class="back-btn" id="backBtn"><i class="fa-solid fa-arrow-left"></i> Back</button><div class="sub-choice-row"><button class="sub-btn choose-file" id="chooseFileBtn"><div class="sub-icon"><i class="fa-solid fa-folder-open"></i></div>Choose File</button><button class="sub-btn camera-shot" id="cameraShotBtn"><div class="sub-icon"><i class="fa-solid fa-camera"></i></div>Camera Shot</button></div></div>
     </div>
@@ -271,9 +280,9 @@
   <div class="camera-overlay" id="cameraOverlay"><video id="cameraVideo" autoplay playsinline></video><div class="camera-controls"><button class="cam-btn close-cam" id="closeCamBtn"><i class="fa-solid fa-xmark"></i></button><button class="cam-btn capture" id="captureBtn"><i class="fa-solid fa-camera"></i></button></div></div>
 
   <div class="overlay preview-overlay" id="previewOverlay"><div class="overlay-bg"></div><div class="anim-box preview-content"><img id="previewImg" src="" alt="Preview"><p class="preview-label" id="previewLabel">Preview</p><div class="preview-actions"><button class="preview-btn" id="previewCloseBtn"><i class="fa-solid fa-xmark"></i> Close</button><button class="preview-btn next-btn" id="previewNextBtn"><i class="fa-solid fa-arrow-right"></i> Next</button></div></div></div>
-  <div class="overlay save-overlay" id="saveOverlay"><div class="overlay-bg"></div><div class="anim-box save-box"><div class="save-box-title"><i class="fa-solid fa-floppy-disk"></i> Save Document</div><div class="input-group"><label for="docNameInput">Name</label><input type="text" id="docNameInput" placeholder="Enter image name..."><div class="error-msg" id="nameError"></div></div><div class="class-group"><label>Choose Class</label><div class="class-options"><button class="class-btn c1" data-class="view1"><span class="class-dot"></span><i class="fa-solid fa-file-lines" style="color:var(--teal);font-size:.85rem"></i> View Doc 1</button><button class="class-btn c2" data-class="view2"><span class="class-dot"></span><i class="fa-solid fa-file-magnifying-glass" style="color:var(--sky);font-size:.85rem"></i> View Doc 2</button><button class="class-btn c3" data-class="view3"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--purple);font-size:.85rem"></i> View Doc 3</button></div></div><button class="finished-btn" id="finishedBtn" disabled><i class="fa-solid fa-check"></i> Finished</button></div></div>
+  <div class="overlay save-overlay" id="saveOverlay"><div class="overlay-bg"></div><div class="anim-box save-box"><div class="save-box-title"><i class="fa-solid fa-floppy-disk"></i> Save Document</div><div class="input-group"><label for="docNameInput">Name</label><input type="text" id="docNameInput" placeholder="Enter image name..."><div class="error-msg" id="nameError"></div></div><div class="class-group"><label>Choose Class</label><div class="class-options"><button class="class-btn c1" data-class="view1"><span class="class-dot"></span><i class="fa-solid fa-file-lines" style="color:var(--teal);font-size:.85rem"></i> View Doc 1</button><button class="class-btn c2" data-class="view2"><span class="class-dot"></span><i class="fa-solid fa-file-magnifying-glass" style="color:var(--sky);font-size:.85rem"></i> View Doc 2</button><button class="class-btn c3" data-class="view3"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--purple);font-size:.85rem"></i> View Doc 3</button><button class="class-btn c4" data-class="view4"><span class="class-dot"></span><i class="fa-solid fa-box-archive" style="color:var(--rose);font-size:.85rem"></i> View Doc 4</button></div></div><button class="finished-btn" id="finishedBtn" disabled><i class="fa-solid fa-check"></i> Finished</button></div></div>
 
-  <div class="overlay table-overlay" id="tableOverlay"><div class="overlay-bg"></div><div class="anim-box table-box"><div class="table-header"><div class="header-left"><div class="table-title" id="tableTitle"><span class="doc-count-icon" id="tableCountIcon">0</span><button class="search-icon-btn" id="searchIconBtn" title="Search names"><i class="fa-solid fa-magnifying-glass"></i></button><input type="text" class="search-input" id="searchInput" placeholder="Search name..."><button class="search-clear-btn" id="searchClearBtn" title="Clear search"><i class="fa-solid fa-xmark"></i></button></div><div class="select-bar" id="selectBar"><button class="sel-btn" id="selectAllBtn"><i class="fa-solid fa-check-double"></i> Select All</button><button class="sel-btn move-btn" id="moveBtn" disabled><i class="fa-solid fa-arrows-up-down-left-right"></i> Move</button><button class="sel-btn exit-btn" id="exitSelectBtn"><i class="fa-solid fa-xmark"></i> Exit</button><span class="sel-count"><i class="fa-solid fa-circle-info"></i> <span id="selectCount">0</span> selected</span></div></div><button class="table-close" id="tableCloseBtn"><i class="fa-solid fa-xmark"></i></button></div><div class="table-wrap"><table class="doc-table" id="docTable"><thead><tr><th class="col-check"></th><th>#</th><th>Name</th></tr></thead><tbody id="tableBody"></tbody></table></div></div></div>
+  <div class="overlay table-overlay" id="tableOverlay"><div class="overlay-bg"></div><div class="anim-box table-box"><div class="table-header"><div class="header-left"><div class="table-title" id="tableTitle"><span class="doc-count-icon" id="tableCountIcon">0</span><button class="search-icon-btn" id="searchIconBtn" title="Search names"><i class="fa-solid fa-magnifying-glass"></i></button><input type="text" class="search-input" id="searchInput" placeholder="Search name..."><button class="search-clear-btn" id="searchClearBtn" title="Clear search"><i class="fa-solid fa-xmark"></i></button></div><div class="select-bar" id="selectBar"><button class="sel-btn" id="selectAllBtn"><i class="fa-solid fa-check-double"></i> All</button><button class="sel-btn move-btn" id="moveBtn" disabled><i class="fa-solid fa-arrows-up-down-left-right"></i> Move</button><button class="sel-btn delete-sel-btn" id="deleteSelBtn" disabled><i class="fa-solid fa-trash-can"></i> Delete</button><button class="sel-btn exit-btn" id="exitSelectBtn"><i class="fa-solid fa-xmark"></i> Exit</button><span class="sel-count"><i class="fa-solid fa-circle-info"></i> <span id="selectCount">0</span></span></div></div><button class="table-close" id="tableCloseBtn"><i class="fa-solid fa-xmark"></i></button></div><div class="table-wrap"><table class="doc-table" id="docTable"><thead><tr><th class="col-check"></th><th>#</th><th>Name</th></tr></thead><tbody id="tableBody"></tbody></table></div></div></div>
 
   <div class="overlay detail-overlay" id="detailOverlay"><div class="overlay-bg"></div><div class="anim-box detail-box"><div class="detail-header"><div class="detail-title"><i class="fa-solid fa-images"></i> Image Preview</div><div class="detail-header-right"><button class="add-img-btn" id="addImgBtn"><i class="fa-solid fa-plus"></i> Add Image</button><button class="detail-close" id="detailCloseBtn"><i class="fa-solid fa-xmark"></i></button></div></div><div class="detail-images" id="detailImages"></div></div></div>
 
@@ -293,7 +302,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <script>
-    // ================= YOUR SETUP =================
     const firebaseConfig = {
       apiKey: "AIzaSyClCHIj3vJ4MGAm3xkwablROflC-SBq6dw",
       authDomain: "file-holder-f7af0.firebaseapp.com",
@@ -306,91 +314,41 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
     const CLOUD_NAME = 'duh3hfrtc';
     const UPLOAD_PRESET = 'pgabpqyo';
 
-    // ================= DATA STORE =================
-    const store = { view1: {}, view2: {}, view3: {} };
-    const classNames = { view1: 'View Doc 1', view2: 'View Doc 2', view3: 'View Doc 3' };
-    const classColors = { view1: '#2ec4a2', view2: '#3daae8', view3: '#9b59b6' };
+    const store = { view1: {}, view2: {}, view3: {}, view4: {} };
+    const classNames = { view1: 'View Doc 1', view2: 'View Doc 2', view3: 'View Doc 3', view4: 'View Doc 4' };
+    const classColors = { view1: '#2ec4a2', view2: '#3daae8', view3: '#9b59b6', view4: '#e85577' };
+    const classBadgeIds = { view1: 'badge1', view2: 'badge2', view3: 'badge3', view4: 'badge4' };
 
     function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 9); }
-    function getImgSrc(docOrExtra) { return docOrExtra.imageUrl || docOrExtra.imageBase64 || ''; }
+    function getImgSrc(d) { return d.imageUrl || d.imageBase64 || ''; }
 
-    // ================= CLOUDINARY & FIREBASE LOGIC =================
-    function saveStoreLocal() { try { localStorage.setItem('docHubStore', JSON.stringify(store)); } catch(e) { showToast('Local Storage full!', 'fa-solid fa-triangle-exclamation') }}
-    function loadStoreLocal() { try { const s = localStorage.getItem('docHubStore'); if(s){ const p = JSON.parse(s); ['view1','view2','view3'].forEach(cls => { if(p[cls]) store[cls] = p[cls]; }); } } catch(e) {} }
-
+    function saveStoreLocal() { try { localStorage.setItem('docHubStore', JSON.stringify(store)); } catch(e) { showToast('Storage full!', 'fa-solid fa-triangle-exclamation') }}
+    function loadStoreLocal() { try { const s = localStorage.getItem('docHubStore'); if(s){ const p = JSON.parse(s); Object.keys(store).forEach(cls => { if(p[cls]) store[cls] = p[cls]; }); } } catch(e) {} }
     function getSyncQueue() { return JSON.parse(localStorage.getItem('syncQueue') || '[]'); }
     function addSyncTask(task) { const q = getSyncQueue(); q.push(task); localStorage.setItem('syncQueue', JSON.stringify(q)); }
 
-    async function uploadToCloudinary(base64Data) {
-      const blob = await fetch(base64Data).then(r => r.blob());
-      const formData = new FormData();
-      formData.append('file', blob);
-      formData.append('upload_preset', UPLOAD_PRESET);
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: formData });
-      const data = await res.json();
-      return data.secure_url;
-    }
-
-    async function saveDocFirebase(docId, cls, docData) {
-      const cleanData = { ...docData, class: cls };
-      delete cleanData.imageBase64; 
-      if (cleanData.extras) { cleanData.extras = {}; Object.keys(docData.extras || {}).forEach(eid => { cleanData.extras[eid] = { ...docData.extras[eid] }; delete cleanData.extras[eid].imageBase64; }); }
-      await db.ref(`documents/${docId}`).set(cleanData);
-    }
-
+    async function uploadToCloudinary(base64Data) { const blob = await fetch(base64Data).then(r => r.blob()); const formData = new FormData(); formData.append('file', blob); formData.append('upload_preset', UPLOAD_PRESET); const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: formData }); const data = await res.json(); return data.secure_url; }
+    async function saveDocFirebase(docId, cls, docData) { const c = { ...docData, class: cls }; delete c.imageBase64; if (c.extras) { c.extras = {}; Object.keys(docData.extras || {}).forEach(eid => { c.extras[eid] = { ...docData.extras[eid] }; delete c.extras[eid].imageBase64; }); } await db.ref(`documents/${docId}`).set(c); }
     async function deleteDocFirebase(docId) { await db.ref(`documents/${docId}`).remove(); }
     async function deleteExtraFirebase(docId, extraId) { await db.ref(`documents/${docId}/extras/${extraId}`).remove(); }
 
-    async function processQueue() {
-      if (!navigator.onLine) return;
-      const q = getSyncQueue();
-      if (q.length === 0) return;
-      const newQueue = [];
-      for (const task of q) {
-        try {
-          if (task.type === 'save') {
-            const doc = store[task.cls][task.docId];
-            if (!doc) continue;
-            if (doc.imageBase64 && !doc.imageUrl) { doc.imageUrl = await uploadToCloudinary(doc.imageBase64); delete doc.imageBase64; }
-            for (let eid in doc.extras) { if (doc.extras[eid].imageBase64 && !doc.extras[eid].imageUrl) { doc.extras[eid].imageUrl = await uploadToCloudinary(doc.extras[eid].imageBase64); delete doc.extras[eid].imageBase64; }}
-            await saveDocFirebase(task.docId, task.cls, doc);
-            saveStoreLocal(); 
-          } else if (task.type === 'delete') { await deleteDocFirebase(task.docId); } 
-          else if (task.type === 'deleteExtra') { await deleteExtraFirebase(task.docId, task.extraId); }
-        } catch (e) { console.error("Sync failed", e); newQueue.push(task); }
-      }
-      localStorage.setItem('syncQueue', JSON.stringify(newQueue));
-    }
-
+    async function processQueue() { if (!navigator.onLine) return; const q = getSyncQueue(); if (!q.length) return; const nq = []; for (const t of q) { try { if (t.type === 'save') { const doc = store[t.cls]?.[t.docId]; if (!doc) continue; if (doc.imageBase64 && !doc.imageUrl) { doc.imageUrl = await uploadToCloudinary(doc.imageBase64); delete doc.imageBase64; } for (let eid in doc.extras) { if (doc.extras[eid].imageBase64 && !doc.extras[eid].imageUrl) { doc.extras[eid].imageUrl = await uploadToCloudinary(doc.extras[eid].imageBase64); delete doc.extras[eid].imageBase64; } } await saveDocFirebase(t.docId, t.cls, doc); saveStoreLocal(); } else if (t.type === 'delete') { await deleteDocFirebase(t.docId); } else if (t.type === 'deleteExtra') { await deleteExtraFirebase(t.docId, t.extraId); } } catch (e) { nq.push(t); } } localStorage.setItem('syncQueue', JSON.stringify(nq)); }
     window.addEventListener('online', () => { showToast('Back online. Syncing...', 'fa-solid fa-wifi'); processQueue(); });
+    async function loadStoreFirebase() { try { const snap = await db.ref('documents').once('value'); if (snap.exists()) { const data = snap.val(); Object.keys(store).forEach(cls => store[cls] = {}); Object.keys(data).forEach(docId => { const d = data[docId]; if (store[d.class]) { store[d.class][docId] = { ...d, id: docId }; if (!store[d.class][docId].extras) store[d.class][docId].extras = {}; } }); saveStoreLocal(); } } catch(e) {} }
 
-    async function loadStoreFirebase() {
-      try {
-        const snap = await db.ref('documents').once('value');
-        if (snap.exists()) {
-          const data = snap.val();
-          ['view1', 'view2', 'view3'].forEach(cls => store[cls] = {});
-          Object.keys(data).forEach(docId => { const d = data[docId]; if (store[d.class]) { store[d.class][docId] = { ...d, id: docId }; if (!store[d.class][docId].extras) store[d.class][docId].extras = {}; }});
-          saveStoreLocal();
-        }
-      } catch(e) { console.error("Firebase load failed", e); }
-    }
-
-    // ================= UI LOGIC =================
     (function(){const c=document.getElementById('particles');for(let i=0;i<30;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.top=(80+Math.random()*40)+'%';p.style.width=p.style.height=(1.5+Math.random()*2.5)+'px';p.style.animationDuration=(6+Math.random()*10)+'s';p.style.animationDelay=(Math.random()*8)+'s';const cols=['#e8553d','#2ec4a2','#d4a03c','#3daae8','#9b59b6','#f0ece4'];p.style.background=cols[Math.floor(Math.random()*cols.length)];c.appendChild(p)}})();
     function showToast(m,ic){const t=document.getElementById('toast');t.innerHTML=`<i class="${ic}"></i> ${m}`;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2500)}
     function createRipple(e,btn){const r=document.createElement('span');r.className='ripple';const rect=btn.getBoundingClientRect();const sz=Math.max(rect.width,rect.height);r.style.width=r.style.height=sz+'px';r.style.left=(e.clientX-rect.left-sz/2)+'px';r.style.top=(e.clientY-rect.top-sz/2)+'px';btn.appendChild(r);r.addEventListener('animationend',()=>r.remove())}
     const OUTRO_DURATION=280;
     function openOvl(id){const el=document.getElementById(id);el.classList.remove('closing');el.classList.add('active')}
     function closeOvl(id,cb){const el=document.getElementById(id);el.classList.add('closing');setTimeout(()=>{el.classList.remove('active','closing');if(cb)cb()},OUTRO_DURATION)}
-    function updateBadges(){['view1','view2','view3'].forEach((cls,i)=>{const bId=i===0?'badge1':i===1?'badge2':'badge4';const b=document.getElementById(bId);b.textContent=Object.keys(store[cls]).length;b.classList.toggle('show',Object.keys(store[cls]).length>0)})}
+    function updateBadges(){Object.keys(store).forEach(cls=>{const b=document.getElementById(classBadgeIds[cls]);if(b){b.textContent=Object.keys(store[cls]).length;b.classList.toggle('show',Object.keys(store[cls]).length>0)}})}
 
     let currentTableCls=null,selectMode=false,selectedRows=new Set();
-    ['view1','view2','view3'].forEach((cls,i)=>{document.getElementById('btnView'+(i+1)).addEventListener('click',function(e){createRipple(e,this);openDocTable(cls)})});
+    Object.keys(store).forEach((cls,i)=>{const btn=document.getElementById('btnView'+(i+1));if(btn)btn.addEventListener('click',function(e){createRipple(e,this);openDocTable(cls)})});
     function openDocTable(cls){currentTableCls=cls;selectMode=false;selectedRows.clear();resetSearch();renderTable();openOvl('tableOverlay')}
     function getSortedDocs(cls){return Object.values(store[cls]).sort((a,b)=>a.name.localeCompare(b.name))}
 
@@ -400,40 +358,28 @@
       document.getElementById('tableTitle').classList.toggle('hidden',selectMode);
       document.getElementById('selectBar').classList.toggle('visible',selectMode);
       const countIcon=document.getElementById('tableCountIcon');countIcon.textContent=Object.keys(store[currentTableCls]).length;countIcon.style.background=classColors[currentTableCls];
-      if(!docs.length){tbody.innerHTML=`<tr><td colspan="3"><div class="doc-hint"><i class="fa-solid fa-inbox"></i>No documents saved yet.<br>Use Add Doc to save here.</div></td></tr>`;return}
-      docs.forEach((doc,idx)=>{
-        const tr=document.createElement('tr');tr.dataset.docId=doc.id;
-        const isSel=selectedRows.has(doc.id);if(isSel)tr.classList.add('row-selected');
-        const tdCheck=document.createElement('td');tdCheck.className='cell-check';tdCheck.innerHTML=`<i class="fa-solid fa-circle-check ${isSel?'checked':''}"></i>`;
-        tdCheck.addEventListener('click',(e)=>{e.stopPropagation();if(selectMode)toggleRowAnimated(doc.id)});
-        tr.appendChild(tdCheck);
-        const tdIdx=document.createElement('td');tdIdx.className='doc-index';tdIdx.textContent=idx+1;tr.appendChild(tdIdx);
-        const tdName=document.createElement('td');tdName.innerHTML=`<div class="name-cell"><span class="doc-name-text">${doc.name}</span><button class="view-icon-btn" title="View image"><i class="fa-solid fa-eye"></i></button></div>`;
-        tdName.querySelector('.view-icon-btn').addEventListener('click',(e)=>{e.stopPropagation();openImageDetail(currentTableCls,doc.id)});
-        tr.appendChild(tdName);
-        tr.addEventListener('click',()=>{if(selectMode)toggleRowAnimated(doc.id)});
-        tr.addEventListener('dblclick',()=>{if(!selectMode){selectMode=true;resetSearch();selectedRows.add(doc.id);renderTable()}});
-        tbody.appendChild(tr)});
+      if(!docs.length){tbody.innerHTML=`<tr><td colspan="3"><div class="doc-hint"><i class="fa-solid fa-inbox"></i>No documents yet.</div></td></tr>`;return}
+      docs.forEach((doc,idx)=>{const tr=document.createElement('tr');tr.dataset.docId=doc.id;const isSel=selectedRows.has(doc.id);if(isSel)tr.classList.add('row-selected');const tdC=document.createElement('td');tdC.className='cell-check';tdC.innerHTML=`<i class="fa-solid fa-circle-check ${isSel?'checked':''}"></i>`;tdC.addEventListener('click',e=>{e.stopPropagation();if(selectMode)toggleRowAnimated(doc.id)});tr.appendChild(tdC);const tdI=document.createElement('td');tdI.className='doc-index';tdI.textContent=idx+1;tr.appendChild(tdI);const tdN=document.createElement('td');tdN.innerHTML=`<div class="name-cell"><span class="doc-name-text">${doc.name}</span><button class="view-icon-btn"><i class="fa-solid fa-eye"></i></button></div>`;tdN.querySelector('.view-icon-btn').addEventListener('click',e=>{e.stopPropagation();openImageDetail(currentTableCls,doc.id)});tr.appendChild(tdN);tr.addEventListener('click',()=>{if(selectMode)toggleRowAnimated(doc.id)});tr.addEventListener('dblclick',()=>{if(!selectMode){selectMode=true;resetSearch();selectedRows.add(doc.id);renderTable()}});tbody.appendChild(tr)});
       updateSelectUI();const si=document.getElementById('searchInput');if(si.value.trim())filterTable(si.value);
     }
-
     function toggleRowAnimated(docId){const tr=document.querySelector(`#tableBody tr[data-doc-id="${docId}"]`);if(!tr)return;const ci=tr.querySelector('.cell-check i');if(selectedRows.has(docId)){selectedRows.delete(docId);tr.classList.remove('row-selected');ci.classList.remove('checked','check-anim')}else{selectedRows.add(docId);tr.classList.add('row-selected');ci.classList.remove('check-anim');void ci.offsetWidth;ci.classList.add('checked','check-anim')}updateSelectUI()}
-    function updateSelectUI(){const cnt=selectedRows.size;document.getElementById('selectCount').textContent=cnt;document.getElementById('moveBtn').disabled=cnt===0;const docs=getSortedDocs(currentTableCls);const allSel=docs.length>0&&selectedRows.size===docs.length;document.getElementById('selectAllBtn').innerHTML=allSel?'<i class="fa-solid fa-xmark"></i> Deselect All':'<i class="fa-solid fa-check-double"></i> Select All'}
+    function updateSelectUI(){const cnt=selectedRows.size;document.getElementById('selectCount').textContent=cnt;document.getElementById('moveBtn').disabled=cnt===0;document.getElementById('deleteSelBtn').disabled=cnt===0;const docs=getSortedDocs(currentTableCls);const allSel=docs.length>0&&selectedRows.size===docs.length;document.getElementById('selectAllBtn').innerHTML=allSel?'<i class="fa-solid fa-xmark"></i> None':'<i class="fa-solid fa-check-double"></i> All'}
 
     document.getElementById('selectAllBtn').addEventListener('click',()=>{const docs=getSortedDocs(currentTableCls);if(selectedRows.size===docs.length){selectedRows.clear()}else{docs.forEach(d=>selectedRows.add(d.id))}renderTable()});
     document.getElementById('exitSelectBtn').addEventListener('click',()=>{selectMode=false;selectedRows.clear();resetSearch();renderTable()});
     document.getElementById('tableCloseBtn').addEventListener('click',()=>closeOvl('tableOverlay',()=>{selectMode=false;selectedRows.clear();resetSearch()}));
     document.getElementById('tableOverlay').querySelector('.overlay-bg').addEventListener('click',()=>closeOvl('tableOverlay',()=>{selectMode=false;selectedRows.clear();resetSearch()}));
-
-    document.getElementById('searchIconBtn').addEventListener('click',function(){document.getElementById('tableTitle').classList.add('search-active');document.getElementById('searchInput').focus()});
-    document.getElementById('searchClearBtn').addEventListener('click',function(){resetSearch();filterTable('')});
+    document.getElementById('searchIconBtn').addEventListener('click',()=>{document.getElementById('tableTitle').classList.add('search-active');document.getElementById('searchInput').focus()});
+    document.getElementById('searchClearBtn').addEventListener('click',()=>{resetSearch();filterTable('')});
     document.getElementById('searchInput').addEventListener('input',function(){filterTable(this.value)});
-    document.getElementById('searchInput').addEventListener('keydown',function(e){if(e.key==='Escape'){resetSearch();filterTable('')}});
+    document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Escape'){resetSearch();filterTable('')}});
     function resetSearch(){document.getElementById('searchInput').value='';document.getElementById('tableTitle').classList.remove('search-active')}
-    function filterTable(term){const tbody=document.getElementById('tableBody');const rows=tbody.querySelectorAll('tr[data-doc-id]');const lt=term.toLowerCase().trim();let vis=0;rows.forEach(row=>{const ne=row.querySelector('.doc-name-text');if(!ne){row.style.display='';return}if(!lt){row.style.display='';vis++;return}const n=ne.textContent.toLowerCase();if(n.startsWith(lt)){row.style.display='';vis++}else{row.style.display='none'}});let nr=tbody.querySelector('.search-no-result');if(vis===0&&lt){if(!nr){nr=document.createElement('tr');nr.className='search-no-result';nr.innerHTML=`<td colspan="3"><div style="text-align:center;padding:24px;color:var(--muted)"><i class="fa-solid fa-magnifying-glass" style="font-size:1.6rem;opacity:.4;display:block;margin-bottom:8px"></i>No results</div></td>`;tbody.appendChild(nr)}}else if(nr){nr.remove()}}
+    function filterTable(term){const tbody=document.getElementById('tableBody');const rows=tbody.querySelectorAll('tr[data-doc-id]');const lt=term.toLowerCase().trim();let vis=0;rows.forEach(row=>{const ne=row.querySelector('.doc-name-text');if(!ne){row.style.display='';return}if(!lt){row.style.display='';vis++;return}if(ne.textContent.toLowerCase().startsWith(lt)){row.style.display='';vis++}else{row.style.display='none'}});let nr=tbody.querySelector('.search-no-result');if(vis===0&&lt){if(!nr){nr=document.createElement('tr');nr.className='search-no-result';nr.innerHTML=`<td colspan="3"><div style="text-align:center;padding:24px;color:var(--muted)"><i class="fa-solid fa-magnifying-glass" style="font-size:1.6rem;opacity:.4;display:block;margin-bottom:8px"></i>No results</div></td>`;tbody.appendChild(nr)}}else if(nr){nr.remove()}}
+
+    document.getElementById('deleteSelBtn').addEventListener('click',()=>{if(!selectedRows.size)return;deleteTarget={type:'bulk',items:Array.from(selectedRows)};document.getElementById('deleteConfirmMsg').textContent=`Delete ${selectedRows.size} selected file${selectedRows.size>1?'s':''}?`;openOvl('deleteConfirmOverlay')});
 
     let moveDestination=null;
-    document.getElementById('moveBtn').addEventListener('click',()=>{if(!selectedRows.size)return;const optBox=document.getElementById('moveOptions');optBox.innerHTML='';['view1','view2','view3'].forEach(cls=>{if(cls===currentTableCls)return;const btn=document.createElement('button');btn.className='move-opt-btn';btn.innerHTML=`<span class="move-dot" style="background:${classColors[cls]}"></span><span style="color:${classColors[cls]};font-weight:600">${classNames[cls]}</span>`;btn.addEventListener('click',()=>{moveDestination=cls;closeOvl('moveOverlay',()=>openConfirm())});optBox.appendChild(btn)});openOvl('moveOverlay')});
+    document.getElementById('moveBtn').addEventListener('click',()=>{if(!selectedRows.size)return;const optBox=document.getElementById('moveOptions');optBox.innerHTML='';Object.keys(store).forEach(cls=>{if(cls===currentTableCls)return;const btn=document.createElement('button');btn.className='move-opt-btn';btn.innerHTML=`<span class="move-dot" style="background:${classColors[cls]}"></span><span style="color:${classColors[cls]};font-weight:600">${classNames[cls]}</span>`;btn.addEventListener('click',()=>{moveDestination=cls;closeOvl('moveOverlay',()=>openConfirm())});optBox.appendChild(btn)});openOvl('moveOverlay')});
     document.querySelector('#moveOverlay .overlay-bg').addEventListener('click',()=>closeOvl('moveOverlay'));
     function openConfirm(){const cnt=selectedRows.size;document.getElementById('confirmMsg').textContent=`Move ${cnt} file${cnt>1?'s':''} to ${classNames[moveDestination]}?`;openOvl('confirmOverlay')}
     document.getElementById('confirmNo').addEventListener('click',()=>closeOvl('confirmOverlay',()=>{moveDestination=null}));
@@ -448,7 +394,9 @@
     let currentDetailCls=null,currentDetailDocId=null;
     function openImageDetail(cls,docId){const doc=store[cls][docId];if(!doc)return;currentDetailCls=cls;currentDetailDocId=docId;renderDetailImages();openOvl('detailOverlay')}
     function renderDetailImages(){const doc=store[currentDetailCls][currentDetailDocId];if(!doc)return;const container=document.getElementById('detailImages');container.innerHTML='';const extrasArr=Object.entries(doc.extras||{});if(extrasArr.length){extrasArr.reverse().forEach(([eid,extra],ri)=>{const item=document.createElement('div');item.className='detail-img-item';item.innerHTML=`<img src="${getImgSrc(extra)}" alt="${extra.name}" style="animation-delay:${ri*0.08}s"><p class="detail-img-name">${extra.name}</p><div class="img-actions"><button class="delete-btn" data-type="extra" data-eid="${eid}"><i class="fa-solid fa-trash-can"></i> Delete</button><button class="download-btn" data-type="extra" data-eid="${eid}"><i class="fa-solid fa-download"></i> Download</button></div>`;item.querySelector('.download-btn').addEventListener('click',function(){downloadImage(extra.name,getImgSrc(extra))});item.querySelector('.delete-btn').addEventListener('click',function(){requestDelete('extra',eid,extra.name)});container.appendChild(item);if(ri===extrasArr.length-1){const div=document.createElement('div');div.className='img-divider';container.appendChild(div)}})}const orig=document.createElement('div');orig.className='detail-img-item';orig.innerHTML=`<img src="${getImgSrc(doc)}" alt="${doc.name}" style="animation-delay:${(extrasArr.length)*0.08+0.08}s"><p class="detail-img-name">${doc.name}</p><div class="img-actions"><button class="delete-btn" data-type="original"><i class="fa-solid fa-trash-can"></i> Delete</button><button class="download-btn" data-type="original"><i class="fa-solid fa-download"></i> Download</button></div>`;orig.querySelector('.download-btn').addEventListener('click',function(){downloadImage(doc.name,getImgSrc(doc))});orig.querySelector('.delete-btn').addEventListener('click',function(){requestDelete('original',null,doc.name)});container.appendChild(orig)}
-    function downloadImage(name,url){const a=document.createElement('a');a.href=url;a.download=name+'.png';a.target='_blank';document.body.appendChild(a);a.click();document.body.removeChild(a);showToast(`Downloading "${name}"`,'fa-solid fa-download')}
+    
+    function downloadImage(name, url) { fetch(url, { mode: 'cors' }).then(r => r.blob()).then(blob => { const bUrl = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = bUrl; a.download = name + '.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(bUrl); showToast(`Downloading "${name}"`, 'fa-solid fa-download'); }).catch(() => { window.open(url, '_blank'); showToast(`Opening "${name}"`, 'fa-solid fa-arrow-up-right-from-square'); }); }
+
     document.getElementById('detailCloseBtn').addEventListener('click',()=>closeOvl('detailOverlay'));document.getElementById('detailOverlay').querySelector('.overlay-bg').addEventListener('click',()=>closeOvl('detailOverlay'));
 
     let addImgBase64=null;
@@ -459,17 +407,9 @@
     document.getElementById('addImgCamBtn').addEventListener('click',()=>{closeOvl('addImgOverlay',()=>{startCamera('addImg')})});
     document.getElementById('addImgNextBtn').addEventListener('click',()=>{showAddImgStep(3);checkAddImgSave()});
     document.getElementById('addImgNameInput').addEventListener('input',checkAddImgSave);
-    function checkAddImgSave(){const name=document.getElementById('addImgNameInput').value.trim();document.getElementById('addImgSaveBtn').disabled=!name}
+    function checkAddImgSave(){document.getElementById('addImgSaveBtn').disabled=!document.getElementById('addImgNameInput').value.trim()}
 
-    document.getElementById('addImgSaveBtn').addEventListener('click',async ()=>{
-      const name=document.getElementById('addImgNameInput').value.trim();if(!name){document.getElementById('addImgNameError').textContent='Name is required';return}
-      const doc=store[currentDetailCls][currentDetailDocId];if(!doc)return;
-      const btn=document.getElementById('addImgSaveBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Uploading...';
-      const eid=genId();const extraData={name,imageBase64:addImgBase64,imageUrl:''};doc.extras[eid]=extraData;
-      if(navigator.onLine){try{extraData.imageUrl=await uploadToCloudinary(addImgBase64);delete extraData.imageBase64;await saveDocFirebase(currentDetailDocId,currentDetailCls,doc);}catch(e){addSyncTask({type:'save',docId:currentDetailDocId,cls:currentDetailCls});}}else{addSyncTask({type:'save',docId:currentDetailDocId,cls:currentDetailCls});}
-      saveStoreLocal();addImgBase64=null;btn.innerHTML='<i class="fa-solid fa-check"></i> Save Image';btn.disabled=false;
-      closeOvl('addImgOverlay',()=>{renderDetailImages();showToast('Image added','fa-solid fa-check-circle')});
-    });
+    document.getElementById('addImgSaveBtn').addEventListener('click',async ()=>{const name=document.getElementById('addImgNameInput').value.trim();if(!name){document.getElementById('addImgNameError').textContent='Name required';return}const doc=store[currentDetailCls][currentDetailDocId];if(!doc)return;const btn=document.getElementById('addImgSaveBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Uploading...';const eid=genId();const extraData={name,imageBase64:addImgBase64,imageUrl:''};doc.extras[eid]=extraData;if(navigator.onLine){try{extraData.imageUrl=await uploadToCloudinary(addImgBase64);delete extraData.imageBase64;await saveDocFirebase(currentDetailDocId,currentDetailCls,doc);}catch(e){addSyncTask({type:'save',docId:currentDetailDocId,cls:currentDetailCls});}}else{addSyncTask({type:'save',docId:currentDetailDocId,cls:currentDetailCls});}saveStoreLocal();addImgBase64=null;btn.innerHTML='<i class="fa-solid fa-check"></i> Save Image';btn.disabled=false;closeOvl('addImgOverlay',()=>{renderDetailImages();showToast('Image added','fa-solid fa-check-circle')})});
     document.getElementById('addImgCancelBtn').addEventListener('click',()=>closeOvl('addImgOverlay'));document.querySelector('#addImgOverlay .overlay-bg').addEventListener('click',()=>closeOvl('addImgOverlay'));
 
     let deleteTarget=null;
@@ -481,9 +421,15 @@
     document.getElementById('deletePwCancel').addEventListener('click',()=>closeOvl('deletePwOverlay',()=>{deleteTarget=null}));
     document.querySelector('#deletePwOverlay .overlay-bg').addEventListener('click',()=>closeOvl('deletePwOverlay',()=>{deleteTarget=null}));
     document.getElementById('deletePwSubmit').addEventListener('click',submitDeletePw);document.getElementById('deletePwInput').addEventListener('keydown',e=>{if(e.key==='Enter')submitDeletePw()});
-    async function submitDeletePw(){if(document.getElementById('deletePwInput').value==='0000'){const doc=store[currentDetailCls][currentDetailDocId];if(!doc){closeOvl('deletePwOverlay');return}if(deleteTarget.type==='extra'){delete doc.extras[deleteTarget.eid];saveStoreLocal();if(navigator.onLine){await deleteExtraFirebase(currentDetailDocId,deleteTarget.eid)}else{addSyncTask({type:'deleteExtra',docId:currentDetailDocId,extraId:deleteTarget.eid});addSyncTask({type:'save',docId:currentDetailDocId,cls:currentDetailCls});}closeOvl('deletePwOverlay',()=>{renderDetailImages();showToast('Image deleted','fa-solid fa-trash-can');deleteTarget=null})}else{delete store[currentDetailCls][currentDetailDocId];saveStoreLocal();if(navigator.onLine){await deleteDocFirebase(currentDetailDocId)}else{addSyncTask({type:'delete',docId:currentDetailDocId});}closeOvl('deletePwOverlay',()=>{closeOvl('detailOverlay',()=>{saveStoreLocal();updateBadges();renderTable();showToast('Document deleted','fa-solid fa-trash-can');deleteTarget=null})})}}else{document.getElementById('deletePwError').textContent='Incorrect password';document.getElementById('deletePwInput').value='';document.getElementById('deletePwInput').focus()}}
+    
+    async function submitDeletePw(){
+      if(document.getElementById('deletePwInput').value==='0000'){
+        if(deleteTarget.type==='bulk'){deleteTarget.items.forEach(docId=>{delete store[currentTableCls][docId];if(navigator.onLine)deleteDocFirebase(docId);else addSyncTask({type:'delete',docId})});saveStoreLocal();closeOvl('deletePwOverlay',()=>{selectMode=false;selectedRows.clear();deleteTarget=null;updateBadges();renderTable();showToast('Documents deleted','fa-solid fa-trash-can')})}
+        else{const doc=store[currentDetailCls][currentDetailDocId];if(!doc){closeOvl('deletePwOverlay');return}if(deleteTarget.type==='extra'){delete doc.extras[deleteTarget.eid];saveStoreLocal();if(navigator.onLine)await deleteExtraFirebase(currentDetailDocId,deleteTarget.eid);else{addSyncTask({type:'deleteExtra',docId:currentDetailDocId,extraId:deleteTarget.eid});addSyncTask({type:'save',docId:currentDetailDocId,cls:currentDetailCls});}closeOvl('deletePwOverlay',()=>{renderDetailImages();showToast('Image deleted','fa-solid fa-trash-can');deleteTarget=null})}else{delete store[currentDetailCls][currentDetailDocId];saveStoreLocal();if(navigator.onLine)await deleteDocFirebase(currentDetailDocId);else addSyncTask({type:'delete',docId:currentDetailDocId});closeOvl('deletePwOverlay',()=>{closeOvl('detailOverlay',()=>{updateBadges();renderTable();showToast('Document deleted','fa-solid fa-trash-can');deleteTarget=null})})}}
+      }else{document.getElementById('deletePwError').textContent='Incorrect password';document.getElementById('deletePwInput').value='';document.getElementById('deletePwInput').focus()}
+    }
 
-    const btnAdd2=document.getElementById('btnAdd2');const subChoice=document.getElementById('subChoice');const backBtn=document.getElementById('backBtn');
+    const btnAdd2=document.getElementById('btnAdd2'),subChoice=document.getElementById('subChoice'),backBtn=document.getElementById('backBtn');
     btnAdd2.addEventListener('click',function(e){createRipple(e,this);btnAdd2.classList.add('hidden-btn');subChoice.classList.add('visible')});
     backBtn.addEventListener('click',()=>{btnAdd2.classList.remove('hidden-btn');subChoice.classList.remove('visible')});
     document.getElementById('chooseFileBtn').addEventListener('click',()=>{document.getElementById('fileInput').click()});
@@ -491,47 +437,22 @@
     document.getElementById('fileInput').addEventListener('change',function(){if(this.files&&this.files[0]){const file=this.files[0];const reader=new FileReader();reader.onload=function(e){pendingImageBase64=e.target.result;document.getElementById('previewImg').src=pendingImageBase64;document.getElementById('previewLabel').textContent=file.name;openOvl('previewOverlay')};reader.readAsDataURL(file);this.value=''}});
 
     let cameraMode=null,cameraStream=null;
-    function startCamera(mode){cameraMode=mode;const overlay=document.getElementById('cameraOverlay');const video=document.getElementById('cameraVideo');overlay.classList.add('active');navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(stream=>{cameraStream=stream;video.srcObject=stream}).catch(err=>{showToast('Camera access denied','fa-solid fa-triangle-exclamation');overlay.classList.remove('active')})}
-    function stopCamera(){const overlay=document.getElementById('cameraOverlay');const video=document.getElementById('cameraVideo');if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}video.srcObject=null;overlay.classList.remove('active')}
+    function startCamera(mode){cameraMode=mode;const overlay=document.getElementById('cameraOverlay'),video=document.getElementById('cameraVideo');overlay.classList.add('active');navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(stream=>{cameraStream=stream;video.srcObject=stream}).catch(()=>{showToast('Camera denied','fa-solid fa-triangle-exclamation');overlay.classList.remove('active')})}
+    function stopCamera(){const o=document.getElementById('cameraOverlay'),v=document.getElementById('cameraVideo');if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}v.srcObject=null;o.classList.remove('active')}
     document.getElementById('cameraShotBtn').addEventListener('click',()=>startCamera('addDoc'));document.getElementById('closeCamBtn').addEventListener('click',()=>stopCamera());
-    document.getElementById('captureBtn').addEventListener('click',()=>{const video=document.getElementById('cameraVideo');const canvas=document.getElementById('captureCanvas');canvas.width=video.videoWidth;canvas.height=video.videoHeight;canvas.getContext('2d').drawImage(video,0,0);const data=canvas.toDataURL('image/png');const flash=document.getElementById('flash');flash.classList.add('fire');setTimeout(()=>flash.classList.remove('fire'),500);stopCamera();if(cameraMode==='addDoc'){pendingImageBase64=data;document.getElementById('previewImg').src=data;document.getElementById('previewLabel').textContent='Camera capture';btnAdd2.classList.remove('hidden-btn');subChoice.classList.remove('visible');openOvl('previewOverlay')}else if(cameraMode==='addImg'){addImgBase64=data;document.getElementById('addImgPreview').src=data;document.getElementById('addImgThumb').src=data;document.getElementById('addImgNameInput').value='Camera capture';showAddImgStep(2);openOvl('addImgOverlay')}});
+    document.getElementById('captureBtn').addEventListener('click',()=>{const video=document.getElementById('cameraVideo'),canvas=document.getElementById('captureCanvas');canvas.width=video.videoWidth;canvas.height=video.videoHeight;canvas.getContext('2d').drawImage(video,0,0);const data=canvas.toDataURL('image/png');document.getElementById('flash').classList.add('fire');setTimeout(()=>document.getElementById('flash').classList.remove('fire'),500);stopCamera();if(cameraMode==='addDoc'){pendingImageBase64=data;document.getElementById('previewImg').src=data;document.getElementById('previewLabel').textContent='Camera capture';btnAdd2.classList.remove('hidden-btn');subChoice.classList.remove('visible');openOvl('previewOverlay')}else if(cameraMode==='addImg'){addImgBase64=data;document.getElementById('addImgPreview').src=data;document.getElementById('addImgThumb').src=data;document.getElementById('addImgNameInput').value='Camera capture';showAddImgStep(2);openOvl('addImgOverlay')}});
 
     document.getElementById('previewCloseBtn').addEventListener('click',()=>closeOvl('previewOverlay',()=>{btnAdd2.classList.remove('hidden-btn');subChoice.classList.remove('visible')}));
     document.getElementById('previewNextBtn').addEventListener('click',()=>{closeOvl('previewOverlay',()=>{btnAdd2.classList.remove('hidden-btn');subChoice.classList.remove('visible');document.getElementById('docNameInput').value='';document.getElementById('nameError').textContent='';document.querySelectorAll('.class-btn').forEach(b=>b.classList.remove('selected'));document.getElementById('finishedBtn').disabled=true;openOvl('saveOverlay');setTimeout(()=>document.getElementById('docNameInput').focus(),300)})});
     document.querySelector('#previewOverlay .overlay-bg').addEventListener('click',()=>closeOvl('previewOverlay',()=>{btnAdd2.classList.remove('hidden-btn');subChoice.classList.remove('visible')}));
 
     document.getElementById('docNameInput').addEventListener('input',()=>{const name=document.getElementById('docNameInput').value.trim();const hasClass=document.querySelector('.class-btn.selected');document.getElementById('finishedBtn').disabled=!(name&&hasClass);document.getElementById('nameError').textContent=''});
-    document.querySelectorAll('.class-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.class-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');const name=document.getElementById('docNameInput').value.trim();document.getElementById('finishedBtn').disabled=!name})});
+    document.querySelectorAll('.class-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.class-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');document.getElementById('finishedBtn').disabled=!document.getElementById('docNameInput').value.trim()})});
 
-    document.getElementById('finishedBtn').addEventListener('click',async ()=>{
-      const btn=document.getElementById('finishedBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Uploading...';
-      const name=document.getElementById('docNameInput').value.trim();
-      if(!name){document.getElementById('nameError').textContent='Name is required';btn.innerHTML='<i class="fa-solid fa-check"></i> Finished';btn.disabled=true;return}
-      const cls=document.querySelector('.class-btn.selected');if(!cls){btn.innerHTML='<i class="fa-solid fa-check"></i> Finished';btn.disabled=false;return}
-      const targetCls=cls.dataset.class;
-      if(Object.values(store[targetCls]).find(d=>d.name===name)){document.getElementById('nameError').textContent='Name already exists';btn.innerHTML='<i class="fa-solid fa-check"></i> Finished';btn.disabled=false;return}
-      
-      const docId=genId();const newDoc={id:docId,name,imageBase64:pendingImageBase64,imageUrl:'',extras:{}};
-
-      if(navigator.onLine){
-        try{
-          newDoc.imageUrl=await uploadToCloudinary(pendingImageBase64); 
-          delete newDoc.imageBase64; 
-          await saveDocFirebase(docId,targetCls,newDoc); 
-        }catch(e){addSyncTask({type:'save',docId,cls:targetCls});}
-      }else{
-        addSyncTask({type:'save',docId,cls:targetCls});
-      }
-
-      store[targetCls][docId]=newDoc;saveStoreLocal();updateBadges();pendingImageBase64=null;
-      btn.innerHTML='<i class="fa-solid fa-check"></i> Finished';btn.disabled=true;
-      closeOvl('saveOverlay',()=>{showToast('Document saved','fa-solid fa-check-circle')});
-    });
+    document.getElementById('finishedBtn').addEventListener('click',async ()=>{const btn=document.getElementById('finishedBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Uploading...';const name=document.getElementById('docNameInput').value.trim();if(!name){document.getElementById('nameError').textContent='Name required';btn.innerHTML='<i class="fa-solid fa-check"></i> Finished';btn.disabled=true;return}const cls=document.querySelector('.class-btn.selected');if(!cls){btn.innerHTML='<i class="fa-solid fa-check"></i> Finished';btn.disabled=false;return}const targetCls=cls.dataset.class;if(Object.values(store[targetCls]).find(d=>d.name===name)){document.getElementById('nameError').textContent='Name exists';btn.innerHTML='<i class="fa-solid fa-check"></i> Finished';btn.disabled=false;return}const docId=genId();const newDoc={id:docId,name,imageBase64:pendingImageBase64,imageUrl:'',extras:{}};if(navigator.onLine){try{newDoc.imageUrl=await uploadToCloudinary(pendingImageBase64);delete newDoc.imageBase64;await saveDocFirebase(docId,targetCls,newDoc);}catch(e){addSyncTask({type:'save',docId,cls:targetCls});}}else{addSyncTask({type:'save',docId,cls:targetCls});}store[targetCls][docId]=newDoc;saveStoreLocal();updateBadges();pendingImageBase64=null;btn.innerHTML='<i class="fa-solid fa-check"></i> Finished';btn.disabled=true;closeOvl('saveOverlay',()=>{showToast('Document saved','fa-solid fa-check-circle')})});
     document.querySelector('#saveOverlay .overlay-bg').addEventListener('click',()=>closeOvl('saveOverlay'));
 
-    // Init
-    loadStoreLocal();updateBadges();
-    if(navigator.onLine) loadStoreFirebase().then(()=>updateBadges());
+    loadStoreLocal();updateBadges();if(navigator.onLine)loadStoreFirebase().then(()=>updateBadges());
   </script>
 </body>
 </html>
