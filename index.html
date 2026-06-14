@@ -289,26 +289,26 @@
   <div class="toast" id="toast"></div>
   <canvas id="captureCanvas" style="display:none"></canvas>
 
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <script>
-    // ================= SETUP =================
+    // ================= YOUR SETUP =================
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY", // <-- PASTE YOURS
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-      projectId: "YOUR_PROJECT",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "YOUR_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyClCHIj3vJ4MGAm3xkwablROflC-SBq6dw",
+      authDomain: "file-holder-f7af0.firebaseapp.com",
+      databaseURL: "https://file-holder-f7af0-default-rtdb.firebaseio.com",
+      projectId: "file-holder-f7af0",
+      storageBucket: "file-holder-f7af0.firebasestorage.app",
+      messagingSenderId: "305572027762",
+      appId: "1:305572027762:web:26100ee227d3de8224d1eb",
+      measurementId: "G-35DVF3QT9R"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const CLOUD_NAME = 'YOUR_CLOUD_NAME'; // <-- PASTE YOURS
-    const UPLOAD_PRESET = 'ml_default'; // <-- PASTE YOURS
+    const CLOUD_NAME = 'duh3hfrtc';
+    const UPLOAD_PRESET = 'pgabpqyo';
 
     // ================= DATA STORE =================
     const store = { view1: {}, view2: {}, view3: {} };
@@ -332,12 +332,12 @@
       formData.append('upload_preset', UPLOAD_PRESET);
       const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: formData });
       const data = await res.json();
-      return data.secure_url; // Returns the link
+      return data.secure_url;
     }
 
     async function saveDocFirebase(docId, cls, docData) {
       const cleanData = { ...docData, class: cls };
-      delete cleanData.imageBase64; // Never save base64 to Firebase
+      delete cleanData.imageBase64; 
       if (cleanData.extras) { cleanData.extras = {}; Object.keys(docData.extras || {}).forEach(eid => { cleanData.extras[eid] = { ...docData.extras[eid] }; delete cleanData.extras[eid].imageBase64; }); }
       await db.ref(`documents/${docId}`).set(cleanData);
     }
@@ -515,9 +515,9 @@
 
       if(navigator.onLine){
         try{
-          newDoc.imageUrl=await uploadToCloudinary(pendingImageBase64); // 1. Upload to Cloudinary -> Get Link
-          delete newDoc.imageBase64; // 2. Remove base64
-          await saveDocFirebase(docId,targetCls,newDoc); // 3. Save Link to Firebase
+          newDoc.imageUrl=await uploadToCloudinary(pendingImageBase64); 
+          delete newDoc.imageBase64; 
+          await saveDocFirebase(docId,targetCls,newDoc); 
         }catch(e){addSyncTask({type:'save',docId,cls:targetCls});}
       }else{
         addSyncTask({type:'save',docId,cls:targetCls});
