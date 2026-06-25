@@ -447,6 +447,16 @@
     async function deleteExtraFirebase(docId, extraId) { await db.ref(`documents/${docId}/extras/${extraId}`).remove(); }
     async function moveDocFirebase(docId, toClass) { await db.ref(`documents/${docId}/class`).set(toClass); }
 
+    function getPendingDocIds() {
+      return new Set(getSyncQueue().map(t => t.docId));
+    }
+
+    function refreshTableIfOpen() {
+      if (document.getElementById('tableOverlay').classList.contains('active') && currentTableCls) {
+        renderTable();
+      }
+    }
+
     async function processQueue() { 
       if (!navigator.onLine) return; 
       const q = getSyncQueue(); 
@@ -501,51 +511,98 @@
       else showToast(nq.length + ' item(s) failed to sync', 'fa-solid fa-triangle-exclamation');
     }
     
-    window.addEventListener('online', () => { showToast('Back online. Syncing...', 'fa-solid fa-wifi'); processQueue(); });
+    window.addEventListener('online', () => {
+      showToast('Back online. Syncing...', 'fa-solid fa-wifi');
+      processQueue();
+    });
     window.addEventListener('offline', () => { showToast('You are offline', 'fa-solid fa-wifi-slash'); });
     
     async function init() {
       loadStoreLocal();
+
+      // Always load latest from Firebase on start
       try { 
         const snap = await db.ref('documents').once('value'); 
         if (snap.exists()) { 
           const data = snap.val(); 
-          if(Object.keys(store.view1).length === 0 && Object.keys(store.view2).length === 0) {
-             Object.keys(store).forEach(cls => store[cls] = {}); 
-             Object.keys(data).forEach(docId => { 
-               const d = data[docId]; 
-               if (store[d.class]) { 
-                 store[d.class][docId] = { ...d, id: docId }; 
-                 if (!store[d.class][docId].extras) store[d.class][docId].extras = {}; 
-               } 
-             }); 
-             saveStoreLocal();
-          }
+          const pendingIds = getPendingDocIds();
+          Object.keys(store).forEach(cls => store[cls] = {});
+          Object.keys(data).forEach(docId => { 
+            const d = data[docId]; 
+            if (store[d.class]) { 
+              store[d.class][docId] = { ...d, id: docId }; 
+              if (!store[d.class][docId].extras) store[d.class][docId].extras = {}; 
+            } 
+          });
+          // Restore any local-only docs that are still in the queue
+          const localData = JSON.parse(localStorage.getItem('docHubStore') || '{}');
+          pendingIds.forEach(pid => {
+            for (const cls of Object.keys(localData)) {
+              if (localData[cls] && localData[cls][pid] && !store[cls][pid]) {
+                store[cls][pid] = localData[cls][pid];
+              }
+            }
+          });
+          saveStoreLocal();
         } 
       } catch(e) {} 
 
-      // Real-time listener: sync from other devices
-      db.ref('documents').on('value', (snap) => {
-        if (!snap.exists()) return;
-        const data = snap.val();
-        let changed = false;
-        Object.keys(store).forEach(cls => store[cls] = {});
-        Object.keys(data).forEach(docId => {
-          const d = data[docId];
-          if (store[d.class]) {
-            store[d.class][docId] = { ...d, id: docId };
-            if (!store[d.class][docId].extras) store[d.class][docId].extras = {};
-            changed = true;
-          }
-        });
-        if (changed) {
+      // --- Real-time listeners for cross-device sync ---
+
+      // New document added (upload from another device)
+      db.ref('documents').on('child_added', (snap) => {
+        const d = snap.val();
+        const docId = snap.key;
+        const pendingIds = getPendingDocIds();
+        // Skip if this is our own pending doc
+        if (pendingIds.has(docId)) return;
+        if (store[d.class] && !store[d.class][docId]) {
+          store[d.class][docId] = { ...d, id: docId };
+          if (!store[d.class][docId].extras) store[d.class][docId].extras = {};
           saveStoreLocal();
-          if (document.getElementById('tableOverlay').classList.contains('active') && currentTableCls) {
-            renderTable();
-          }
+          refreshTableIfOpen();
         }
       });
 
+      // Document changed (move, update from another device)
+      db.ref('documents').on('child_changed', (snap) => {
+        const d = snap.val();
+        const docId = snap.key;
+        const pendingIds = getPendingDocIds();
+        if (pendingIds.has(docId)) return;
+        // Remove from any old class
+        Object.keys(store).forEach(cls => {
+          if (store[cls][docId]) delete store[cls][docId];
+        });
+        // Add to new class
+        if (store[d.class]) {
+          store[d.class][docId] = { ...d, id: docId };
+          if (!store[d.class][docId].extras) store[d.class][docId].extras = {};
+          saveStoreLocal();
+          refreshTableIfOpen();
+        }
+      });
+
+      // Document deleted (delete from another device)
+      db.ref('documents').on('child_removed', (snap) => {
+        const docId = snap.key;
+        const pendingIds = getPendingDocIds();
+        // Don't remove if we have a pending save for this doc
+        if (pendingIds.has(docId)) return;
+        let removed = false;
+        Object.keys(store).forEach(cls => {
+          if (store[cls][docId]) {
+            delete store[cls][docId];
+            removed = true;
+          }
+        });
+        if (removed) {
+          saveStoreLocal();
+          refreshTableIfOpen();
+        }
+      });
+
+      // Process any pending queue on load
       if(navigator.onLine) processQueue();
     }
 
