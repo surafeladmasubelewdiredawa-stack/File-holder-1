@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document Hub</title>
+  <title>የሐመረ-ኖኅ ሰንበት ት/ቤት የተማሪዎች ሰነድ መያዣ ድህረ ገፅ</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
@@ -43,8 +43,7 @@
     .doc-btn .btn-text{display:flex;flex-direction:column;gap:2px;position:relative;z-index:1}
     .doc-btn .btn-text .label{font-size:.95rem;font-weight:600;line-height:1.2}
     .doc-btn .btn-text .sublabel{font-size:.7rem;color:var(--muted);font-weight:400;letter-spacing:.3px}
-    .doc-btn .badge{position:absolute;top:10px;right:10px;min-width:20px;height:20px;border-radius:10px;background:var(--accent);color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px;z-index:2;opacity:0;transform:scale(0);transition:all .3s cubic-bezier(.34,1.56,.64,1)}
-    .doc-btn .badge.show{opacity:1;transform:scale(1)}
+    .doc-btn .badge{display:none !important;}
     .doc-btn.hidden-btn{display:none!important}
     .btn-view1 .icon-wrap{background:linear-gradient(135deg,var(--teal),#1a9e80);color:#fff;box-shadow:0 4px 16px var(--teal-glow)}
     .btn-view1:hover{border-color:var(--teal);box-shadow:0 0 30px var(--teal-glow),0 8px 32px rgba(0,0,0,.3);transform:translateY(-3px)}
@@ -97,15 +96,20 @@
     .flash{position:fixed;inset:0;background:#fff;z-index:110;opacity:0;pointer-events:none}
     .flash.fire{animation:flashAnim .4s ease-out}
     @keyframes flashAnim{0%{opacity:.9}100%{opacity:0}}
-    .preview-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
-    .preview-content img{max-width:80vw;max-height:55vh;border-radius:12px;border:2px solid rgba(255,255,255,.1);box-shadow:0 20px 60px rgba(0,0,0,.5);animation:imgIntro .45s cubic-bezier(.22,1,.36,1) both}
+    .preview-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:90vw}
+    .preview-stage{position:relative;width:100%;display:flex;justify-content:center;min-height:200px}
+    .preview-content img, .preview-content canvas{max-width:80vw;max-height:55vh;border-radius:12px;border:2px solid rgba(255,255,255,.1);box-shadow:0 20px 60px rgba(0,0,0,.5);animation:imgIntro .45s cubic-bezier(.22,1,.36,1) both;object-fit:contain;cursor:crosshair}
     .overlay.closing .preview-content img{animation:imgOutro .25s ease-in both}
     .preview-label{margin-top:16px;color:var(--fg);font-family:'Space Grotesk',sans-serif;font-size:.9rem;opacity:.7}
     .preview-actions{display:flex;gap:12px;margin-top:14px}
-    .preview-btn{padding:10px 24px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:var(--fg);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:8px}
+    .preview-btn{padding:10px 20px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:var(--fg);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:8px}
     .preview-btn:hover{background:rgba(255,255,255,.15)}
+    .preview-btn.edit-btn{border-color:var(--sky);color:var(--sky)}
+    .preview-btn.edit-btn:hover{background:rgba(61,170,232,.15);border-color:var(--sky);color:var(--sky)}
     .preview-btn.next-btn{background:linear-gradient(135deg,var(--gold),#b8882e);border-color:var(--gold);color:#fff}
     .preview-btn.next-btn:hover{box-shadow:0 0 20px var(--gold-glow);transform:translateY(-2px)}
+    .preview-btn.finish-btn{background:linear-gradient(135deg,var(--teal),#1a9e80);border-color:var(--teal);color:#fff}
+    .preview-btn.finish-btn:hover{box-shadow:0 0 20px var(--teal-glow);transform:translateY(-2px)}
     .save-box{width:340px;max-width:90vw;background:rgba(22,22,30,.95);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:28px;backdrop-filter:blur(20px);display:flex;flex-direction:column;gap:20px;max-height:90vh;overflow-y:auto}
     .save-box-title{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--fg);display:flex;align-items:center;gap:10px}
     .save-box-title i{color:var(--gold)}
@@ -174,8 +178,8 @@
     .doc-table tbody tr:last-child td{border-bottom:none}
     .doc-index{color:var(--muted);font-size:.75rem;font-weight:500;width:32px}
     .name-cell{display:flex;align-items:center;gap:10px;width:100%;justify-content:space-between}
-    .doc-name-text{font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;flex-direction:column;line-height:1.2}
-    .doc-user-subtext{font-size:.7rem;color:var(--muted);font-weight:400}
+    .doc-name-text{font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;user-select:text}
+    .user-name-cell{display:flex;align-items:center;min-width:0;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:.8rem}
     .view-icon-btn{width:28px;height:28px;border-radius:7px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:var(--muted);font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
     .view-icon-btn:hover{color:var(--teal);border-color:var(--teal);background:rgba(46,196,162,.08)}
     .col-check,.cell-check{display:none}
@@ -197,9 +201,12 @@
     .detail-images{display:flex;flex-direction:column;gap:20px;overflow-y:auto;flex:1;padding-right:4px}
     .detail-images::-webkit-scrollbar{width:3px}
     .detail-images::-webkit-scrollbar-thumb{background:var(--muted);border-radius:3px}
-    .detail-img-item{display:flex;flex-direction:column;align-items:center;gap:10px;animation:imgIntro .45s cubic-bezier(.22,1,.36,1) both}
+    .detail-img-item{display:flex;flex-direction:column;align-items:center;gap:10px;animation:imgIntro .45s cubic-bezier(.22,1,.36,1) both;position:relative}
+    .detail-img-stage{position:relative;width:100%;display:flex;justify-content:center}
     .detail-img-item img{width:100%;max-height:40vh;object-fit:contain;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.3)}
-    .detail-img-name{font-family:'Space Grotesk',sans-serif;font-size:.85rem;color:var(--fg);font-weight:500;opacity:.8}
+    .detail-img-name-block{font-family:'Space Grotesk',sans-serif;text-align:center;display:flex;flex-direction:column;gap:2px}
+    .detail-img-main-name{font-size:.9rem;color:var(--fg);font-weight:600}
+    .detail-img-user-name{font-size:.75rem;color:var(--muted);font-weight:400}
     .img-actions{display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
     .delete-btn{padding:10px 20px;border-radius:10px;border:1px solid rgba(255,77,77,.3);background:rgba(255,77,77,.08);color:#ff6b6b;font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:7px}
     .delete-btn:hover{background:rgba(255,77,77,.2);border-color:#ff4d4d;box-shadow:0 4px 16px rgba(255,77,77,.2)}
@@ -243,7 +250,20 @@
     .pw-btn:hover{background:rgba(255,255,255,.06)}
     .pw-btn.submit{background:linear-gradient(135deg,var(--gold),#b8882e);border-color:var(--gold);color:#fff}
     .pw-btn.submit:hover{box-shadow:0 4px 16px var(--gold-glow)}
-    .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);padding:14px 28px;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:500;color:var(--fg);background:rgba(30,30,38,.9);backdrop-filter:blur(12px);border:1px solid var(--border);z-index:999;opacity:0;transition:all .4s cubic-bezier(.25,.46,.45,.94);pointer-events:none;white-space:nowrap}
+    .upload-overlay{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center}
+.upload-overlay.active{display:flex}
+.upload-box{background:rgba(20,20,28,.95);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:20px;padding:40px 48px;text-align:center;animation:popIn .35s cubic-bezier(.25,.46,.45,.94)}
+.upload-spinner{position:relative;width:70px;height:70px;margin:0 auto 20px}
+.spinner-ring{position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:var(--accent);animation:spinRing 1.2s cubic-bezier(.5,0,.5,1) infinite}
+.spinner-ring:nth-child(2){inset:8px;border-top-color:var(--teal);animation-duration:1.6s;animation-direction:reverse}
+.spinner-ring:nth-child(3){inset:16px;border-top-color:var(--gold);animation-duration:2s}
+.upload-icon{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:var(--fg);animation:pulseIcon 1.5s ease-in-out infinite}
+@keyframes spinRing{to{transform:rotate(360deg)}}
+@keyframes pulseIcon{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+.upload-text{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:600;color:var(--fg);margin-bottom:4px}
+.upload-sub{font-size:.78rem;color:var(--muted);margin-bottom:10px}
+.upload-offline-note{font-size:.78rem;color:var(--gold);display:flex;align-items:center;gap:6px;justify-content:center;margin-top:8px}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);padding:14px 28px;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:500;color:var(--fg);background:rgba(30,30,38,.9);backdrop-filter:blur(12px);border:1px solid var(--border);z-index:999;opacity:0;transition:all .4s cubic-bezier(.25,.46,.45,.94);pointer-events:none;white-space:nowrap}
     .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
     .toast i{margin-right:8px}
     .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-radius:50%;border-top-color:#fff;animation:spin .8s ease-in-out infinite;margin-right:8px}
@@ -256,12 +276,12 @@
   <div class="bg-layer"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
   <div class="grid-overlay"></div><div class="noise-overlay"></div><div class="particles" id="particles"></div><div class="flash" id="flash"></div>
   <main class="main-container">
-    <section class="title-section"><h1>Your <span>Document</span> Hub</h1><p>View existing files or add new ones to your workspace</p></section>
+    <section class="title-section"><h1>የሐመረ-ኖኅ ሰንበት ት/ቤት የተማሪዎች <span>ሰነድ</span> መያዣ ድህረ ገፅ</h1><p>View existing files or add new ones to your workspace</p></section>
     <div class="btn-grid">
-      <button class="doc-btn btn-view1" id="btnView1"><div class="icon-wrap"><i class="fa-solid fa-file-lines"></i></div><div class="btn-text"><span class="label">View Doc 1</span><span class="sublabel">Browse recent files</span></div><span class="badge" id="badge1">0</span></button>
-      <button class="doc-btn btn-view2" id="btnView2"><div class="icon-wrap"><i class="fa-solid fa-file-magnifying-glass"></i></div><div class="btn-text"><span class="label">View Doc 2</span><span class="sublabel">Search documents</span></div><span class="badge" id="badge2">0</span></button>
-      <button class="doc-btn btn-view3" id="btnView3"><div class="icon-wrap"><i class="fa-solid fa-folder-open"></i></div><div class="btn-text"><span class="label">View Doc 3</span><span class="sublabel">Archived files</span></div><span class="badge" id="badge3">0</span></button>
-      <button class="doc-btn btn-view4" id="btnView4"><div class="icon-wrap"><i class="fa-solid fa-box-archive"></i></div><div class="btn-text"><span class="label">View Doc 4</span><span class="sublabel">Other files</span></div><span class="badge" id="badge4">0</span></button>
+      <button class="doc-btn btn-view1" id="btnView1"><div class="icon-wrap"><i class="fa-solid fa-file-lines"></i></div><div class="btn-text"><span class="label">የህፃናት</span><span class="sublabel">Browse recent files</span></div></button>
+      <button class="doc-btn btn-view2" id="btnView2"><div class="icon-wrap"><i class="fa-solid fa-file-magnifying-glass"></i></div><div class="btn-text"><span class="label">የታዳጊ</span><span class="sublabel">Search documents</span></div></button>
+      <button class="doc-btn btn-view3" id="btnView3"><div class="icon-wrap"><i class="fa-solid fa-folder-open"></i></div><div class="btn-text"><span class="label">የማእከላውያን</span><span class="sublabel">Archived files</span></div></button>
+      <button class="doc-btn btn-view4" id="btnView4"><div class="icon-wrap"><i class="fa-solid fa-box-archive"></i></div><div class="btn-text"><span class="label">የወጣቶች</span><span class="sublabel">Other files</span></div></button>
       <button class="doc-btn btn-add2" id="btnAdd2"><div class="icon-wrap"><i class="fa-solid fa-file-pen"></i></div><div class="btn-text"><span class="label">Add Doc</span><span class="sublabel">Create from template</span></div></button>
       <div class="sub-choice" id="subChoice"><button class="back-btn" id="backBtn"><i class="fa-solid fa-arrow-left"></i> Back</button><div class="sub-choice-row"><button class="sub-btn choose-file" id="chooseFileBtn"><div class="sub-icon"><i class="fa-solid fa-folder-open"></i></div>Choose File</button><button class="sub-btn camera-shot" id="cameraShotBtn"><div class="sub-icon"><i class="fa-solid fa-camera"></i></div>Camera Shot</button></div></div>
     </div>
@@ -270,17 +290,28 @@
   <input type="file" id="addImgFileInput" accept="image/*" style="display:none">
   <div class="camera-overlay" id="cameraOverlay"><video id="cameraVideo" autoplay playsinline></video><div class="camera-controls"><button class="cam-btn close-cam" id="closeCamBtn"><i class="fa-solid fa-xmark"></i></button><button class="cam-btn capture" id="captureBtn"><i class="fa-solid fa-camera"></i></button></div></div>
 
-  <div class="overlay preview-overlay" id="previewOverlay"><div class="overlay-bg"></div><div class="anim-box preview-content"><img id="previewImg" src="" alt="Preview"><p class="preview-label" id="previewLabel">Preview</p><div class="preview-actions"><button class="preview-btn" id="previewCloseBtn"><i class="fa-solid fa-xmark"></i> Close</button><button class="preview-btn next-btn" id="previewNextBtn"><i class="fa-solid fa-arrow-right"></i> Next</button></div></div></div>
+  <div class="overlay preview-overlay" id="previewOverlay">
+    <div class="overlay-bg"></div>
+    <div class="anim-box preview-content">
+      <div class="preview-stage" id="previewStage">
+        <img id="previewImg" src="" alt="Preview">
+      </div>
+      <p class="preview-label" id="previewLabel">Drag to crop area (Edit Mode)</p>
+      <div class="preview-actions">
+        <button class="preview-btn" id="previewCloseBtn"><i class="fa-solid fa-xmark"></i> Close</button>
+        <button class="preview-btn edit-btn" id="previewEditBtn"><i class="fa-solid fa-crop-simple"></i> Edit</button>
+        <button class="preview-btn next-btn" id="previewNextBtn"><i class="fa-solid fa-arrow-right"></i> Next</button>
+      </div>
+    </div>
+  </div>
   
   <div class="overlay save-overlay" id="saveOverlay">
     <div class="overlay-bg"></div>
     <div class="anim-box save-box">
       <div class="save-box-title"><i class="fa-solid fa-floppy-disk"></i> Save Document</div>
       <div class="input-group"><label for="docNameInput">Image Name</label><input type="text" id="docNameInput" placeholder="Enter image name..."><div class="error-msg" id="nameError"></div></div>
-      <!-- NEW FIELD: User Name -->
       <div class="input-group"><label for="userNameInput">Your Name</label><input type="text" id="userNameInput" placeholder="Enter your name..."><div class="error-msg" id="userError"></div></div>
-      
-      <div class="class-group"><label>Choose Class</label><div class="class-options"><button class="class-btn c1" data-class="view1"><span class="class-dot"></span><i class="fa-solid fa-file-lines" style="color:var(--teal);font-size:.85rem"></i> View Doc 1</button><button class="class-btn c2" data-class="view2"><span class="class-dot"></span><i class="fa-solid fa-file-magnifying-glass" style="color:var(--sky);font-size:.85rem"></i> View Doc 2</button><button class="class-btn c3" data-class="view3"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--purple);font-size:.85rem"></i> View Doc 3</button><button class="class-btn c4" data-class="view4"><span class="class-dot"></span><i class="fa-solid fa-box-archive" style="color:var(--rose);font-size:.85rem"></i> View Doc 4</button></div></div>
+      <div class="class-group"><label>Choose Class</label><div class="class-options"><button class="class-btn c1" data-class="view1"><span class="class-dot"></span><i class="fa-solid fa-file-lines" style="color:var(--teal);font-size:.85rem"></i> የህፃናት</button><button class="class-btn c2" data-class="view2"><span class="class-dot"></span><i class="fa-solid fa-file-magnifying-glass" style="color:var(--sky);font-size:.85rem"></i> የታዳጊ</button><button class="class-btn c3" data-class="view3"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--purple);font-size:.85rem"></i> የማእከላውያን</button><button class="class-btn c4" data-class="view4"><span class="class-dot"></span><i class="fa-solid fa-box-archive" style="color:var(--rose);font-size:.85rem"></i> የወጣቶች</button></div></div>
       <button class="finished-btn" id="finishedBtn" disabled><i class="fa-solid fa-check"></i> Finished</button>
     </div>
   </div>
@@ -289,7 +320,8 @@
 
   <div class="overlay detail-overlay" id="detailOverlay"><div class="overlay-bg"></div><div class="anim-box detail-box"><div class="detail-header"><div class="detail-title"><i class="fa-solid fa-images"></i> Image Preview</div><div class="detail-header-right"><button class="add-img-btn" id="addImgBtn"><i class="fa-solid fa-plus"></i> Add Image</button><button class="detail-close" id="detailCloseBtn"><i class="fa-solid fa-xmark"></i></button></div></div><div class="detail-images" id="detailImages"></div></div></div>
 
-  <div class="overlay" id="addImgOverlay" style="z-index:145"><div class="overlay-bg"></div><div class="anim-box addimg-box"><div class="addimg-title"><i class="fa-solid fa-plus-circle"></i> Add Image</div><div id="addImgStep1" class="addimg-row"><button class="addimg-opt" id="addImgFileBtn"><i class="fa-solid fa-folder-open" style="color:var(--gold)"></i> Choose File</button><button class="addimg-opt" id="addImgCamBtn"><i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera</button></div><div id="addImgStep2" class="addimg-step2"><img class="addimg-preview" id="addImgPreview" src="" alt="New image"><button class="finished-btn" id="addImgNextBtn"><i class="fa-solid fa-arrow-right"></i> Next</button></div><div id="addImgStep3" class="addimg-step2"><div class="addimg-thumb-row"><img class="addimg-thumb" id="addImgThumb" src="" alt="Preview"><span class="addimg-thumb-label">Name this image</span></div><div class="input-group"><label for="addImgNameInput">Image Name</label><input type="text" id="addImgNameInput" placeholder="Enter image name..."><div class="error-msg" id="addImgNameError"></div></div><button class="finished-btn" id="addImgSaveBtn" disabled><i class="fa-solid fa-check"></i> Save Image</button></div><button class="addimg-cancel" id="addImgCancelBtn">Cancel</button></div></div>
+  <!-- Add Image Overlay (Extra Images) -->
+  <div class="overlay" id="addImgOverlay" style="z-index:145"><div class="overlay-bg"></div><div class="anim-box addimg-box"><div class="addimg-title"><i class="fa-solid fa-plus-circle"></i> Add Image</div><div id="addImgStep1" class="addimg-row"><button class="addimg-opt" id="addImgFileBtn"><i class="fa-solid fa-folder-open" style="color:var(--gold)"></i> Choose File</button><button class="addimg-opt" id="addImgCamBtn"><i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera</button></div><div id="addImgStep2" class="addimg-step2"><div class="preview-stage" id="addImgStage"><img class="addimg-preview" id="addImgPreview" src="" alt="New image"></div><div class="preview-actions" style="width:80vw; justify-content:center"><button class="preview-btn edit-btn" id="addImgEditBtn"><i class="fa-solid fa-crop-simple"></i> Edit</button><button class="preview-btn next-btn" id="addImgNextBtn"><i class="fa-solid fa-arrow-right"></i> Next</button></div></div><div id="addImgStep3" class="addimg-step2"><div class="addimg-thumb-row"><img class="addimg-thumb" id="addImgThumb" src="" alt="Preview"><span class="addimg-thumb-label">Name this image</span></div><div class="input-group"><label for="addImgNameInput">Image Name</label><input type="text" id="addImgNameInput" placeholder="Enter image name..."><div class="error-msg" id="addImgNameError"></div></div><button class="finished-btn" id="addImgSaveBtn" disabled><i class="fa-solid fa-check"></i> Save Image</button></div><button class="addimg-cancel" id="addImgCancelBtn">Cancel</button></div></div>
 
   <div class="overlay" id="deleteConfirmOverlay" style="z-index:150"><div class="overlay-bg"></div><div class="anim-box popup-box confirm-box"><div class="confirm-icon" style="color:#ff4d4d"><i class="fa-solid fa-trash-can"></i></div><div class="confirm-msg" id="deleteConfirmMsg">Are you sure?</div><div class="confirm-actions"><button class="confirm-btn" id="deleteConfirmNo" style="color:#ff6b6b;border-color:rgba(255,77,77,.3)">No</button><button class="confirm-btn yes" id="deleteConfirmYes">Yes</button></div></div></div>
   <div class="overlay" id="deletePwOverlay" style="z-index:155"><div class="overlay-bg"></div><div class="anim-box popup-box"><div class="popup-title" style="color:#ff6b6b"><i class="fa-solid fa-lock"></i> Confirm Password</div><input type="password" class="pw-input" id="deletePwInput" maxlength="4" placeholder="****"><div class="pw-error" id="deletePwError"></div><div class="pw-actions"><button class="pw-btn" id="deletePwCancel" style="color:#ff6b6b">Cancel</button><button class="pw-btn submit" id="deletePwSubmit" style="background:linear-gradient(135deg,#ff4d4d,#cc0000);border-color:#ff4d4d">Delete</button></div></div></div>
@@ -297,6 +329,8 @@
   <div class="overlay" id="moveOverlay" style="z-index:130"><div class="overlay-bg"></div><div class="anim-box popup-box"><div class="popup-title"><i class="fa-solid fa-arrows-up-down-left-right"></i> Move To</div><div id="moveOptions" style="display:flex;flex-direction:column;gap:8px"></div></div></div>
   <div class="overlay" id="confirmOverlay" style="z-index:135"><div class="overlay-bg"></div><div class="anim-box popup-box confirm-box"><div class="confirm-icon"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="confirm-msg" id="confirmMsg">Are you sure?</div><div class="confirm-actions"><button class="confirm-btn" id="confirmNo">No</button><button class="confirm-btn yes" id="confirmYes">Yes</button></div></div></div>
   <div class="overlay" id="pwOverlay" style="z-index:140"><div class="overlay-bg"></div><div class="anim-box popup-box"><div class="popup-title"><i class="fa-solid fa-lock"></i> Enter Password</div><input type="password" class="pw-input" id="pwInput" maxlength="4" placeholder="****"><div class="pw-error" id="pwError"></div><div class="pw-actions"><button class="pw-btn" id="pwCancel">Cancel</button><button class="pw-btn submit" id="pwSubmit">Submit</button></div></div></div>
+
+  <div class="upload-overlay" id="uploadOverlay" style="z-index:200"><div class="overlay-bg"></div><div class="upload-box"><div class="upload-spinner"><div class="spinner-ring"></div><div class="spinner-ring"></div><div class="spinner-ring"></div><i class="fa-solid fa-cloud-arrow-up upload-icon"></i></div><div class="upload-text" id="uploadText">Uploading...</div><div class="upload-sub" id="uploadSub">Please wait</div><div class="upload-offline-note" id="uploadOfflineNote" style="display:none"><i class="fa-solid fa-wifi-slash"></i> Offline - saved locally, will sync when online</div></div></div>
 
   <div class="toast" id="toast"></div>
   <canvas id="captureCanvas" style="display:none"></canvas>
@@ -320,13 +354,10 @@
     const CLOUD_NAME = 'duh3hfrtc';
     const UPLOAD_PRESET = 'pgabpqyo';
 
-    // Store State
     const store = { view1: {}, view2: {}, view3: {}, view4: {} };
-    const classNames = { view1: 'View Doc 1', view2: 'View Doc 2', view3: 'View Doc 3', view4: 'View Doc 4' };
+    const classNames = { view1: 'የህፃናት', view2: 'የታዳጊ', view3: 'የማእከላውያን', view4: 'የወጣቶች' };
     const classColors = { view1: '#2ec4a2', view2: '#3daae8', view3: '#9b59b6', view4: '#e85577' };
-    const classBadgeIds = { view1: 'badge1', view2: 'badge2', view3: 'badge3', view4: 'badge4' };
 
-    // Temporary State for new document creation
     let pendingImageBase64 = null;
     let pendingDocId = null;
     let currentDetailDocId = null;
@@ -335,16 +366,20 @@
     let currentMovingId = null;
     let deletingDocId = null;
 
-    // Helpers
+    let isEditingPreview = false;
+    let isEditingExtra = false; // New state for extra images
+    let cropCanvas = null;
+    let cropCtx = null;
+    let cropImgObj = new Image();
+    let cropRect = { x: 0, y: 0, w: 0, h: 0, dragging: false, startX: 0, startY: 0 };
+    let editingTarget = null; 
+
     function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 9); }
     function getImgSrc(d) { return d.imageUrl || d.imageBase64 || ''; }
-    
-    // --- OFFLINE & SYNC LOGIC ---
     
     function saveStoreLocal() { 
       try { 
         localStorage.setItem('docHubStore', JSON.stringify(store)); 
-        updateBadges();
       } catch(e) { 
         showToast('Storage full!', 'fa-solid fa-triangle-exclamation') 
       }
@@ -355,13 +390,13 @@
         const s = localStorage.getItem('docHubStore'); 
         if(s){ 
           const p = JSON.parse(s); 
-          // Clear current store and reload
-          Object.keys(store).forEach(cls => { store[cls] = {} }); 
+          Object.keys(store).forEach(cls => { if(store[cls] === undefined) store[cls] = {} }); 
           Object.keys(p).forEach(cls => { 
             if(store[cls] !== undefined) store[cls] = p[cls]; 
           }); 
-          updateBadges();
-        } 
+        } else {
+            Object.keys(store).forEach(cls => { store[cls] = {} });
+        }
       } catch(e) {} 
     }
     
@@ -372,7 +407,19 @@
       localStorage.setItem('syncQueue', JSON.stringify(q)); 
     }
 
-    // API Calls
+    function showUploadPopup(text, sub, isOffline) {
+      const o = document.getElementById('uploadOverlay');
+      document.getElementById('uploadText').textContent = text || 'Uploading...';
+      document.getElementById('uploadSub').textContent = sub || 'Please wait';
+      const note = document.getElementById('uploadOfflineNote');
+      if (isOffline) { note.style.display = 'flex'; }
+      else { note.style.display = 'none'; }
+      o.classList.add('active');
+    }
+    function hideUploadPopup() {
+      document.getElementById('uploadOverlay').classList.remove('active');
+    }
+
     async function uploadToCloudinary(base64Data) { 
       const blob = await fetch(base64Data).then(r => r.blob()); 
       const formData = new FormData(); 
@@ -397,43 +444,32 @@
     }
     
     async function deleteDocFirebase(docId) { await db.ref(`documents/${docId}`).remove(); }
-    
     async function deleteExtraFirebase(docId, extraId) { await db.ref(`documents/${docId}/extras/${extraId}`).remove(); }
-    
-    async function moveDocFirebase(docId, toClass) {
-      await db.ref(`documents/${docId}/class`).set(toClass);
-    }
+    async function moveDocFirebase(docId, toClass) { await db.ref(`documents/${docId}/class`).set(toClass); }
 
-    // Main Sync Processor (Runs when online)
     async function processQueue() { 
       if (!navigator.onLine) return; 
       const q = getSyncQueue(); 
       if (!q.length) return; 
       const nq = []; 
-      showToast('Syncing data...', 'fa-solid fa-rotate');
-      
-      for (const t of q) { 
+      showUploadPopup('Syncing data...', q.length + ' item(s) remaining', false);
+      for (let i = 0; i < q.length; i++) { 
+        const t = q[i];
+        document.getElementById('uploadSub').textContent = (i+1) + ' / ' + q.length;
         try { 
           if (t.type === 'save') { 
             let doc = null;
-            // Find doc in store (might have moved classes)
             for(let cls of Object.keys(store)){
-                if(store[cls][t.docId]) doc = store[cls][t.docId];
+                if(store[cls] && store[cls][t.docId]) doc = store[cls][t.docId];
             }
-
             if (!doc) continue; 
-            
-            // Upload main image if needed
             if (doc.imageBase64 && !doc.imageUrl) { 
               doc.imageUrl = await uploadToCloudinary(doc.imageBase64); 
               delete doc.imageBase64; 
-              // Update local store with URL to save space
               for(let cls of Object.keys(store)){
-                if(store[cls][t.docId]) store[cls][t.docId].imageUrl = doc.imageUrl;
+                if(store[cls] && store[cls][t.docId]) store[cls][t.docId].imageUrl = doc.imageUrl;
               }
             } 
-            
-            // Upload extras
             if (doc.extras) { 
               for (let eid in doc.extras) { 
                 if (doc.extras[eid].imageBase64 && !doc.extras[eid].imageUrl) { 
@@ -442,13 +478,10 @@
                 } 
               } 
             } 
-            
-            // Get final class from store in case it was moved offline
             let finalClass = t.cls;
             for(let cls of Object.keys(store)){
-                if(store[cls][t.docId]) finalClass = cls;
+                if(store[cls] && store[cls][t.docId]) finalClass = cls;
             }
-
             await saveDocFirebase(t.docId, finalClass, doc); 
             saveStoreLocal(); 
           } else if (t.type === 'delete') { 
@@ -459,27 +492,24 @@
              await moveDocFirebase(t.docId, t.toCls);
           }
         } catch (e) { 
-          console.error("Sync failed", e);
           nq.push(t); 
         } 
       } 
-      
+      hideUploadPopup();
       localStorage.setItem('syncQueue', JSON.stringify(nq)); 
       if(nq.length === 0) showToast('Sync complete!', 'fa-solid fa-check');
+      else showToast(nq.length + ' item(s) failed to sync', 'fa-solid fa-triangle-exclamation');
     }
     
     window.addEventListener('online', () => { showToast('Back online. Syncing...', 'fa-solid fa-wifi'); processQueue(); });
     window.addEventListener('offline', () => { showToast('You are offline', 'fa-solid fa-wifi-slash'); });
     
-    // Initial Load
     async function init() {
       loadStoreLocal();
       try { 
         const snap = await db.ref('documents').once('value'); 
         if (snap.exists()) { 
           const data = snap.val(); 
-          // Merge Firebase data with Local (Local takes precedence for conflict resolution in this simple version)
-          // Actually, usually we'd overwrite local, but let's just ensure data exists if local is empty
           if(Object.keys(store.view1).length === 0 && Object.keys(store.view2).length === 0) {
              Object.keys(store).forEach(cls => store[cls] = {}); 
              Object.keys(data).forEach(docId => { 
@@ -493,9 +523,29 @@
           }
         } 
       } catch(e) {} 
-      updateBadges();
-      
-      // Trigger sync if online on load
+
+      // Real-time listener: sync from other devices
+      db.ref('documents').on('value', (snap) => {
+        if (!snap.exists()) return;
+        const data = snap.val();
+        let changed = false;
+        Object.keys(store).forEach(cls => store[cls] = {});
+        Object.keys(data).forEach(docId => {
+          const d = data[docId];
+          if (store[d.class]) {
+            store[d.class][docId] = { ...d, id: docId };
+            if (!store[d.class][docId].extras) store[d.class][docId].extras = {};
+            changed = true;
+          }
+        });
+        if (changed) {
+          saveStoreLocal();
+          if (document.getElementById('tableOverlay').classList.contains('active') && currentTableCls) {
+            renderTable();
+          }
+        }
+      });
+
       if(navigator.onLine) processQueue();
     }
 
@@ -550,21 +600,123 @@
       },OUTRO_DURATION)
     }
     
-    function updateBadges(){
-      Object.keys(store).forEach(cls=>{
-        const b=document.getElementById(classBadgeIds[cls]);
-        if(b){
-          b.textContent=Object.keys(store[cls]).length;
-          b.classList.toggle('show',Object.keys(store[cls]).length>0)
+    // --- CROP LOGIC ---
+
+    function initCrop(stageId, sourceBase64, onFinish, onCancel) {
+      const stage = document.getElementById(stageId); 
+      stage.innerHTML = '';
+      cropCanvas = document.createElement('canvas');
+      stage.appendChild(cropCanvas);
+      cropCtx = cropCanvas.getContext('2d');
+      
+      cropImgObj.onload = () => {
+        const containerW = stage.parentElement.clientWidth; 
+        const containerH = window.innerHeight * 0.55;
+        const scale = Math.min(containerW / cropImgObj.width, containerH / cropImgObj.height);
+        cropCanvas.width = cropImgObj.width * scale;
+        cropCanvas.height = cropImgObj.height * scale;
+        cropRect = { x: 0, y: 0, w: cropCanvas.width, h: cropCanvas.height, dragging: false, startX: 0, startY: 0 };
+        drawCropCanvas();
+      };
+      cropImgObj.src = sourceBase64;
+
+      const getPos = (e) => {
+        const rect = cropCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+      };
+
+      const start = (e) => {
+        e.preventDefault();
+        const { x, y } = getPos(e);
+        cropRect.startX = x;
+        cropRect.startY = y;
+        cropRect.dragging = true;
+        cropRect.w = 0; 
+        cropRect.h = 0;
+        drawCropCanvas();
+      };
+      const move = (e) => {
+        if (!cropRect.dragging) return;
+        e.preventDefault();
+        const { x, y } = getPos(e);
+        cropRect.w = x - cropRect.startX;
+        cropRect.h = y - cropRect.startY;
+        drawCropCanvas();
+      };
+      const end = (e) => {
+        cropRect.dragging = false;
+        if(Math.abs(cropRect.w) < 10 || Math.abs(cropRect.h) < 10) {
+            cropRect.w = cropCanvas.width;
+            cropRect.h = cropCanvas.height;
+            cropRect.x = 0; cropRect.y = 0;
+            drawCropCanvas();
         }
-      })
+      };
+
+      cropCanvas.addEventListener('mousedown', start);
+      cropCanvas.addEventListener('mousemove', move);
+      cropCanvas.addEventListener('mouseup', end);
+      cropCanvas.addEventListener('touchstart', start);
+      cropCanvas.addEventListener('touchmove', move);
+      cropCanvas.addEventListener('touchend', end);
+      
+      cropCanvas.onFinish = onFinish;
+      cropCanvas.onCancel = onCancel;
+      cropCanvas.originalSrc = sourceBase64;
+    }
+
+    function drawCropCanvas() {
+      cropCtx.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
+      cropCtx.drawImage(cropImgObj, 0, 0, cropCanvas.width, cropCanvas.height);
+      
+      if(cropRect.w !== cropCanvas.width || cropRect.h !== cropCanvas.height) {
+        cropCtx.fillStyle = 'rgba(0,0,0,0.5)';
+        cropCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
+        cropCtx.save();
+        cropCtx.beginPath();
+        cropCtx.rect(cropRect.startX, cropRect.startY, cropRect.w, cropRect.h);
+        cropCtx.clip();
+        cropCtx.drawImage(cropImgObj, 0, 0, cropCanvas.width, cropCanvas.height);
+        cropCtx.restore();
+        cropCtx.strokeStyle = '#fff';
+        cropCtx.lineWidth = 2;
+        cropCtx.setLineDash([6]);
+        cropCtx.strokeRect(cropRect.startX, cropRect.startY, cropRect.w, cropRect.h);
+      }
+    }
+
+    function finishCrop() {
+      if (!cropRect.w || !cropRect.h) {
+        showToast('Select an area first', 'fa-solid fa-triangle-exclamation');
+        return;
+      }
+      const scaleX = cropImgObj.width / cropCanvas.width;
+      const scaleY = cropImgObj.height / cropCanvas.height;
+      let realX = cropRect.startX * scaleX;
+      let realY = cropRect.startY * scaleY;
+      let realW = cropRect.w * scaleX;
+      let realH = cropRect.h * scaleX; 
+      if (realW < 0) { realX += realW; realW = Math.abs(realW); }
+      if (realH < 0) { realY += realH; realH = Math.abs(realH); }
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = realW;
+      tempCanvas.height = realH;
+      const tCtx = tempCanvas.getContext('2d');
+      tCtx.drawImage(cropImgObj, realX, realY, realW, realH, 0, 0, realW, realH);
+      const newData = tempCanvas.toDataURL('image/jpeg', 0.9);
+      if (cropCanvas.onFinish) cropCanvas.onFinish(newData);
+    }
+
+    function cancelCrop() {
+      if (cropCanvas.onCancel) cropCanvas.onCancel();
     }
 
     // --- TABLE LOGIC ---
 
     let currentTableCls=null,selectMode=false,selectedRows=new Set();
     
-    // Bind View Buttons
     Object.keys(store).forEach((cls,i)=>{
       const btn=document.getElementById('btnView'+(i+1));
       if(btn)btn.addEventListener('click',function(e){
@@ -582,9 +734,7 @@
       openOvl('tableOverlay')
     }
 
-    function getSortedDocs(cls){
-      return Object.values(store[cls]).sort((a,b)=>a.name.localeCompare(b.name))
-    }
+    function getSortedDocs(cls){ return Object.values(store[cls]).sort((a,b)=>a.name.localeCompare(b.name)) }
 
     let searchQuery = '';
     
@@ -596,19 +746,16 @@
 
     function renderTable(){
       let docs=getSortedDocs(currentTableCls);
-      
       if(searchQuery) {
         const q = searchQuery.toLowerCase();
-        docs = docs.filter(d => d.name.toLowerCase().includes(q) || (d.userName && d.userName.toLowerCase().includes(q)));
+        docs = docs.filter(d => d.name.toLowerCase().includes(q));
       }
-
       const tbody=document.getElementById('tableBody'),table=document.getElementById('docTable');
       tbody.innerHTML='';table.classList.toggle('select-mode',selectMode);
       document.getElementById('tableTitle').classList.toggle('hidden',selectMode);
       document.getElementById('selectBar').classList.toggle('visible',selectMode);
-      
       const countIcon=document.getElementById('tableCountIcon');
-      countIcon.textContent=Object.keys(store[currentTableCls]).length; // Total docs, not filtered
+      countIcon.textContent=Object.keys(store[currentTableCls]).length; 
       countIcon.style.background=classColors[currentTableCls];
       
       if(!docs.length){
@@ -625,9 +772,9 @@
         const tdC=document.createElement('td');
         tdC.className='cell-check';
         tdC.innerHTML=`<i class="fa-solid fa-circle-check ${isSel?'checked':''}"></i>`;
-        tdC.addEventListener('click',e=>{
-          e.stopPropagation();
-          if(selectMode)toggleRowAnimated(doc.id)
+        tdC.addEventListener('click',e=>{ 
+          e.stopPropagation(); 
+          if(selectMode) toggleRowAnimated(doc.id);
         });
         tr.appendChild(tdC);
         
@@ -639,56 +786,65 @@
         const tdN=document.createElement('td');
         tdN.className='name-cell';
         
-        // Name Text
         const nameDiv = document.createElement('div');
         nameDiv.className = 'doc-name-text';
-        
-        const mainName = document.createElement('span');
-        mainName.textContent = doc.name;
-        nameDiv.appendChild(mainName);
-
-        // User Name (New Feature)
-        if(doc.userName) {
-          const userSpan = document.createElement('span');
-          userSpan.className = 'doc-user-subtext';
-          userSpan.textContent = `by ${doc.userName}`;
-          nameDiv.appendChild(userSpan);
-        }
-
+        nameDiv.innerHTML = doc.userName || doc.name || '';
         tdN.appendChild(nameDiv);
         
         const viewBtn=document.createElement('button');
         viewBtn.className='view-icon-btn';
         viewBtn.innerHTML='<i class="fa-solid fa-eye"></i>';
-        viewBtn.addEventListener('click',e=>{
-          e.stopPropagation();
-          openDetail(doc.id, currentTableCls)
+        viewBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            openDetail(doc.id, currentTableCls);
         });
         tdN.appendChild(viewBtn);
         
         tr.appendChild(tdN);
         
-        // Row click (only if not selecting)
-        tr.addEventListener('click',()=>{
-          if(!selectMode) openDetail(doc.id, currentTableCls)
+        tdN.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            selectMode = true;
+            selectedRows.add(doc.id);
+            renderTable();
         });
-        
+
+        tr.addEventListener('click', () => {
+           if(selectMode) {
+               toggleRowAnimated(doc.id);
+           }
+        });
+
         tbody.appendChild(tr);
       });
-      
       updateSelectBtns();
     }
 
+    // FIX 4: Optimized Animation
     function toggleRowAnimated(id){
-      if(selectedRows.has(id)) selectedRows.delete(id);
+      const isSelected = selectedRows.has(id);
+      if (isSelected) selectedRows.delete(id);
       else selectedRows.add(id);
-      renderTable();
+      
+      const tr = document.querySelector(`tr[data-doc-id="${id}"]`);
+      if(tr) {
+         tr.classList.toggle('row-selected', !isSelected);
+         const icon = tr.querySelector('.cell-check i');
+         if(icon) {
+            icon.classList.toggle('checked', !isSelected);
+            // Trigger animation
+            icon.classList.remove('check-anim');
+            void icon.offsetWidth; 
+            icon.classList.add('check-anim');
+         }
+      }
+      updateSelectBtns();
     }
 
     function updateSelectBtns(){
       const c=selectedRows.size;
       document.getElementById('selectCount').textContent=c;
-      document.getElementById('moveBtn').disabled=c!==1;
+      document.getElementById('moveBtn').disabled=c===0;
       document.getElementById('deleteSelBtn').disabled=c===0;
       document.getElementById('selectAllBtn').innerHTML=c===0?'<i class="fa-solid fa-check-double"></i> All':'<i class="fa-solid fa-xmark"></i> None';
     }
@@ -708,7 +864,6 @@
        btnAdd2.classList.remove('hidden-btn');
     });
 
-    // Choose File
     const fileInput = document.getElementById('fileInput');
     document.getElementById('chooseFileBtn').addEventListener('click', () => fileInput.click());
 
@@ -717,9 +872,7 @@
         const reader = new FileReader();
         reader.onload = (evt) => {
           pendingImageBase64 = evt.target.result;
-          document.getElementById('previewImg').src = pendingImageBase64;
-          openOvl('previewOverlay');
-          // Reset input
+          setupPreview(pendingImageBase64);
           e.target.value = '';
           subChoice.classList.remove('visible');
           btnAdd2.classList.remove('hidden-btn');
@@ -728,20 +881,41 @@
       }
     });
 
-    // Camera
     let stream = null;
     const cameraOverlay = document.getElementById('cameraOverlay');
     const video = document.getElementById('cameraVideo');
     
     document.getElementById('cameraShotBtn').addEventListener('click', async () => {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } });
         video.srcObject = stream;
         cameraOverlay.classList.add('active');
         subChoice.classList.remove('visible');
         btnAdd2.classList.remove('hidden-btn');
-      } catch(err) {
-        showToast('Camera access denied', 'fa-solid fa-video-slash');
+      } catch(err1) {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } } });
+          video.srcObject = stream;
+          cameraOverlay.classList.add('active');
+          subChoice.classList.remove('visible');
+          btnAdd2.classList.remove('hidden-btn');
+        } catch(err2) {
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            cameraOverlay.classList.add('active');
+            subChoice.classList.remove('visible');
+            btnAdd2.classList.remove('hidden-btn');
+          } catch(err3) {
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+              showToast('Camera requires HTTPS. Please use a secure connection.', 'fa-solid fa-lock');
+            } else if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+              showToast('Camera not supported on this browser/device.', 'fa-solid fa-video-slash');
+            } else {
+              showToast('Camera access denied. Please allow camera permission in settings.', 'fa-solid fa-video-slash');
+            }
+          }
+        }
       }
     });
 
@@ -755,8 +929,7 @@
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       canvas.getContext('2d').drawImage(video, 0, 0);
-      pendingImageBase64 = canvas.toDataURL('image/jpeg');
-      document.getElementById('previewImg').src = pendingImageBase64;
+      const capturedBase64 = canvas.toDataURL('image/jpeg');
       
       const flash = document.getElementById('flash');
       flash.classList.add('fire');
@@ -764,29 +937,80 @@
       
       if(stream) stream.getTracks().forEach(t => t.stop());
       cameraOverlay.classList.remove('active');
-      openOvl('previewOverlay');
+
+      if (document.getElementById('captureBtn')._isExtra) {
+        document.getElementById('captureBtn')._isExtra = false;
+        pendingExtraBase64 = capturedBase64;
+        setupAddImgPreview(pendingExtraBase64);
+        document.getElementById('addImgStep1').style.display = 'none';
+        document.getElementById('addImgStep2').classList.add('visible');
+      } else {
+        pendingImageBase64 = capturedBase64;
+        setupPreview(pendingImageBase64);
+      }
     });
 
-    // Preview Actions
-    document.getElementById('previewCloseBtn').addEventListener('click', () => {
-      closeOvl('previewOverlay', () => {
-        pendingImageBase64 = null;
+    function setupPreview(imgData) {
+      pendingImageBase64 = imgData;
+      isEditingPreview = false;
+      
+      const stage = document.getElementById('previewStage');
+      stage.innerHTML = `<img id="previewImg" src="${imgData}" alt="Preview">`;
+      
+      const editBtn = document.getElementById('previewEditBtn');
+      const nextBtn = document.getElementById('previewNextBtn');
+      const label = document.getElementById('previewLabel');
+      
+      editBtn.style.display = 'flex';
+      nextBtn.style.display = 'flex';
+      nextBtn.classList.remove('finish-btn');
+      nextBtn.classList.add('next-btn');
+      nextBtn.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Next';
+      label.textContent = 'Preview';
+      
+      openOvl('previewOverlay');
+    }
+
+    document.getElementById('previewEditBtn').addEventListener('click', () => {
+      isEditingPreview = true;
+      const editBtn = document.getElementById('previewEditBtn');
+      const nextBtn = document.getElementById('previewNextBtn');
+      const label = document.getElementById('previewLabel');
+      
+      editBtn.style.display = 'none';
+      nextBtn.classList.remove('next-btn');
+      nextBtn.classList.add('finish-btn');
+      nextBtn.innerHTML = '<i class="fa-solid fa-check"></i> Finish';
+      label.textContent = 'Drag to select crop area';
+      
+      initCrop('previewStage', pendingImageBase64, (newData) => {
+        pendingImageBase64 = newData;
+        setupPreview(newData); 
+      }, () => {
+        setupPreview(pendingImageBase64);
       });
     });
 
     document.getElementById('previewNextBtn').addEventListener('click', () => {
-      closeOvl('previewOverlay', () => {
-        document.getElementById('docNameInput').value = '';
-        document.getElementById('userNameInput').value = ''; // Reset user name
-        document.getElementById('nameError').textContent = '';
-        document.getElementById('userError').textContent = '';
-        document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('selected'));
-        document.getElementById('finishedBtn').disabled = true;
-        openOvl('saveOverlay');
-      });
+      if (isEditingPreview) {
+        finishCrop();
+      } else {
+        closeOvl('previewOverlay', () => {
+          document.getElementById('docNameInput').value = '';
+          document.getElementById('userNameInput').value = '';
+          document.getElementById('nameError').textContent = '';
+          document.getElementById('userError').textContent = '';
+          document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('selected'));
+          document.getElementById('finishedBtn').disabled = true;
+          openOvl('saveOverlay');
+        });
+      }
     });
 
-    // Save Document Logic
+    document.getElementById('previewCloseBtn').addEventListener('click', () => {
+      closeOvl('previewOverlay', () => { pendingImageBase64 = null; });
+    });
+
     let selectedClass = null;
     document.querySelectorAll('.class-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -799,14 +1023,11 @@
 
     function validateSave() {
       const name = document.getElementById('docNameInput').value.trim();
-      const user = document.getElementById('userNameInput').value.trim(); // User Name is optional? User didn't specify mandatory but implied. Let's make it mandatory for the table to be useful.
-      
+      const user = document.getElementById('userNameInput').value.trim();
       let isValid = name.length > 0 && user.length > 0 && selectedClass && pendingImageBase64;
       document.getElementById('finishedBtn').disabled = !isValid;
-      
       if(name.length > 0) document.getElementById('nameError').textContent = '';
       else if (document.activeElement === document.getElementById('docNameInput')) document.getElementById('nameError').textContent = 'Name required';
-
       if(user.length > 0) document.getElementById('userError').textContent = '';
       else if (document.activeElement === document.getElementById('userNameInput')) document.getElementById('userError').textContent = 'Name required';
     }
@@ -821,34 +1042,38 @@
       const newDoc = {
         id: genId(),
         name: name,
-        userName: userName, // Store User Name
+        userName: userName, 
         imageBase64: pendingImageBase64,
         imageUrl: null,
         extras: {},
         timestamp: Date.now()
       };
       
-      // Save locally
       store[selectedClass][newDoc.id] = newDoc;
       saveStoreLocal();
-      
-      // Add to Sync Queue
       addSyncTask({ type: 'save', cls: selectedClass, docId: newDoc.id });
-      if(navigator.onLine) processQueue(); // Try immediate sync
+
+      if(navigator.onLine) {
+        showUploadPopup('Saving document...', 'Uploading image', false);
+        processQueue().then(() => {
+          hideUploadPopup();
+        });
+      } else {
+        showUploadPopup('Saved locally', 'Waiting for internet connection', true);
+        setTimeout(hideUploadPopup, 2000);
+      }
 
       showToast('Document saved!', 'fa-solid fa-check');
       closeOvl('saveOverlay');
       pendingImageBase64 = null;
-      updateBadges();
       
-      // If we are in the same table view, refresh it
       if(document.getElementById('tableOverlay').classList.contains('active') && currentTableCls === selectedClass) {
         renderTable();
       }
     });
 
     // --- DETAIL & ADD EXTRA LOGIC ---
-    
+
     function openDetail(docId, cls) {
       currentDetailDocId = docId;
       currentDetailClass = cls;
@@ -856,11 +1081,9 @@
       const container = document.getElementById('detailImages');
       container.innerHTML = '';
       
-      // Render Main Image
       const item = createImgItem(doc, doc.id, true);
       container.appendChild(item);
       
-      // Render Extras
       Object.keys(doc.extras || {}).sort((a,b)=>doc.extras[a].timestamp - doc.extras[b].timestamp).forEach(eid => {
         const extra = doc.extras[eid];
         const el = createImgItem(extra, eid, false);
@@ -873,24 +1096,32 @@
     function createImgItem(data, id, isMain) {
       const div = document.createElement('div');
       div.className = 'detail-img-item';
+      
       div.innerHTML = `
-        <img src="${getImgSrc(data)}" alt="img">
-        ${!isMain ? `<div class="detail-img-name">${data.name}</div>` : ''}
+        <div class="detail-img-stage">
+          <img src="${getImgSrc(data)}" alt="img">
+        </div>
+        ${!isMain ? `<div class="detail-img-name-block"><div class="detail-img-main-name">${data.name}</div></div>` : `
+        <div class="detail-img-name-block">
+            <div class="detail-img-main-name">${data.name}</div>
+            <div class="detail-img-user-name">by ${data.userName || 'Unknown'}</div>
+        </div>`}
         <div class="img-actions">
-          <button class="delete-btn"><i class="fa-solid fa-trash"></i> Delete</button>
-          <button class="download-btn"><i class="fa-solid fa-download"></i> Download</button>
+          <button class="delete-btn" id="del-${id}"><i class="fa-solid fa-trash"></i> Delete</button>
+          <button class="download-btn" id="down-${id}"><i class="fa-solid fa-download"></i> Download</button>
         </div>
         ${!isMain ? '<div class="img-divider"></div>' : ''}
       `;
       
-      const delBtn = div.querySelector('.delete-btn');
+      const downBtn = div.querySelector(`#down-${id}`);
+      const delBtn = div.querySelector(`#del-${id}`);
+
       delBtn.addEventListener('click', () => {
         deletingDocId = id;
         document.getElementById('deleteConfirmMsg').textContent = isMain ? 'Delete entire document?' : 'Delete this image?';
         openOvl('deleteConfirmOverlay');
       });
 
-      const downBtn = div.querySelector('.download-btn');
       downBtn.addEventListener('click', () => {
         const a = document.createElement('a');
         a.href = getImgSrc(data);
@@ -903,27 +1134,21 @@
 
     document.getElementById('deleteConfirmYes').addEventListener('click', () => {
       closeOvl('deleteConfirmOverlay');
-      
       if (deletingDocId === currentDetailDocId) {
-        // Delete Full Doc
         delete store[currentDetailClass][deletingDocId];
         addSyncTask({ type: 'delete', docId: deletingDocId });
         if(navigator.onLine) processQueue();
-        
         closeOvl('detailOverlay');
         if(currentTableCls === currentDetailClass) renderTable();
         showToast('Document deleted', 'fa-solid fa-trash');
       } else {
-        // Delete Extra
         delete store[currentDetailClass][currentDetailDocId].extras[deletingDocId];
         addSyncTask({ type: 'deleteExtra', docId: currentDetailDocId, extraId: deletingDocId });
         if(navigator.onLine) processQueue();
-        
-        openDetail(currentDetailDocId, currentDetailClass); // Re-render
+        openDetail(currentDetailDocId, currentDetailClass);
         showToast('Image removed', 'fa-solid fa-trash');
       }
       saveStoreLocal();
-      updateBadges();
     });
 
     // Add Extra Image Logic
@@ -942,7 +1167,7 @@
         const reader = new FileReader();
         reader.onload = (evt) => {
           pendingExtraBase64 = evt.target.result;
-          document.getElementById('addImgPreview').src = pendingExtraBase64;
+          setupAddImgPreview(pendingExtraBase64);
           document.getElementById('addImgStep1').style.display = 'none';
           document.getElementById('addImgStep2').classList.add('visible');
         };
@@ -950,20 +1175,49 @@
       }
     });
 
-    document.getElementById('addImgNextBtn').addEventListener('click', () => {
-      document.getElementById('addImgThumb').src = pendingExtraBase64;
-      document.getElementById('addImgNameInput').value = '';
-      document.getElementById('addImgNameError').textContent = '';
-      document.getElementById('addImgSaveBtn').disabled = true;
-      document.getElementById('addImgStep2').classList.remove('visible');
-      document.getElementById('addImgStep3').classList.add('visible');
-    });
+    // FIX 2: Edit Mode for Add Extra Image
+    function setupAddImgPreview(imgData) {
+        pendingExtraBase64 = imgData;
+        isEditingExtra = false;
+        
+        const stage = document.getElementById('addImgStage');
+        stage.innerHTML = `<img class="addimg-preview" id="addImgPreview" src="${imgData}" alt="New image">`;
+        
+        const editBtn = document.getElementById('addImgEditBtn');
+        const nextBtn = document.getElementById('addImgNextBtn');
+        
+        editBtn.style.display = 'flex';
+        nextBtn.classList.remove('finish-btn');
+        nextBtn.classList.add('next-btn');
+        nextBtn.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Next';
 
-    document.getElementById('addImgNameInput').addEventListener('input', (e) => {
-      const v = e.target.value.trim();
-      document.getElementById('addImgSaveBtn').disabled = v.length === 0;
-      if(v.length) document.getElementById('addImgNameError').textContent = '';
-    });
+        document.getElementById('addImgEditBtn').onclick = () => {
+            isEditingExtra = true;
+            editBtn.style.display = 'none';
+            nextBtn.classList.remove('next-btn');
+            nextBtn.classList.add('finish-btn');
+            nextBtn.innerHTML = '<i class="fa-solid fa-check"></i> Finish';
+            
+            initCrop('addImgStage', pendingExtraBase64, (newData) => {
+                pendingExtraBase64 = newData;
+                setupAddImgPreview(newData);
+            }, () => {
+                setupAddImgPreview(pendingExtraBase64);
+            });
+        };
+
+        document.getElementById('addImgNextBtn').onclick = () => {
+            if(isEditingExtra) {
+                finishCrop();
+            } else {
+                document.getElementById('addImgStep2').classList.remove('visible');
+                document.getElementById('addImgStep3').classList.add('visible');
+                document.getElementById('addImgThumb').src = pendingExtraBase64;
+                document.getElementById('addImgNameInput').value = '';
+                document.getElementById('addImgSaveBtn').disabled = true;
+            }
+        };
+    }
 
     document.getElementById('addImgSaveBtn').addEventListener('click', () => {
       const name = document.getElementById('addImgNameInput').value.trim();
@@ -975,18 +1229,56 @@
         imageUrl: null,
         timestamp: Date.now()
       };
-      
-      // Trigger sync for the parent doc
       addSyncTask({ type: 'save', cls: currentDetailClass, docId: currentDetailDocId });
-      if(navigator.onLine) processQueue();
-      
       saveStoreLocal();
+
+      if(navigator.onLine) {
+        showUploadPopup('Uploading image...', 'Please wait', false);
+        processQueue().then(() => {
+          hideUploadPopup();
+        });
+      } else {
+        showUploadPopup('Saved locally', 'Waiting for internet connection', true);
+        setTimeout(hideUploadPopup, 2000);
+      }
+
       closeOvl('addImgOverlay');
       openDetail(currentDetailDocId, currentDetailClass);
       showToast('Image added', 'fa-solid fa-plus');
     });
 
     document.getElementById('addImgCancelBtn').addEventListener('click', () => closeOvl('addImgOverlay'));
+    document.getElementById('addImgNameInput').addEventListener('input', (e) => {
+      document.getElementById('addImgSaveBtn').disabled = !e.target.value.trim();
+    });
+    document.getElementById('addImgCamBtn').addEventListener('click', async () => {
+      try {
+        const camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } });
+        video.srcObject = camStream;
+        cameraOverlay.classList.add('active');
+        document.getElementById('captureBtn')._isExtra = true;
+      } catch(err1) {
+        try {
+          const camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } } });
+          video.srcObject = camStream;
+          cameraOverlay.classList.add('active');
+          document.getElementById('captureBtn')._isExtra = true;
+        } catch(err2) {
+          try {
+            const camStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = camStream;
+            cameraOverlay.classList.add('active');
+            document.getElementById('captureBtn')._isExtra = true;
+          } catch(err3) {
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+              showToast('Camera requires HTTPS.', 'fa-solid fa-lock');
+            } else {
+              showToast('Camera access denied. Check permissions.', 'fa-solid fa-video-slash');
+            }
+          }
+        }
+      }
+    });
     document.getElementById('detailCloseBtn').addEventListener('click', () => closeOvl('detailOverlay'));
 
     // --- MOVE & MULTI-SELECT LOGIC ---
@@ -1010,11 +1302,8 @@
 
     document.getElementById('selectAllBtn').addEventListener('click', () => {
       const docs = Object.values(store[currentTableCls]);
-      if(selectedRows.size === docs.length) {
-        selectedRows.clear();
-      } else {
-        docs.forEach(d => selectedRows.add(d.id));
-      }
+      if(selectedRows.size === docs.length) selectedRows.clear();
+      else docs.forEach(d => selectedRows.add(d.id));
       renderTable();
     });
 
@@ -1024,9 +1313,6 @@
       renderTable();
     });
 
-    // Enter select mode via long press or button? Let's add a hidden mechanism or just use the Move button logic if 1 selected
-    // For this UI, let's assume select mode is toggled by tapping the checkbox. 
-    // But checkboxes are hidden. Let's make clicking the count icon toggle select mode?
     document.getElementById('tableCountIcon').parentElement.addEventListener('click', () => {
        selectMode = !selectMode;
        if(!selectMode) selectedRows.clear();
@@ -1034,40 +1320,34 @@
     });
 
     document.getElementById('moveBtn').addEventListener('click', () => {
-      if(selectedRows.size !== 1) return;
-      const id = [...selectedRows][0];
-      currentMovingId = id;
-      
+      if(selectedRows.size === 0) return;
+      const ids = [...selectedRows];
       const moveOpts = document.getElementById('moveOptions');
       moveOpts.innerHTML = '';
-      
       Object.keys(store).forEach(cls => {
         if(cls === currentTableCls) return;
         const btn = document.createElement('button');
         btn.className = 'move-opt-btn';
         btn.innerHTML = `<div class="move-dot" style="background:${classColors[cls]}"></div> ${classNames[cls]}`;
         btn.addEventListener('click', () => {
-          performMove(id, currentTableCls, cls);
+          ids.forEach(id => performMove(id, currentTableCls, cls));
           closeOvl('moveOverlay');
         });
         moveOpts.appendChild(btn);
       });
-      
       openOvl('moveOverlay');
     });
 
     function performMove(id, fromCls, toCls) {
       const doc = store[fromCls][id];
+      if(!doc) return;
       delete store[fromCls][id];
       store[toCls][id] = doc;
-      
-      // Offline Sync Task
       addSyncTask({ type: 'move', docId: id, fromCls: fromCls, toCls: toCls });
       if(navigator.onLine) processQueue();
-
       saveStoreLocal();
+      selectedRows.delete(id);
       renderTable();
-      updateBadges();
       showToast('Moved to ' + classNames[toCls], 'fa-solid fa-arrows-up-down-left-right');
     }
 
@@ -1077,23 +1357,13 @@
       openOvl('deleteConfirmOverlay');
     });
     
-    // Override Delete Yes for multi-select
-    const originalDeleteYes = document.getElementById('deleteConfirmYes').onclick;
-    // We need to handle the logic inside the event listener carefully.
-    // The current delete listener checks `deletingDocId`.
-    // We'll modify the delete listener to handle both.
-
-    // Re-define delete confirm yes
     const delYesBtn = document.getElementById('deleteConfirmYes');
-    // Clone to remove old listeners
     const newDelYes = delYesBtn.cloneNode(true);
     delYesBtn.parentNode.replaceChild(newDelYes, delYesBtn);
     
     newDelYes.addEventListener('click', () => {
       closeOvl('deleteConfirmOverlay');
-      
       if (currentTableCls && selectedRows.size > 0) {
-        // Multi delete
         selectedRows.forEach(id => {
           delete store[currentTableCls][id];
           addSyncTask({ type: 'delete', docId: id });
@@ -1101,12 +1371,10 @@
         if(navigator.onLine) processQueue();
         saveStoreLocal();
         renderTable();
-        updateBadges();
         showToast('Documents deleted', 'fa-solid fa-trash');
         selectMode = false;
         selectedRows.clear();
       } else if (deletingDocId) {
-         // Single delete (from detail view)
          if (deletingDocId === currentDetailDocId) {
             delete store[currentDetailClass][deletingDocId];
             addSyncTask({ type: 'delete', docId: deletingDocId });
@@ -1122,16 +1390,13 @@
             showToast('Image removed', 'fa-solid fa-trash');
          }
          saveStoreLocal();
-         updateBadges();
       }
       deletingDocId = null;
     });
 
     document.getElementById('deleteConfirmNo').addEventListener('click', () => closeOvl('deleteConfirmOverlay'));
-
-    // Init App
+    
     init();
-
   </script>
 </body>
 </html>
