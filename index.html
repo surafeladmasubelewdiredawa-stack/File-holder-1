@@ -871,13 +871,23 @@
 
     async function performMove(targetView){
       try {
+        // Show overlay immediately
+        uploadText.textContent='Moving...'; uploadSub.textContent='Please wait'; uploadOfflineNote.style.display='none'; uploadOverlay.classList.add('active');
+
         var _sel=[...selectedIds];
+        var wasOffline = false;
         for(var i=0;i<_sel.length;i++){
           var id=_sel[i], data=await restGet(activeView+'/'+id);
-          if(data) await restSet(targetView+'/'+id,data);
+          if(data) {
+            var setResult = await restSet(targetView+'/'+id,data);
+            if (setResult && setResult.offline) wasOffline = true;
+          }
         }
         var updates={}; selectedIds.forEach(function(id){updates[activeView+'/'+id]=null});
-        await restPatch(updates);
+        var patchResult = await restPatch(updates);
+        if (patchResult && patchResult.offline) wasOffline = true;
+
+        // Update local cache immediately
         var sourceData = viewDataCache[activeView] || {};
         var targetData = viewDataCache[targetView] || {};
         selectedIds.forEach(function(id){
@@ -890,22 +900,53 @@
         viewDataCache[targetView] = targetData;
         cacheData(activeView, sourceData);
         cacheData(targetView, targetData);
-        exitSelectMode(); renderTable(activeView); showToast('<i class="fa-solid fa-check"></i> Moved!');
-      } catch(e) { showToast('<i class="fa-solid fa-triangle-exclamation"></i> Move error'); }
+
+        if (wasOffline) {
+          uploadOfflineNote.style.display='flex'; 
+          uploadText.textContent='Moved locally'; uploadSub.textContent='Will sync to cloud when online';
+          setTimeout(function(){ uploadOverlay.classList.remove('active'); }, 1500);
+          showToast('<i class="fa-solid fa-wifi-slash"></i> Moved offline - will sync', 3000);
+        } else {
+          uploadOverlay.classList.remove('active');
+          showToast('<i class="fa-solid fa-check"></i> Moved to cloud & local!');
+        }
+        exitSelectMode(); renderTable(activeView);
+      } catch(e) { 
+        uploadOverlay.classList.remove('active');
+        showToast('<i class="fa-solid fa-triangle-exclamation"></i> Move error'); 
+      }
     }
 
     document.getElementById('deleteSelBtn').addEventListener('click',function(){ if(selectedIds.size===0) return; requireAuth(function(){performDelete(selectedIds)}); });
     async function performDelete(ids){ 
       try{ 
+        // Show overlay immediately
+        uploadText.textContent='Deleting...'; uploadSub.textContent='Please wait'; uploadOfflineNote.style.display='none'; uploadOverlay.classList.add('active');
+
         var updates={}; 
         ids.forEach(function(id){updates[activeView+'/'+id]=null}); 
-        await restPatch(updates);
+        var result = await restPatch(updates);
+
+        // Remove from local cache immediately
         var data = viewDataCache[activeView] || {};
         ids.forEach(function(id){ delete data[id]; });
         viewDataCache[activeView] = data;
         cacheData(activeView, data);
-        exitSelectMode(); renderTable(activeView); showToast('<i class="fa-solid fa-trash"></i> Deleted'); 
-      }catch(e){showToast('<i class="fa-solid fa-triangle-exclamation"></i> Delete error');} 
+
+        if (result && result.offline) {
+          uploadOfflineNote.style.display='flex'; 
+          uploadText.textContent='Deleted locally'; uploadSub.textContent='Will sync to cloud when online';
+          setTimeout(function(){ uploadOverlay.classList.remove('active'); }, 1500);
+          showToast('<i class="fa-solid fa-wifi-slash"></i> Deleted offline - will sync');
+        } else {
+          showToast('<i class="fa-solid fa-trash"></i> Deleted from cloud & local'); 
+          uploadOverlay.classList.remove('active');
+        }
+        exitSelectMode(); renderTable(activeView); 
+      }catch(e){
+        uploadOverlay.classList.remove('active');
+        showToast('<i class="fa-solid fa-triangle-exclamation"></i> Delete error');
+      } 
     }
     document.getElementById('moveCancelBtn').addEventListener('click',function(){document.getElementById('moveOverlay').classList.remove('active')});
 
@@ -967,17 +1008,34 @@
       item.querySelector('.delete-btn').onclick=function(){ 
         requireAuth(async function(){ 
           try{ 
-            if(isExtra) await restDelete(view+'/'+parentId+'/extraImages/'+id); 
-            else await restDelete(view+'/'+id); 
+            var delResult;
+            if(isExtra) delResult = await restDelete(view+'/'+parentId+'/extraImages/'+id); 
+            else delResult = await restDelete(view+'/'+id); 
+
+            // Remove from local cache immediately
             if (!isExtra) {
               var data = viewDataCache[view] || {};
               delete data[id];
               viewDataCache[view] = data;
               cacheData(view, data);
+            } else {
+              // Update extraImages in local cache
+              var parentData = viewDataCache[view];
+              if (parentData && parentId && parentData[parentId] && parentData[parentId].extraImages) {
+                delete parentData[parentId].extraImages[id];
+                cacheData(view, parentData);
+              }
             }
+
+            // Remove from UI immediately with animation
             item.style.animation='imgOutro .3s ease forwards'; 
             setTimeout(function(){item.remove();if(detailImages.children.length===0)detailOverlay.classList.remove('active')},300); 
-            showToast('<i class="fa-solid fa-trash"></i> Deleted'); 
+
+            if (delResult && delResult.offline) {
+              showToast('<i class="fa-solid fa-wifi-slash"></i> Deleted offline - will sync', 3000);
+            } else {
+              showToast('<i class="fa-solid fa-trash"></i> Deleted from cloud & local'); 
+            }
             if (!isExtra && activeView === view) renderTable(view);
           }catch(e){showToast('Delete error')} 
         }); 
@@ -1062,12 +1120,8 @@
     });
 
     // --- 14. Offline Sync ---
-    function queueOfflinePush(path,data){ 
-      var q=JSON.parse(localStorage.getItem('offlineQueue')||'[]'); 
-      q.push({path:path,data:data}); 
-      localStorage.setItem('offlineQueue',JSON.stringify(q)); 
-    }
-    
+    // (queueOfflinePush is defined above at line ~428 with proper 'type' field)
+
     async function syncOfflineData(){
       var q=JSON.parse(localStorage.getItem('offlineQueue')||'[]'); 
       if(!q.length) return;
