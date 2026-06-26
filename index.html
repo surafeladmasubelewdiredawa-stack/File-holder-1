@@ -177,7 +177,6 @@
     .doc-index{color:var(--muted);font-size:.75rem;font-weight:500;width:32px}
     .name-cell{display:flex;align-items:center;gap:10px;width:100%;justify-content:space-between}
     .doc-name-text{font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;user-select:text}
-    .user-name-cell{display:flex;align-items:center;min-width:0;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:.8rem}
     .view-icon-btn{width:28px;height:28px;border-radius:7px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:var(--muted);font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
     .view-icon-btn:hover{color:var(--teal);border-color:var(--teal);background:rgba(46,196,162,.08)}
     .col-check,.cell-check{display:none}
@@ -309,7 +308,7 @@
 
   <div class="overlay preview-overlay" id="previewOverlay"><div class="overlay-bg"></div><div class="anim-box preview-content"><div class="preview-stage" id="previewStage"><img id="previewImg" src="" alt="Preview"></div><p class="preview-label" id="previewLabel">Drag to crop area (Edit Mode)</p><div class="preview-actions"><button class="preview-btn" id="previewCloseBtn"><i class="fa-solid fa-xmark"></i> Close</button><button class="preview-btn edit-btn" id="previewEditBtn"><i class="fa-solid fa-crop-simple"></i> Edit</button><button class="preview-btn next-btn" id="previewNextBtn"><i class="fa-solid fa-arrow-right"></i> Next</button></div></div></div>
   
-  <div class="overlay save-overlay" id="saveOverlay"><div class="overlay-bg"></div><div class="anim-box save-box"><div class="save-box-title"><i class="fa-solid fa-floppy-disk"></i> Save Document</div><div class="input-group"><label for="docNameInput">Image Name</label><input type="text" id="docNameInput" placeholder="Enter image name..."><div class="error-msg" id="nameError"></div></div><div class="input-group"><label for="userNameInput">Your Name</label><input type="text" id="userNameInput" placeholder="Enter your name..."><div class="error-msg" id="userError"></div></div><div class="class-group"><label>Choose Class</label><div class="class-options"><button class="class-btn c1" data-class="view1"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--teal);font-size:.85rem"></i> የህፃናት</button><button class="class-btn c2" data-class="view2"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--sky);font-size:.85rem"></i> የታዳጊ</button><button class="class-btn c3" data-class="view3"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--purple);font-size:.85rem"></i> የማእከላውያን</button><button class="class-btn c4" data-class="view4"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--rose);font-size:.85rem"></i> የወጣቶች</button></div></div><button class="finished-btn" id="finishedBtn" disabled><i class="fa-solid fa-check"></i> Finished</button></div></div>
+  <div class="overlay save-overlay" id="saveOverlay"><div class="overlay-bg"></div><div class="anim-box save-box"><div class="save-box-title"><i class="fa-solid fa-floppy-disk"></i> Save Document</div><div class="input-group"><label for="docNameInput">Image Name</label><input type="text" id="docNameInput" placeholder="Enter image name..."><div class="error-msg" id="nameError"></div></div><div class="input-group"><label for="userNameInput">Your Name (Table Name)</label><input type="text" id="userNameInput" placeholder="Enter your name..."><div class="error-msg" id="userError"></div></div><div class="class-group"><label>Choose Class</label><div class="class-options"><button class="class-btn c1" data-class="view1"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--teal);font-size:.85rem"></i> የህፃናት</button><button class="class-btn c2" data-class="view2"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--sky);font-size:.85rem"></i> የታዳጊ</button><button class="class-btn c3" data-class="view3"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--purple);font-size:.85rem"></i> የማእከላውያን</button><button class="class-btn c4" data-class="view4"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--rose);font-size:.85rem"></i> የወጣቶች</button></div></div><button class="finished-btn" id="finishedBtn" disabled><i class="fa-solid fa-check"></i> Finished</button></div></div>
 
   <div class="overlay table-overlay" id="tableOverlay"><div class="overlay-bg"></div><div class="anim-box table-box"><div class="table-header"><div class="header-left"><div class="table-title" id="tableTitle"><span class="doc-count-icon" id="tableCountIcon">0</span><button class="search-icon-btn" id="searchIconBtn" title="Search names"><i class="fa-solid fa-magnifying-glass"></i></button><input type="text" class="search-input" id="searchInput" placeholder="Search name..."><button class="search-clear-btn" id="searchClearBtn" title="Clear search"><i class="fa-solid fa-xmark"></i></button></div><div class="select-bar" id="selectBar"><button class="sel-btn" id="selectAllBtn"><i class="fa-solid fa-check-double"></i> All</button><button class="sel-btn move-btn" id="moveBtn" disabled><i class="fa-solid fa-arrows-up-down-left-right"></i> Move</button><button class="sel-btn delete-sel-btn" id="deleteSelBtn" disabled><i class="fa-solid fa-trash-can"></i> Delete</button><button class="sel-btn exit-btn" id="exitSelectBtn"><i class="fa-solid fa-xmark"></i> Exit</button><span class="sel-count"><i class="fa-solid fa-circle-info"></i> <span id="selectCount">0</span></span></div></div><button class="table-close" id="tableCloseBtn"><i class="fa-solid fa-xmark"></i></button></div><div class="table-wrap"><table class="doc-table" id="docTable"><thead><tr><th class="col-check"></th><th>#</th><th>Name</th></tr></thead><tbody id="tableBody"></tbody></table></div></div></div>
 
@@ -767,7 +766,15 @@
         tableCountIcon.textContent='0'; 
         return; 
       }
-      var arr=Object.entries(data).sort(function(a,b){return (b[1].timestamp||0)-(a[1].timestamp||0)}); 
+      // CHANGED: Sort A to Z by user name (Table Name)
+      var arr = Object.entries(data).sort(function(a, b) {
+        var nameA = (a[1].user || 'Unnamed').toLowerCase();
+        var nameB = (b[1].user || 'Unnamed').toLowerCase();
+        if (nameA < nameB) return -1;
+        if (nameA > nameB) return 1;
+        return 0;
+      });
+      
       tableCountIcon.textContent=arr.length;
       if(arr.length===0){ 
         tableBody.innerHTML='<tr><td colspan="3" class="doc-hint"><i class="fa-solid fa-inbox"></i>No documents yet</td></tr>'; 
@@ -776,8 +783,7 @@
       arr.forEach(function(item,i){
         var id=item[0],doc=item[1];
         var tr=document.createElement('tr'); tr.dataset.id=id; tr.dataset.view=view;
-        // REMOVED: <span class="doc-name-cell">'+(doc.user||'')+'</span>  (user name removed from table; only image name + eye shown; user name still displayed in image preview)
-        tr.innerHTML='<td class="cell-check"><i class="fa-regular fa-square"></i></td><td class="doc-index">'+(i+1)+'</td><td><div class="name-cell"><span class="doc-name-text">'+(doc.name||'Unnamed')+'</span><button class="view-icon-btn" title="View"><i class="fa-solid fa-eye"></i></button></div></td>';
+        tr.innerHTML='<td class="cell-check"><i class="fa-regular fa-square"></i></td><td class="doc-index">'+(i+1)+'</td><td><div class="name-cell"><span class="doc-name-text">'+(doc.user||'Unnamed')+'</span><button class="view-icon-btn" title="View"><i class="fa-solid fa-eye"></i></button></div></td>';
         tr.addEventListener('click',function(e){ if(selectMode&&!e.target.closest('.view-icon-btn')) toggleSelect(tr,id); else if(e.target.closest('.view-icon-btn')) openDetail(view,id,null); });
         tableBody.appendChild(tr);
       });
@@ -824,7 +830,6 @@
       if(!selectMode){exitSelectMode();return;}
       selectedIds.clear(); tableOverlay.querySelector('.table-wrap').classList.add('select-mode'); tableTitle.classList.add('hidden'); selectBar.classList.add('visible'); updateSelectUI();
     });
-    // MODIFIED: When double-clicking a row initially, enter select mode AND select the double-clicked row
     tableBody.addEventListener('dblclick',function(e){
       if(selectMode) return;
       var tr=e.target.closest('tr[data-id]'); if(!tr) return;
@@ -832,7 +837,6 @@
       tableOverlay.querySelector('.table-wrap').classList.add('select-mode'); 
       tableTitle.classList.add('hidden'); 
       selectBar.classList.add('visible'); 
-      // Select the row that was double-clicked (so count becomes 1, not 0)
       toggleSelect(tr, tr.dataset.id);
     });
     document.getElementById('exitSelectBtn').addEventListener('click',exitSelectMode);
@@ -945,20 +949,21 @@
     function addImageToDetail(src,name,user,id,view,isExtra,parentId){
       isExtra=isExtra||false; parentId=parentId||null;
       var item=document.createElement('div'); item.className='detail-img-item';
-      // NOTE: image preview (detail view) still displays both the image name (main-name) AND the user name (user-name)
       item.innerHTML='<div class="detail-img-stage"><img src="'+src+'" alt="'+name+'"></div><div class="detail-img-name-block"><div class="detail-img-main-name">'+name+'</div><div class="detail-img-user-name">'+user+'</div></div><div class="img-divider"></div><div class="img-actions"><button class="download-btn"><i class="fa-solid fa-download"></i> Download</button><button class="delete-btn"><i class="fa-solid fa-trash-can"></i> Delete</button></div>';
+      
       item.querySelector('.download-btn').onclick=function(){ 
         fetch(src).then(function(r){return r.blob()}).then(function(blob){ 
           var url=URL.createObjectURL(blob); 
           var a=document.createElement('a'); 
           a.href=url; 
-          a.download=name+'.jpg'; 
+          a.download = (user || 'User') + ' (' + (name || 'Image') + ').jpg';
           document.body.appendChild(a); 
           a.click(); 
           a.remove(); 
           URL.revokeObjectURL(url); 
         }); 
       };
+      
       item.querySelector('.delete-btn').onclick=function(){ 
         requireAuth(async function(){ 
           try{ 
