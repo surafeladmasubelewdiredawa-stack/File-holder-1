@@ -337,28 +337,111 @@
       if (path) url += '/' + path;
       return url + '.json' + AUTH;
     }
+    
     async function restGet(path) {
-      const res = await fetch(restUrl(path || ''));
-      return await res.json();
+      try {
+        const res = await fetch(restUrl(path || ''));
+        if (!res.ok) throw new Error('Network error');
+        return await res.json();
+      } catch(e) {
+        try {
+          const cached = localStorage.getItem('cache_' + (path || 'root'));
+          return cached ? JSON.parse(cached) : null;
+        } catch(ce) {
+          return null;
+        }
+      }
     }
+    
     async function restPush(path, data) {
-      const res = await fetch(restUrl(path), {
-        method: 'POST', body: JSON.stringify(data)
-      });
-      return await res.json();
+      if (!isOnline) {
+        queueOfflinePush(path, data);
+        return { offline: true };
+      }
+      try {
+        const res = await fetch(restUrl(path), {
+          method: 'POST', body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error('Network error');
+        const result = await res.json();
+        cacheData(path, data);
+        return result;
+      } catch(e) {
+        queueOfflinePush(path, data);
+        return { offline: true };
+      }
     }
+    
     async function restSet(path, data) {
-      await fetch(restUrl(path), {
-        method: 'PUT', body: JSON.stringify(data)
-      });
+      if (!isOnline) {
+        queueOfflinePush(path, data);
+        return { offline: true };
+      }
+      try {
+        await fetch(restUrl(path), {
+          method: 'PUT', body: JSON.stringify(data)
+        });
+        cacheData(path, data);
+        return { success: true };
+      } catch(e) {
+        queueOfflinePush(path, data);
+        return { offline: true };
+      }
     }
+    
     async function restDelete(path) {
-      await fetch(restUrl(path), { method: 'DELETE' });
+      if (!isOnline) {
+        queueOfflineDelete(path);
+        return { offline: true };
+      }
+      try {
+        await fetch(restUrl(path), { method: 'DELETE' });
+        return { success: true };
+      } catch(e) {
+        queueOfflineDelete(path);
+        return { offline: true };
+      }
     }
+    
     async function restPatch(updates) {
-      await fetch(restUrl(''), {
-        method: 'PATCH', body: JSON.stringify(updates)
-      });
+      if (!isOnline) {
+        queueOfflinePatch(updates);
+        return { offline: true };
+      }
+      try {
+        await fetch(restUrl(''), {
+          method: 'PATCH', body: JSON.stringify(updates)
+        });
+        return { success: true };
+      } catch(e) {
+        queueOfflinePatch(updates);
+        return { offline: true };
+      }
+    }
+
+    function cacheData(path, data) {
+      try {
+        const cacheKey = 'cache_' + (path || 'root');
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+      } catch(e) {}
+    }
+
+    function queueOfflinePush(path, data) {
+      var q = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+      q.push({ type: 'push', path: path, data: data });
+      localStorage.setItem('offlineQueue', JSON.stringify(q));
+    }
+
+    function queueOfflineDelete(path) {
+      var q = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+      q.push({ type: 'delete', path: path });
+      localStorage.setItem('offlineQueue', JSON.stringify(q));
+    }
+
+    function queueOfflinePatch(updates) {
+      var q = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+      q.push({ type: 'patch', updates: updates });
+      localStorage.setItem('offlineQueue', JSON.stringify(q));
     }
 
     async function hashPassword(pw) {
@@ -372,6 +455,7 @@
     var currentProcessedImage = null, targetClass = null;
     var currentDetailId = null, currentDetailView = null, newExtraImg = null;
     var authCallback = null, pollTimer = null, stream = null;
+    var viewDataCache = {};
 
     // --- 3. DOM ---
     var loginOverlay=document.getElementById('loginOverlay'),
@@ -406,15 +490,23 @@
         addImgFileInput=document.getElementById('addImgFileInput');
 
     var viewMap = {
-      view1: { title: 'የኅውናጋቲት', color: 'var(--teal)' },
-      view2: { title: 'የታዳዌጂ', color: 'var(--sky)' },
-      view3: { title: 'የማዊክከስዋዎን', color: 'var(--purple)' },
-      view4: { title: 'የዋለችዝቲት', color: 'var(--rose)' }
+      view1: { title: 'የህፃናት', color: 'var(--teal)' },
+      view2: { title: 'የታዳጊ', color: 'var(--sky)' },
+      view3: { title: 'የማእከላውያን', color: 'var(--purple)' },
+      view4: { title: 'የወጣቶች', color: 'var(--rose)' }
     };
 
     // --- 4. Toast & Ripple ---
-    window.addEventListener('online', function(){ isOnline=true; showToast('<i class="fa-solid fa-wifi"></i> Back online!',2000); syncOfflineData(); });
-    window.addEventListener('offline', function(){ isOnline=false; showToast('<i class="fa-solid fa-wifi-slash"></i> You are offline',3000); });
+    window.addEventListener('online', function(){ 
+      isOnline=true; 
+      showToast('<i class="fa-solid fa-wifi"></i> Back online!',2000); 
+      syncOfflineData();
+      updateAllViews();
+    });
+    window.addEventListener('offline', function(){ 
+      isOnline=false; 
+      showToast('<i class="fa-solid fa-wifi-slash"></i> You are offline - using cached data',3000);
+    });
     var toastTimer;
     function showToast(m,d){ d=d||2500; clearTimeout(toastTimer); toastEl.innerHTML=m; toastEl.classList.add('show'); toastTimer=setTimeout(function(){toastEl.classList.remove('show')},d); }
     function addRipple(e,el){ var r=document.createElement('span');r.className='ripple';var rc=el.getBoundingClientRect();r.style.left=(e.clientX-rc.left)+'px';r.style.top=(e.clientY-rc.top)+'px';el.appendChild(r);setTimeout(function(){r.remove()},600); }
@@ -422,26 +514,32 @@
     // --- 5. Login (REST API with DB Secret) ---
     async function handleLogin() {
       var pass = loginPass.value;
-      if (!pass) { loginError.textContent = 'ᓍስቈዋግስ ያስገቃ'; return; }
+      if (!pass) { loginError.textContent = 'Password is required'; return; }
       loginBtn.disabled = true; loginBtn.innerHTML = '<span class="spinner"></span> Logging in...'; loginError.textContent = '';
       try {
         var hashed = await hashPassword(pass);
-        var res = await fetch(DB_URL + '/' + DB_PATH + '/_config/password.json' + AUTH);
-        var stored = await res.json();
+        var stored = await restGet('_config/password');
         if (stored === null) {
-          await fetch(DB_URL + '/' + DB_PATH + '/_config.json' + AUTH, { method: 'PUT', body: JSON.stringify({ password: hashed }) });
+          await restSet('_config', { password: hashed });
           loginSuccess();
         } else if (stored === hashed) {
           loginSuccess();
         } else {
-          loginError.textContent = 'ᓍስቈዋግስ ትዊክውቓ አዋጋለምውመ!';
+          loginError.textContent = 'Wrong password!';
         }
-      } catch(e) { loginError.textContent = 'Connection error'; }
+      } catch(e) { 
+        if (localStorage.getItem('loggedIn') === 'true') {
+          loginSuccess();
+        } else {
+          loginError.textContent = 'Connection error - try again'; 
+        }
+      }
       loginBtn.disabled = false; loginBtn.innerHTML = 'Login';
     }
 
     function loginSuccess() {
       currentUser = 'fileholder@gmail.com';
+      localStorage.setItem('loggedIn', 'true');
       loginOverlay.classList.add('hidden');
       mainContainer.classList.remove('hidden');
       logoutBtn.classList.remove('hidden');
@@ -452,6 +550,7 @@
 
     function logout() {
       currentUser = null; activeView = null;
+      localStorage.removeItem('loggedIn');
       mainContainer.classList.add('hidden');
       logoutBtn.classList.add('hidden');
       loginOverlay.classList.remove('hidden');
@@ -469,38 +568,66 @@
 
     authBtn.addEventListener('click', async function() {
       var pass = authPass.value;
-      if (!pass) { authError.textContent = "ᓍስቈዋግስ ያስገቃ"; return; }
+      if (!pass) { authError.textContent = "Password is required"; return; }
       authBtn.disabled = true; authBtn.innerHTML = '<span class="spinner"></span> Checking...';
       try {
         var hashed = await hashPassword(pass);
         var stored = await restGet('_config/password');
-        if (stored === hashed) { authOverlay.classList.remove('active'); if (authCallback) authCallback(); }
-        else { authError.textContent = "ᓍስቈዋግስ ትዊክውቓ አዋጋለምውመ"; }
-      } catch(e) { authError.textContent = "Connection error"; }
+        if (stored === hashed) { 
+          authOverlay.classList.remove('active'); 
+          if (authCallback) authCallback(); 
+        } else {
+          authError.textContent = "Wrong password!";
+        }
+      } catch(e) {
+        authError.textContent = "Connection error";
+      }
       authBtn.disabled = false; authBtn.innerHTML = 'Confirm';
     });
 
     authCancel.addEventListener('click', function(){ authOverlay.classList.remove('active'); authBtn.disabled=false; authBtn.innerHTML='Confirm'; });
 
-    // --- 7. Init App (Lightweight polling - shallow=true, no image data) ---
+    // --- 7. Init App ---
     function initApp() {
       updateBadges();
-      pollTimer = setInterval(updateBadges, 15000);
+      Object.keys(viewMap).forEach(function(key) {
+        try {
+          const cached = localStorage.getItem('cache_' + key);
+          if (cached) {
+            viewDataCache[key] = JSON.parse(cached);
+          }
+        } catch(e) {}
+      });
+      pollTimer = setInterval(updateBadges, 30000);
     }
 
     async function updateBadges() {
       try {
         var promises = Object.keys(viewMap).map(async function(key) {
-          var data = await fetch(restUrl(key) + '&shallow=true').then(function(r){return r.json()});
-          var count = data ? Object.keys(data).length : 0;
-          var btn = document.getElementById('btn' + key.charAt(0).toUpperCase() + key.slice(1));
-          var badge = btn.querySelector('.badge');
-          if (!badge) { badge = document.createElement('span'); badge.className = 'badge'; btn.appendChild(badge); }
-          badge.textContent = count > 0 ? count : '';
-          badge.style.cssText = count > 0 ? 'display:flex;position:absolute;top:-8px;right:-8px;background:var(--accent);color:#fff;border-radius:50%;width:20px;height:20px;align-items:center;justify-content:center;font-size:.7rem;font-weight:bold;z-index:2;' : 'display:none';
+          try {
+            var data = await restGet(key);
+            if (data) {
+              viewDataCache[key] = data;
+              cacheData(key, data);
+            }
+            var count = data ? Object.keys(data).length : 0;
+            var btn = document.getElementById('btn' + key.charAt(0).toUpperCase() + key.slice(1));
+            if (btn) {
+              var badge = btn.querySelector('.badge');
+              if (!badge) { badge = document.createElement('span'); badge.className = 'badge'; btn.appendChild(badge); }
+              badge.textContent = count > 0 ? count : '';
+              badge.style.cssText = count > 0 ? 'display:flex;position:absolute;top:-8px;right:-8px;background:var(--accent);color:#fff;border-radius:50%;width:20px;height:20px;align-items:center;justify-content:center;font-size:.7rem;font-weight:bold;z-index:2;' : 'display:none';
+            }
+          } catch(e) {}
         });
         await Promise.all(promises);
       } catch(e) {}
+    }
+
+    function updateAllViews() {
+      if (activeView) {
+        renderTable(activeView);
+      }
     }
 
     // --- 8. Button Clicks ---
@@ -574,8 +701,29 @@
       try {
         var base64=await compressImage(currentProcessedImage,0.6,1200);
         var entry={name:name,user:user,image:base64,timestamp:Date.now()};
-        if(isOnline){ uploadSub.textContent='Saving to cloud...'; await restPush(targetClass,entry); showToast('<i class="fa-solid fa-check-circle"></i> Saved successfully!'); }
-        else { queueOfflinePush(targetClass,entry); uploadOfflineNote.style.display='flex'; showToast('<i class="fa-solid fa-wifi-slash"></i> Saved offline'); }
+        if(isOnline){ 
+          uploadSub.textContent='Saving to cloud...'; 
+          await restPush(targetClass,entry); 
+          showToast('<i class="fa-solid fa-check-circle"></i> Saved successfully!'); 
+          var cached = viewDataCache[targetClass] || {};
+          var newId = Date.now().toString();
+          cached[newId] = entry;
+          viewDataCache[targetClass] = cached;
+          cacheData(targetClass, cached);
+          if (activeView === targetClass) renderTable(targetClass);
+          updateBadges();
+        } else { 
+          queueOfflinePush(targetClass,entry); 
+          uploadOfflineNote.style.display='flex'; 
+          showToast('<i class="fa-solid fa-wifi-slash"></i> Saved offline');
+          var cached = viewDataCache[targetClass] || {};
+          var newId = 'offline_' + Date.now();
+          cached[newId] = entry;
+          viewDataCache[targetClass] = cached;
+          cacheData(targetClass, cached);
+          if (activeView === targetClass) renderTable(targetClass);
+          updateBadges();
+        }
       } catch(e) { showToast('<i class="fa-solid fa-triangle-exclamation"></i> Error saving'); }
       uploadOverlay.classList.remove('active'); docNameInput.value=''; userNameInput.value=''; targetClass=null;
       document.querySelectorAll('.class-btn').forEach(function(b){b.classList.remove('selected')});
@@ -594,23 +742,74 @@
     }
 
     // --- 11. Table View ---
-    function openTable(view){ activeView=view; selectMode=false; selectedIds.clear(); exitSelectMode(); var info=viewMap[view]; tableCountIcon.textContent='...'; tableCountIcon.style.background=info.color; tableTitle.classList.remove('hidden'); selectBar.classList.remove('visible'); tableBody.innerHTML='<tr><td colspan="3" style="text-align:center;padding:40px 0"><span class="spinner" style="width:28px;height:28px;border-width:3px"></span></td></tr>'; tableOverlay.classList.add('active'); setTimeout(function(){renderTable(view)},30); }
+    function openTable(view){ 
+      activeView=view; 
+      selectMode=false; 
+      selectedIds.clear(); 
+      exitSelectMode(); 
+      var info=viewMap[view]; 
+      tableCountIcon.textContent='0'; 
+      tableCountIcon.style.background=info.color; 
+      tableTitle.classList.remove('hidden'); 
+      selectBar.classList.remove('visible'); 
+      tableBody.innerHTML=''; 
+      tableOverlay.classList.add('active'); 
+      if (viewDataCache[view]) {
+        renderTableFromData(view, viewDataCache[view]);
+      }
+      renderTable(view); 
+    }
+
+    function renderTableFromData(view, data) {
+      tableBody.innerHTML='';
+      if(!data || Object.keys(data).length === 0){ 
+        tableBody.innerHTML='<tr><td colspan="3" class="doc-hint"><i class="fa-solid fa-inbox"></i>No documents yet</td></tr>'; 
+        tableCountIcon.textContent='0'; 
+        return; 
+      }
+      var arr=Object.entries(data).sort(function(a,b){return (b[1].timestamp||0)-(a[1].timestamp||0)}); 
+      tableCountIcon.textContent=arr.length;
+      if(arr.length===0){ 
+        tableBody.innerHTML='<tr><td colspan="3" class="doc-hint"><i class="fa-solid fa-inbox"></i>No documents yet</td></tr>'; 
+        return; 
+      }
+      arr.forEach(function(item,i){
+        var id=item[0],doc=item[1];
+        var tr=document.createElement('tr'); tr.dataset.id=id; tr.dataset.view=view;
+        // REMOVED: <span class="doc-name-cell">'+(doc.user||'')+'</span>  (user name removed from table; only image name + eye shown; user name still displayed in image preview)
+        tr.innerHTML='<td class="cell-check"><i class="fa-regular fa-square"></i></td><td class="doc-index">'+(i+1)+'</td><td><div class="name-cell"><span class="doc-name-text">'+(doc.name||'Unnamed')+'</span><button class="view-icon-btn" title="View"><i class="fa-solid fa-eye"></i></button></div></td>';
+        tr.addEventListener('click',function(e){ if(selectMode&&!e.target.closest('.view-icon-btn')) toggleSelect(tr,id); else if(e.target.closest('.view-icon-btn')) openDetail(view,id,null); });
+        tableBody.appendChild(tr);
+      });
+    }
 
     async function renderTable(view){
       try {
         var data=await restGet(view);
-        tableBody.innerHTML='';
-        if(!data){ tableBody.innerHTML='<tr><td colspan="3" class="doc-hint"><i class="fa-solid fa-inbox"></i>No documents yet</td></tr>'; tableCountIcon.textContent='0'; return; }
-        var arr=Object.entries(data).sort(function(a,b){return (b[1].timestamp||0)-(a[1].timestamp||0)}); tableCountIcon.textContent=arr.length;
-        if(arr.length===0){ tableBody.innerHTML='<tr><td colspan="3" class="doc-hint"><i class="fa-solid fa-inbox"></i>No documents yet</td></tr>'; return; }
-        arr.forEach(function(item,i){
-          var id=item[0],doc=item[1];
-          var tr=document.createElement('tr'); tr.dataset.id=id; tr.dataset.view=view;
-          tr.innerHTML='<td class="cell-check"><i class="fa-regular fa-square"></i></td><td class="doc-index">'+(i+1)+'</td><td><div class="name-cell"><span class="doc-name-text">'+(doc.name||'Unnamed')+'</span><span class="doc-name-cell">'+(doc.user||'')+'</span><button class="view-icon-btn" title="View"><i class="fa-solid fa-eye"></i></button></div></td>';
-          tr.addEventListener('click',function(e){ if(selectMode&&!e.target.closest('.view-icon-btn')) toggleSelect(tr,id); else if(e.target.closest('.view-icon-btn')) openDetail(view,id,null); });
-          tableBody.appendChild(tr);
-        });
-      } catch(e) { tableBody.innerHTML='<tr><td colspan="3" class="doc-hint"><i class="fa-solid fa-triangle-exclamation"></i>Error loading</td></tr>'; tableCountIcon.textContent='0'; }
+        if (data) {
+          viewDataCache[view] = data;
+          cacheData(view, data);
+          renderTableFromData(view, data);
+        } else if (viewDataCache[view]) {
+          renderTableFromData(view, viewDataCache[view]);
+          if (!isOnline) {
+            showToast('<i class="fa-solid fa-wifi-slash"></i> Offline - showing cached data', 2000);
+          }
+        } else {
+          tableBody.innerHTML='<tr><td colspan="3" class="doc-hint"><i class="fa-solid fa-inbox"></i>No documents yet</td></tr>'; 
+          tableCountIcon.textContent='0';
+        }
+      } catch(e) { 
+        if (viewDataCache[view]) {
+          renderTableFromData(view, viewDataCache[view]);
+          if (!isOnline) {
+            showToast('<i class="fa-solid fa-wifi-slash"></i> Offline - showing cached data', 2000);
+          }
+        } else {
+          tableBody.innerHTML='<tr><td colspan="3" class="doc-hint"><i class="fa-solid fa-triangle-exclamation"></i>Error loading - offline</td></tr>'; 
+          tableCountIcon.textContent='0';
+        }
+      }
     }
 
     document.getElementById('tableCloseBtn').addEventListener('click',function(){tableOverlay.classList.remove('active')});
@@ -625,10 +824,16 @@
       if(!selectMode){exitSelectMode();return;}
       selectedIds.clear(); tableOverlay.querySelector('.table-wrap').classList.add('select-mode'); tableTitle.classList.add('hidden'); selectBar.classList.add('visible'); updateSelectUI();
     });
+    // MODIFIED: When double-clicking a row initially, enter select mode AND select the double-clicked row
     tableBody.addEventListener('dblclick',function(e){
       if(selectMode) return;
       var tr=e.target.closest('tr[data-id]'); if(!tr) return;
-      selectMode=true; selectedIds.clear(); tableOverlay.querySelector('.table-wrap').classList.add('select-mode'); tableTitle.classList.add('hidden'); selectBar.classList.add('visible'); updateSelectUI();
+      selectMode=true; selectedIds.clear(); 
+      tableOverlay.querySelector('.table-wrap').classList.add('select-mode'); 
+      tableTitle.classList.add('hidden'); 
+      selectBar.classList.add('visible'); 
+      // Select the row that was double-clicked (so count becomes 1, not 0)
+      toggleSelect(tr, tr.dataset.id);
     });
     document.getElementById('exitSelectBtn').addEventListener('click',exitSelectMode);
     document.getElementById('selectAllBtn').addEventListener('click',function(){
@@ -669,12 +874,35 @@
         }
         var updates={}; selectedIds.forEach(function(id){updates[activeView+'/'+id]=null});
         await restPatch(updates);
+        var sourceData = viewDataCache[activeView] || {};
+        var targetData = viewDataCache[targetView] || {};
+        selectedIds.forEach(function(id){
+          if (sourceData[id]) {
+            targetData[id] = sourceData[id];
+            delete sourceData[id];
+          }
+        });
+        viewDataCache[activeView] = sourceData;
+        viewDataCache[targetView] = targetData;
+        cacheData(activeView, sourceData);
+        cacheData(targetView, targetData);
         exitSelectMode(); renderTable(activeView); showToast('<i class="fa-solid fa-check"></i> Moved!');
       } catch(e) { showToast('<i class="fa-solid fa-triangle-exclamation"></i> Move error'); }
     }
 
     document.getElementById('deleteSelBtn').addEventListener('click',function(){ if(selectedIds.size===0) return; requireAuth(function(){performDelete(selectedIds)}); });
-    async function performDelete(ids){ try{ var updates={}; ids.forEach(function(id){updates[activeView+'/'+id]=null}); await restPatch(updates); exitSelectMode(); renderTable(activeView); showToast('<i class="fa-solid fa-trash"></i> Deleted'); }catch(e){showToast('<i class="fa-solid fa-triangle-exclamation"></i> Delete error');} }
+    async function performDelete(ids){ 
+      try{ 
+        var updates={}; 
+        ids.forEach(function(id){updates[activeView+'/'+id]=null}); 
+        await restPatch(updates);
+        var data = viewDataCache[activeView] || {};
+        ids.forEach(function(id){ delete data[id]; });
+        viewDataCache[activeView] = data;
+        cacheData(activeView, data);
+        exitSelectMode(); renderTable(activeView); showToast('<i class="fa-solid fa-trash"></i> Deleted'); 
+      }catch(e){showToast('<i class="fa-solid fa-triangle-exclamation"></i> Delete error');} 
+    }
     document.getElementById('moveCancelBtn').addEventListener('click',function(){document.getElementById('moveOverlay').classList.remove('active')});
 
     // --- 12. Detail View ---
@@ -683,20 +911,72 @@
       detailOverlay.classList.add('active');
       if(!doc){
         detailImages.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted)">Loading image...</div>';
-        try { doc=await restGet(view+'/'+id); } catch(e){ detailImages.innerHTML='<div style="text-align:center;padding:30px;color:var(--accent)">Error loading</div>'; return; }
-        if(!doc){ detailImages.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted)">Not found</div>'; return; }
+        try { 
+          doc=await restGet(view+'/'+id);
+          if (!doc) {
+            var cached = viewDataCache[view];
+            if (cached && cached[id]) {
+              doc = cached[id];
+            }
+          }
+        } catch(e){ 
+          var cached = viewDataCache[view];
+          if (cached && cached[id]) {
+            doc = cached[id];
+          } else {
+            detailImages.innerHTML='<div style="text-align:center;padding:30px;color:var(--accent)">Error loading</div>'; 
+            return; 
+          }
+        }
+        if(!doc){ 
+          detailImages.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted)">Not found</div>'; 
+          return; 
+        }
         detailImages.innerHTML='';
       }
       addImageToDetail(doc.image,doc.name,doc.user,id,view);
-      if(doc.extraImages){ Object.entries(doc.extraImages).forEach(function(e){ addImageToDetail(e[1].image,e[1].name,doc.user,e[0],view,true,id); }); }
+      if(doc.extraImages){ 
+        Object.entries(doc.extraImages).forEach(function(e){ 
+          addImageToDetail(e[1].image,e[1].name,doc.user,e[0],view,true,id); 
+        }); 
+      }
     }
 
     function addImageToDetail(src,name,user,id,view,isExtra,parentId){
       isExtra=isExtra||false; parentId=parentId||null;
       var item=document.createElement('div'); item.className='detail-img-item';
+      // NOTE: image preview (detail view) still displays both the image name (main-name) AND the user name (user-name)
       item.innerHTML='<div class="detail-img-stage"><img src="'+src+'" alt="'+name+'"></div><div class="detail-img-name-block"><div class="detail-img-main-name">'+name+'</div><div class="detail-img-user-name">'+user+'</div></div><div class="img-divider"></div><div class="img-actions"><button class="download-btn"><i class="fa-solid fa-download"></i> Download</button><button class="delete-btn"><i class="fa-solid fa-trash-can"></i> Delete</button></div>';
-      item.querySelector('.download-btn').onclick=function(){ fetch(src).then(function(r){return r.blob()}).then(function(blob){ var url=URL.createObjectURL(blob); var a=document.createElement('a'); a.href=url; a.download=name+'.jpg'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }); };
-      item.querySelector('.delete-btn').onclick=function(){ requireAuth(async function(){ try{ if(isExtra) await restDelete(view+'/'+parentId+'/extraImages/'+id); else await restDelete(view+'/'+id); item.style.animation='imgOutro .3s ease forwards'; setTimeout(function(){item.remove();if(detailImages.children.length===0)detailOverlay.classList.remove('active')},300); showToast('<i class="fa-solid fa-trash"></i> Deleted'); }catch(e){showToast('Delete error')} }); };
+      item.querySelector('.download-btn').onclick=function(){ 
+        fetch(src).then(function(r){return r.blob()}).then(function(blob){ 
+          var url=URL.createObjectURL(blob); 
+          var a=document.createElement('a'); 
+          a.href=url; 
+          a.download=name+'.jpg'; 
+          document.body.appendChild(a); 
+          a.click(); 
+          a.remove(); 
+          URL.revokeObjectURL(url); 
+        }); 
+      };
+      item.querySelector('.delete-btn').onclick=function(){ 
+        requireAuth(async function(){ 
+          try{ 
+            if(isExtra) await restDelete(view+'/'+parentId+'/extraImages/'+id); 
+            else await restDelete(view+'/'+id); 
+            if (!isExtra) {
+              var data = viewDataCache[view] || {};
+              delete data[id];
+              viewDataCache[view] = data;
+              cacheData(view, data);
+            }
+            item.style.animation='imgOutro .3s ease forwards'; 
+            setTimeout(function(){item.remove();if(detailImages.children.length===0)detailOverlay.classList.remove('active')},300); 
+            showToast('<i class="fa-solid fa-trash"></i> Deleted'); 
+            if (!isExtra && activeView === view) renderTable(view);
+          }catch(e){showToast('Delete error')} 
+        }); 
+      };
       detailImages.appendChild(item);
     }
     document.getElementById('detailCloseBtn').addEventListener('click',function(){detailOverlay.classList.remove('active')});
@@ -762,8 +1042,14 @@
       try {
         var base64=await compressImage(newExtraImg,0.6,1200);
         var entry={name:name,image:base64};
-        if(isOnline){ await restPush(currentDetailView+'/'+currentDetailId+'/extraImages',entry); showToast('<i class="fa-solid fa-check"></i> Image added!'); }
-        else { queueOfflinePush(currentDetailView+'/'+currentDetailId+'/extraImages',entry); uploadOfflineNote.style.display='flex'; showToast('<i class="fa-solid fa-wifi-slash"></i> Saved offline'); }
+        if(isOnline){ 
+          await restPush(currentDetailView+'/'+currentDetailId+'/extraImages',entry); 
+          showToast('<i class="fa-solid fa-check"></i> Image added!'); 
+        } else { 
+          queueOfflinePush(currentDetailView+'/'+currentDetailId+'/extraImages',entry); 
+          uploadOfflineNote.style.display='flex'; 
+          showToast('<i class="fa-solid fa-wifi-slash"></i> Saved offline');
+        }
         addImgOverlay.classList.remove('active'); uploadOverlay.classList.remove('active');
         var docData=await restGet(currentDetailView+'/'+currentDetailId);
         if(docData) openDetail(currentDetailView,currentDetailId,docData);
@@ -771,18 +1057,46 @@
     });
 
     // --- 14. Offline Sync ---
-    function queueOfflinePush(path,data){ var q=JSON.parse(localStorage.getItem('offlineQueue')||'[]'); q.push({path:path,data:data}); localStorage.setItem('offlineQueue',JSON.stringify(q)); }
-    function syncOfflineData(){
-      var q=JSON.parse(localStorage.getItem('offlineQueue')||'[]'); if(!q.length) return;
+    function queueOfflinePush(path,data){ 
+      var q=JSON.parse(localStorage.getItem('offlineQueue')||'[]'); 
+      q.push({path:path,data:data}); 
+      localStorage.setItem('offlineQueue',JSON.stringify(q)); 
+    }
+    
+    async function syncOfflineData(){
+      var q=JSON.parse(localStorage.getItem('offlineQueue')||'[]'); 
+      if(!q.length) return;
       var sc=0;
-      Promise.all(q.map(function(item){return restPush(item.path,item.data).then(function(){sc++}).catch(function(){})})).then(function(){
-        if(sc>0){localStorage.removeItem('offlineQueue');showToast('<i class="fa-solid fa-cloud-arrow-up"></i> Synced '+sc+' items!',3000);}
-      });
+      for (var i = 0; i < q.length; i++) {
+        var item = q[i];
+        try {
+          if (item.type === 'push') {
+            await restPush(item.path, item.data);
+            sc++;
+          } else if (item.type === 'delete') {
+            await restDelete(item.path);
+            sc++;
+          } else if (item.type === 'patch') {
+            await restPatch(item.updates);
+            sc++;
+          }
+        } catch(e) {}
+      }
+      if(sc>0){
+        localStorage.removeItem('offlineQueue');
+        showToast('<i class="fa-solid fa-cloud-arrow-up"></i> Synced '+sc+' items!',3000);
+        updateAllViews();
+        updateBadges();
+      }
     }
 
     // --- 15. Background Particles ---
     var particlesEl=document.getElementById('particles');
     for(var i=0;i<25;i++){var p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.bottom='-10px';p.style.animationDuration=(Math.random()*10+8)+'s';p.style.animationDelay=(Math.random()*10)+'s';p.style.width=(Math.random()*3+1)+'px';p.style.height=p.style.width;particlesEl.appendChild(p);}
+
+    if (!navigator.onLine) {
+      showToast('<i class="fa-solid fa-wifi-slash"></i> You are offline - using cached data', 3000);
+    }
 
   </script>
 
