@@ -325,130 +325,198 @@
 
 
   <script>
-    // --- 1. REST API Config ---
-    const DB_URL = 'https://file-holder-f7af0-default-rtdb.firebaseio.com';
-    const DB_SECRET = 'ZbDjXoOfSFQkYsVATKrPyN0xXIr1';
-    const DB_PATH = 'users/' + DB_SECRET;
-    const AUTH = '?auth=' + DB_SECRET;
+    /* ===== 1. REST API Config ===== */
+    var DB_URL = 'https://file-holder-f7af0-default-rtdb.firebaseio.com';
+    var DB_SECRET = 'ZbDjXoOfSFQkYsVATKrPyN0xXIr1';
+    var DB_PATH = 'users/' + DB_SECRET;
+    var AUTH = '?auth=' + DB_SECRET;
 
     function restUrl(path) {
       var url = DB_URL + '/' + DB_PATH;
       if (path) url += '/' + path;
       return url + '.json' + AUTH;
     }
-    
+
     async function restGet(path) {
       try {
-        const res = await fetch(restUrl(path || ''));
-        if (!res.ok) throw new Error('Network error');
+        var res = await fetch(restUrl(path || ''));
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         return await res.json();
-      } catch(e) {
-        try {
-          const cached = localStorage.getItem('cache_' + (path || 'root'));
-          return cached ? JSON.parse(cached) : null;
-        } catch(ce) {
-          return null;
-        }
+      } catch (e) {
+        var cached = localStorage.getItem('cache_' + (path || 'root'));
+        return cached ? JSON.parse(cached) : null;
       }
     }
-    
+
     async function restPush(path, data) {
-      if (!isOnline) {
-        queueOfflinePush(path, data);
-        return { offline: true };
-      }
+      if (!isOnline) { queueOffline({ type: 'push', path: path, data: data }); return { offline: true }; }
       try {
-        const res = await fetch(restUrl(path), {
-          method: 'POST', body: JSON.stringify(data)
-        });
-        if (!res.ok) throw new Error('Network error');
-        const result = await res.json();
-        cacheData(path, data);
-        return result;
-      } catch(e) {
-        queueOfflinePush(path, data);
-        return { offline: true };
-      }
+        var res = await fetch(restUrl(path), { method: 'POST', body: JSON.stringify(data) });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+      } catch (e) { queueOffline({ type: 'push', path: path, data: data }); return { offline: true }; }
     }
-    
+
     async function restSet(path, data) {
-      if (!isOnline) {
-        queueOfflinePush(path, data);
-        return { offline: true };
-      }
+      if (!isOnline) { queueOffline({ type: 'set', path: path, data: data }); return { offline: true }; }
       try {
-        await fetch(restUrl(path), {
-          method: 'PUT', body: JSON.stringify(data)
-        });
-        cacheData(path, data);
+        await fetch(restUrl(path), { method: 'PUT', body: JSON.stringify(data) });
         return { success: true };
-      } catch(e) {
-        queueOfflinePush(path, data);
-        return { offline: true };
-      }
+      } catch (e) { queueOffline({ type: 'set', path: path, data: data }); return { offline: true }; }
     }
-    
+
     async function restDelete(path) {
-      if (!isOnline) {
-        queueOfflineDelete(path);
-        return { offline: true };
-      }
+      if (!isOnline) { queueOffline({ type: 'delete', path: path }); return { offline: true }; }
       try {
         await fetch(restUrl(path), { method: 'DELETE' });
         return { success: true };
-      } catch(e) {
-        queueOfflineDelete(path);
-        return { offline: true };
-      }
+      } catch (e) { queueOffline({ type: 'delete', path: path }); return { offline: true }; }
     }
-    
+
     async function restPatch(updates) {
-      if (!isOnline) {
-        queueOfflinePatch(updates);
-        return { offline: true };
-      }
+      if (!isOnline) { queueOffline({ type: 'patch', updates: updates }); return { offline: true }; }
       try {
-        await fetch(restUrl(''), {
-          method: 'PATCH', body: JSON.stringify(updates)
-        });
+        await fetch(restUrl(''), { method: 'PATCH', body: JSON.stringify(updates) });
         return { success: true };
-      } catch(e) {
-        queueOfflinePatch(updates);
-        return { offline: true };
+      } catch (e) { queueOffline({ type: 'patch', updates: updates }); return { offline: true }; }
+    }
+
+    /* ===== 2. Offline Queue System ===== */
+    function queueOffline(item) {
+      var q = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+      item.t = Date.now();
+      q.push(item);
+      localStorage.setItem('offlineQueue', JSON.stringify(q));
+    }
+
+    function getOfflineQueue() {
+      return JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+    }
+
+    function clearOfflineQueue() {
+      localStorage.removeItem('offlineQueue');
+    }
+
+    /* ===== 3. Cache System ===== */
+    function cacheView(view, data) {
+      try { localStorage.setItem('cache_' + view, JSON.stringify(data)); } catch (e) {}
+    }
+
+    function getCachedView(view) {
+      try { var c = localStorage.getItem('cache_' + view); return c ? JSON.parse(c) : null; } catch (e) { return null; }
+    }
+
+    /* ===== 4. Smart Merge - KEY FUNCTION ===== */
+    // Cloud is always the source of truth when online.
+    // This handles ALL cross-device sync scenarios:
+    //   - Device A deletes → Device B fetches → cloud has no key → local removes it
+    //   - Device A adds → Device B fetches → cloud has new key → local adds it
+    //   - Device A moves → both views update on Device B
+    // If offline, returns local cache unchanged.
+    async function smartFetchView(view) {
+      if (!isOnline) {
+        return getCachedView(view) || null;
+      }
+
+      try {
+        var cloudData = await fetch(restUrl(view)).then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        });
+
+        // cloudData is the complete truth - null means empty, object means current state
+        // Replace local cache entirely with cloud data
+        var cleaned = cloudData || {};
+        cacheView(view, cleaned);
+        viewDataCache[view] = cleaned;
+        return cleaned;
+      } catch (e) {
+        // Network error while online - use cache, will retry on next poll
+        return getCachedView(view) || null;
       }
     }
 
-    function cacheData(path, data) {
-      try {
-        const cacheKey = 'cache_' + (path || 'root');
-        localStorage.setItem(cacheKey, JSON.stringify(data));
-      } catch(e) {}
+    /* ===== 5. Background Sync Engine ===== */
+    var isSyncing = false;
+
+    async function syncOfflineQueue() {
+      if (isSyncing || !isOnline) return;
+      var q = getOfflineQueue();
+      if (!q.length) return;
+
+      isSyncing = true;
+      var successCount = 0;
+      var failedItems = [];
+
+      for (var i = 0; i < q.length; i++) {
+        var item = q[i];
+        var ok = false;
+        try {
+          if (item.type === 'push') {
+            var res = await fetch(restUrl(item.path), { method: 'POST', body: JSON.stringify(item.data) });
+            ok = res.ok;
+          } else if (item.type === 'set') {
+            var res = await fetch(restUrl(item.path), { method: 'PUT', body: JSON.stringify(item.data) });
+            ok = res.ok;
+          } else if (item.type === 'delete') {
+            var res = await fetch(restUrl(item.path), { method: 'DELETE' });
+            ok = res.ok;
+          } else if (item.type === 'patch') {
+            var res = await fetch(restUrl(''), { method: 'PATCH', body: JSON.stringify(item.updates) });
+            ok = res.ok;
+          }
+        } catch (e) { ok = false; }
+
+        if (ok) { successCount++; }
+        else { failedItems.push(item); }
+      }
+
+      // Update queue: keep only failed items
+      if (failedItems.length === 0) {
+        clearOfflineQueue();
+      } else {
+        localStorage.setItem('offlineQueue', JSON.stringify(failedItems));
+      }
+
+      isSyncing = false;
+
+      if (successCount > 0) {
+        showToast('<i class="fa-solid fa-cloud-arrow-up"></i> Synced ' + successCount + ' operation(s)!', 3000);
+        // After syncing, refresh ALL views from cloud to catch any cross-device changes
+        await refreshAllViewsFromCloud();
+      }
     }
 
-    function queueOfflinePush(path, data) {
-      var q = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
-      q.push({ type: 'push', path: path, data: data });
-      localStorage.setItem('offlineQueue', JSON.stringify(q));
+    // Full cloud refresh for all views - called after sync and on online event
+    async function refreshAllViewsFromCloud() {
+      var views = ['view1', 'view2', 'view3', 'view4'];
+      var changed = false;
+
+      for (var v = 0; v < views.length; v++) {
+        var view = views[v];
+        var oldCache = viewDataCache[view] || {};
+        var oldKeys = Object.keys(oldCache);
+
+        var freshData = await smartFetchView(view);
+        var newKeys = freshData ? Object.keys(freshData) : [];
+
+        // Detect if anything changed
+        if (oldKeys.length !== newKeys.length) { changed = true; }
+        else {
+          for (var k = 0; k < oldKeys.length; k++) {
+            if (!freshData || !freshData[oldKeys[k]]) { changed = true; break; }
+          }
+        }
+      }
+
+      // Update UI if something changed
+      if (changed) {
+        updateBadges();
+        if (activeView) renderTable(activeView);
+      }
     }
 
-    function queueOfflineDelete(path) {
-      var q = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
-      q.push({ type: 'delete', path: path });
-      localStorage.setItem('offlineQueue', JSON.stringify(q));
-    }
-
-    function queueOfflinePatch(updates) {
-      var q = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
-      q.push({ type: 'patch', updates: updates });
-      localStorage.setItem('offlineQueue', JSON.stringify(q));
-    }
-
-    async function hashPassword(pw) {
-      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
-      return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
-    }
-
-    // --- 2. State ---
+    /* ===== 6. State ===== */
     var currentUser = null, activeView = null, selectMode = false;
     var selectedIds = new Set(), isOnline = navigator.onLine;
     var currentProcessedImage = null, targetClass = null;
@@ -456,37 +524,37 @@
     var authCallback = null, pollTimer = null, stream = null;
     var viewDataCache = {};
 
-    // --- 3. DOM ---
-    var loginOverlay=document.getElementById('loginOverlay'),
-        mainContainer=document.getElementById('mainContainer'),
-        loginBtn=document.getElementById('loginBtn'),
-        loginPass=document.getElementById('loginPass'),
-        loginError=document.getElementById('loginError'),
-        logoutBtn=document.getElementById('logoutBtn'),
-        authOverlay=document.getElementById('authOverlay'),
-        authBtn=document.getElementById('authBtn'),
-        authCancel=document.getElementById('authCancel'),
-        authPass=document.getElementById('authPass'),
-        authError=document.getElementById('authError'),
-        uploadOverlay=document.getElementById('uploadOverlay'),
-        uploadText=document.getElementById('uploadText'),
-        uploadSub=document.getElementById('uploadSub'),
-        uploadOfflineNote=document.getElementById('uploadOfflineNote'),
-        toastEl=document.getElementById('toast'),
-        fileInput=document.getElementById('fileInput'),
-        cameraOverlay=document.getElementById('cameraOverlay'),
-        cameraVideo=document.getElementById('cameraVideo'),
-        captureCanvas=document.getElementById('captureCanvas'),
-        tableOverlay=document.getElementById('tableOverlay'),
-        tableBody=document.getElementById('tableBody'),
-        tableTitle=document.getElementById('tableTitle'),
-        tableCountIcon=document.getElementById('tableCountIcon'),
-        selectBar=document.getElementById('selectBar'),
-        searchInput=document.getElementById('searchInput'),
-        detailOverlay=document.getElementById('detailOverlay'),
-        detailImages=document.getElementById('detailImages'),
-        addImgOverlay=document.getElementById('addImgOverlay'),
-        addImgFileInput=document.getElementById('addImgFileInput');
+    /* ===== 7. DOM Refs ===== */
+    var loginOverlay = document.getElementById('loginOverlay'),
+      mainContainer = document.getElementById('mainContainer'),
+      loginBtn = document.getElementById('loginBtn'),
+      loginPass = document.getElementById('loginPass'),
+      loginError = document.getElementById('loginError'),
+      logoutBtn = document.getElementById('logoutBtn'),
+      authOverlay = document.getElementById('authOverlay'),
+      authBtn = document.getElementById('authBtn'),
+      authCancel = document.getElementById('authCancel'),
+      authPass = document.getElementById('authPass'),
+      authError = document.getElementById('authError'),
+      uploadOverlay = document.getElementById('uploadOverlay'),
+      uploadText = document.getElementById('uploadText'),
+      uploadSub = document.getElementById('uploadSub'),
+      uploadOfflineNote = document.getElementById('uploadOfflineNote'),
+      toastEl = document.getElementById('toast'),
+      fileInput = document.getElementById('fileInput'),
+      cameraOverlay = document.getElementById('cameraOverlay'),
+      cameraVideo = document.getElementById('cameraVideo'),
+      captureCanvas = document.getElementById('captureCanvas'),
+      tableOverlay = document.getElementById('tableOverlay'),
+      tableBody = document.getElementById('tableBody'),
+      tableTitle = document.getElementById('tableTitle'),
+      tableCountIcon = document.getElementById('tableCountIcon'),
+      selectBar = document.getElementById('selectBar'),
+      searchInput = document.getElementById('searchInput'),
+      detailOverlay = document.getElementById('detailOverlay'),
+      detailImages = document.getElementById('detailImages'),
+      addImgOverlay = document.getElementById('addImgOverlay'),
+      addImgFileInput = document.getElementById('addImgFileInput');
 
     var viewMap = {
       view1: { title: 'የህፃናት', color: 'var(--teal)' },
@@ -495,22 +563,40 @@
       view4: { title: 'የወጣቶች', color: 'var(--rose)' }
     };
 
-    // --- 4. Toast & Ripple ---
-    window.addEventListener('online', function(){ 
-      isOnline=true; 
-      showToast('<i class="fa-solid fa-wifi"></i> Back online!',2000); 
-      syncOfflineData();
-      updateAllViews();
+    /* ===== 8. Toast & Ripple ===== */
+    window.addEventListener('online', function () {
+      isOnline = true;
+      showToast('<i class="fa-solid fa-wifi"></i> Back online!', 2000);
+      // CRITICAL: When coming online, first sync offline queue, then refresh from cloud
+      syncOfflineQueue().then(function () {
+        refreshAllViewsFromCloud();
+      });
     });
-    window.addEventListener('offline', function(){ 
-      isOnline=false; 
-      showToast('<i class="fa-solid fa-wifi-slash"></i> You are offline - using cached data',3000);
+    window.addEventListener('offline', function () {
+      isOnline = false;
+      showToast('<i class="fa-solid fa-wifi-slash"></i> Offline - using cached data', 3000);
     });
-    var toastTimer;
-    function showToast(m,d){ d=d||2500; clearTimeout(toastTimer); toastEl.innerHTML=m; toastEl.classList.add('show'); toastTimer=setTimeout(function(){toastEl.classList.remove('show')},d); }
-    function addRipple(e,el){ var r=document.createElement('span');r.className='ripple';var rc=el.getBoundingClientRect();r.style.left=(e.clientX-rc.left)+'px';r.style.top=(e.clientY-rc.top)+'px';el.appendChild(r);setTimeout(function(){r.remove()},600); }
 
-    // --- 5. Login (REST API with DB Secret) ---
+    var toastTimer;
+    function showToast(m, d) {
+      d = d || 2500; clearTimeout(toastTimer);
+      toastEl.innerHTML = m; toastEl.classList.add('show');
+      toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, d);
+    }
+    function addRipple(e, el) {
+      var r = document.createElement('span'); r.className = 'ripple';
+      var rc = el.getBoundingClientRect();
+      r.style.left = (e.clientX - rc.left) + 'px'; r.style.top = (e.clientY - rc.top) + 'px';
+      el.appendChild(r); setTimeout(function () { r.remove(); }, 600);
+    }
+
+    /* ===== 9. Password Hash ===== */
+    async function hashPassword(pw) {
+      var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+      return [...new Uint8Array(buf)].map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+    }
+
+    /* ===== 10. Login ===== */
     async function handleLogin() {
       var pass = loginPass.value;
       if (!pass) { loginError.textContent = 'Password is required'; return; }
@@ -526,12 +612,9 @@
         } else {
           loginError.textContent = 'Wrong password!';
         }
-      } catch(e) { 
-        if (localStorage.getItem('loggedIn') === 'true') {
-          loginSuccess();
-        } else {
-          loginError.textContent = 'Connection error - try again'; 
-        }
+      } catch (e) {
+        if (localStorage.getItem('loggedIn') === 'true') { loginSuccess(); }
+        else { loginError.textContent = 'Connection error - try again'; }
       }
       loginBtn.disabled = false; loginBtn.innerHTML = 'Login';
     }
@@ -542,8 +625,8 @@
       loginOverlay.classList.add('hidden');
       mainContainer.classList.remove('hidden');
       logoutBtn.classList.remove('hidden');
-      loginBtn.disabled = false; loginBtn.innerHTML = 'Login';
       loginPass.value = ''; loginError.textContent = '';
+      loginBtn.disabled = false; loginBtn.innerHTML = 'Login';
       initApp();
     }
 
@@ -557,680 +640,614 @@
     }
 
     loginBtn.addEventListener('click', handleLogin);
-    loginPass.addEventListener('keyup', function(e){ if(e.key==='Enter') handleLogin(); });
+    loginPass.addEventListener('keyup', function (e) { if (e.key === 'Enter') handleLogin(); });
     logoutBtn.addEventListener('click', logout);
 
-    // --- 6. Auth Re-check (for delete/move) ---
+    /* ===== 11. Auth Re-check ===== */
     function requireAuth(cb) {
-      authCallback = cb; authPass.value = ''; authError.textContent = ''; authOverlay.classList.add('active');
+      authCallback = cb; authPass.value = ''; authError.textContent = '';
+      authOverlay.classList.add('active');
     }
 
-    authBtn.addEventListener('click', async function() {
+    authBtn.addEventListener('click', async function () {
       var pass = authPass.value;
-      if (!pass) { authError.textContent = "Password is required"; return; }
+      if (!pass) { authError.textContent = 'Password is required'; return; }
       authBtn.disabled = true; authBtn.innerHTML = '<span class="spinner"></span> Checking...';
       try {
         var hashed = await hashPassword(pass);
         var stored = await restGet('_config/password');
-        if (stored === hashed) { 
-          authOverlay.classList.remove('active'); 
-          if (authCallback) authCallback(); 
-        } else {
-          authError.textContent = "Wrong password!";
-        }
-      } catch(e) {
-        authError.textContent = "Connection error";
-      }
+        if (stored === hashed) {
+          authOverlay.classList.remove('active');
+          if (authCallback) authCallback();
+        } else { authError.textContent = 'Wrong password!'; }
+      } catch (e) { authError.textContent = 'Connection error'; }
       authBtn.disabled = false; authBtn.innerHTML = 'Confirm';
     });
-
-    authCancel.addEventListener('click', function(){ authOverlay.classList.remove('active'); authBtn.disabled=false; authBtn.innerHTML='Confirm'; });
-
-    // --- 7. Init App ---
-    // Cross-device sync: compares fresh cloud data to local viewDataCache on
-    // every poll. IDs that exist in local cache but are missing from cloud =
-    // deleted by ANOTHER device (since our own deletes already removed them
-    // from viewDataCache). No separate snapshot to keep in sync.
-    var syncInFlight = false;        // prevents overlapping updateBadges runs
-    var firstSyncDone = false;       // suppresses "N removed" toast on first load
-
-    function initApp() {
-      Object.keys(viewMap).forEach(function(key) {
-        try {
-          const cached = localStorage.getItem('cache_' + key);
-          if (cached) {
-            viewDataCache[key] = JSON.parse(cached);
-          }
-        } catch(e) {}
-      });
-      // First fetch fires immediately; subsequent polls every 15s.
-      updateBadges();
-      pollTimer = setInterval(updateBadges, 15000);
-
-      // When user returns to the tab, refresh immediately so cross-device
-      // deletions show up within ~1s instead of waiting for the next poll.
-      document.addEventListener('visibilitychange', function(){
-        if (!document.hidden && isOnline) { updateBadges(); }
-      });
-      window.addEventListener('focus', function(){
-        if (isOnline) { updateBadges(); }
-      });
-    }
-
-    async function updateBadges() {
-      // Prevent overlapping runs (poll + visibility + focus can fire concurrently)
-      if (syncInFlight) return;
-      syncInFlight = true;
-      // Skip cloud polling when offline - we'd just hit cache and waste a cycle
-      if (!isOnline) { syncInFlight = false; return; }
-
-      var totalRemoved = 0;
-      var activeViewChanged = false;
-
-      try {
-        var promises = Object.keys(viewMap).map(async function(key) {
-          try {
-            var data = await restGet(key);
-
-            // Cross-device delete detection: any ID in our local cache but
-            // missing from cloud = deleted on another device. (Our own deletes
-            // already updated viewDataCache, so they won't show up here.)
-            var localCache = viewDataCache[key] || {};
-            var localIds = Object.keys(localCache);
-            if (firstSyncDone && localIds.length > 0) {
-              var removedHere = 0;
-              for (var k = 0; k < localIds.length; k++) {
-                if (!(localIds[k] in (data || {}))) removedHere++;
-              }
-              if (removedHere > 0) {
-                totalRemoved += removedHere;
-                if (key === activeView) activeViewChanged = true;
-              }
-            }
-
-            if (data) {
-              viewDataCache[key] = data;
-              cacheData(key, data);
-            }
-            var count = data ? Object.keys(data).length : 0;
-            var btn = document.getElementById('btn' + key.charAt(0).toUpperCase() + key.slice(1));
-            if (btn) {
-              var badge = btn.querySelector('.badge');
-              if (!badge) { badge = document.createElement('span'); badge.className = 'badge'; btn.appendChild(badge); }
-              badge.textContent = count > 0 ? count : '';
-              badge.style.cssText = count > 0 ? 'display:flex;position:absolute;top:-8px;right:-8px;background:var(--accent);color:#fff;border-radius:50%;width:20px;height:20px;align-items:center;justify-content:center;font-size:.7rem;font-weight:bold;z-index:2;' : 'display:none';
-            }
-          } catch(e) {}
-        });
-        await Promise.all(promises);
-      } catch(e) {} finally {
-        syncInFlight = false;
-        firstSyncDone = true;
-      }
-
-      // Cross-device delete propagation: re-render the open table if its view
-      // lost items, and toast so the user knows why rows disappeared.
-      if (totalRemoved > 0) {
-        if (activeViewChanged && tableOverlay.classList.contains('active') && viewDataCache[activeView]) {
-          renderTableFromData(activeView, viewDataCache[activeView]);
-        }
-        showToast('<i class="fa-solid fa-arrows-rotate"></i> ' + totalRemoved +
-                  ' item(s) removed by another device', 3500);
-      }
-    }
-
-    function updateAllViews() {
-      if (activeView) {
-        renderTable(activeView);
-      }
-    }
-
-    // --- 8. Button Clicks ---
-    document.querySelectorAll('.doc-btn[id^="btnView"]').forEach(function(btn) {
-      btn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); openTable(this.id.replace('btn','').toLowerCase()); addRipple(e,this); }, {passive:false});
+    authCancel.addEventListener('click', function () {
+      authOverlay.classList.remove('active'); authBtn.disabled = false; authBtn.innerHTML = 'Confirm';
     });
-    document.getElementById('btnAdd2').addEventListener('click', function(e){ document.getElementById('subChoice').classList.add('visible'); addRipple(e,document.getElementById('btnAdd2')); });
-    document.getElementById('backBtn').addEventListener('click', function(){ document.getElementById('subChoice').classList.remove('visible'); });
 
-    // --- 9. File & Camera ---
-    document.getElementById('chooseFileBtn').addEventListener('click', function(){ fileInput.click(); });
-    fileInput.addEventListener('change', function(e){ if(e.target.files[0]) processImageFile(URL.createObjectURL(e.target.files[0])); fileInput.value=''; });
+    /* ===== 12. Init App ===== */
+    function initApp() {
+      // Load cached data into memory immediately
+      Object.keys(viewMap).forEach(function (key) {
+        var cached = getCachedView(key);
+        if (cached) viewDataCache[key] = cached;
+      });
+
+      // Initial badge update + cloud refresh
+      updateBadges();
+      refreshAllViewsFromCloud();
+
+      // Poll every 15 seconds to detect cross-device changes (deletes, adds, moves)
+      pollTimer = setInterval(function () {
+        if (!isOnline) return;
+        refreshAllViewsFromCloud();
+      }, 15000);
+    }
+
+    function updateBadges() {
+      Object.keys(viewMap).forEach(function (key) {
+        var data = viewDataCache[key] || {};
+        var count = Object.keys(data).length;
+        var btn = document.getElementById('btn' + key.charAt(0).toUpperCase() + key.slice(1));
+        if (btn) {
+          var badge = btn.querySelector('.badge');
+          if (!badge) { badge = document.createElement('span'); badge.className = 'badge'; btn.appendChild(badge); }
+          badge.textContent = count > 0 ? count : '';
+          badge.style.cssText = count > 0 ? 'display:flex;position:absolute;top:-8px;right:-8px;background:var(--accent);color:#fff;border-radius:50%;width:20px;height:20px;align-items:center;justify-content:center;font-size:.7rem;font-weight:bold;z-index:2;' : 'display:none';
+        }
+      });
+    }
+
+    /* ===== 13. Button Clicks ===== */
+    document.querySelectorAll('.doc-btn[id^="btnView"]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        openTable(this.id.replace('btn', '').toLowerCase());
+        addRipple(e, this);
+      }, { passive: false });
+    });
+    document.getElementById('btnAdd2').addEventListener('click', function (e) {
+      document.getElementById('subChoice').classList.add('visible');
+      addRipple(e, document.getElementById('btnAdd2'));
+    });
+    document.getElementById('backBtn').addEventListener('click', function () {
+      document.getElementById('subChoice').classList.remove('visible');
+    });
+
+    /* ===== 14. File & Camera ===== */
+    document.getElementById('chooseFileBtn').addEventListener('click', function () { fileInput.click(); });
+    fileInput.addEventListener('change', function (e) {
+      if (e.target.files[0]) processImageFile(URL.createObjectURL(e.target.files[0]));
+      fileInput.value = '';
+    });
     document.getElementById('cameraShotBtn').addEventListener('click', openCam);
     document.getElementById('closeCamBtn').addEventListener('click', closeCam);
     document.getElementById('captureBtn').addEventListener('click', takePicture);
 
     async function openCam() {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{exact:"environment"}},audio:false}).catch(function(){return navigator.mediaDevices.getUserMedia({video:true,audio:false})});
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: 'environment' } }, audio: false })
+          .catch(function () { return navigator.mediaDevices.getUserMedia({ video: true, audio: false }); });
         cameraVideo.srcObject = stream; cameraOverlay.classList.add('active');
-      } catch(e) { showToast('<i class="fa-solid fa-camera-rotate"></i> Camera not available'); }
+      } catch (e) { showToast('<i class="fa-solid fa-camera-rotate"></i> Camera not available'); }
     }
-    function closeCam() { if(stream){stream.getTracks().forEach(function(t){t.stop()});stream=null;} cameraOverlay.classList.remove('active'); }
+    function closeCam() {
+      if (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; }
+      cameraOverlay.classList.remove('active');
+    }
     function takePicture() {
-      if(!stream) return;
+      if (!stream) return;
       document.getElementById('flash').classList.add('fire');
-      captureCanvas.width=cameraVideo.videoWidth; captureCanvas.height=cameraVideo.videoHeight;
-      captureCanvas.getContext('2d').drawImage(cameraVideo,0,0);
+      captureCanvas.width = cameraVideo.videoWidth; captureCanvas.height = cameraVideo.videoHeight;
+      captureCanvas.getContext('2d').drawImage(cameraVideo, 0, 0);
       closeCam();
-      processImageFile(captureCanvas.toDataURL('image/jpeg',0.85));
+      processImageFile(captureCanvas.toDataURL('image/jpeg', 0.85));
     }
 
     function processImageFile(src) {
-      var img=document.getElementById('previewImg');
-      img.src=src; img.dataset.origSrc=src; img.style.clipPath=''; img.style.transform='';
+      var img = document.getElementById('previewImg');
+      img.src = src; img.dataset.origSrc = src; img.style.clipPath = ''; img.style.transform = '';
       document.getElementById('previewOverlay').classList.add('active');
-      document.getElementById('previewEditBtn').innerHTML='<i class="fa-solid fa-crop-simple"></i> Edit';
-      document.getElementById('previewLabel').textContent='Drag to crop area (Edit Mode)';
-      var nextHandler=function(){ currentProcessedImage=img.src; document.getElementById('previewOverlay').classList.remove('active'); document.getElementById('saveOverlay').classList.add('active'); document.getElementById('previewNextBtn').removeEventListener('click',nextHandler); };
-      document.getElementById('previewNextBtn').addEventListener('click',nextHandler);
+      document.getElementById('previewEditBtn').innerHTML = '<i class="fa-solid fa-crop-simple"></i> Edit';
+      document.getElementById('previewLabel').textContent = 'Drag to crop area (Edit Mode)';
+      var nextHandler = function () {
+        currentProcessedImage = img.src;
+        document.getElementById('previewOverlay').classList.remove('active');
+        document.getElementById('saveOverlay').classList.add('active');
+        document.getElementById('previewNextBtn').removeEventListener('click', nextHandler);
+      };
+      document.getElementById('previewNextBtn').addEventListener('click', nextHandler);
     }
 
-    document.getElementById('previewCloseBtn').addEventListener('click',function(){document.getElementById('previewOverlay').classList.remove('active')});
-    document.getElementById('previewEditBtn').addEventListener('click',function(){
-      var img=document.getElementById('previewImg'),isE=img.style.clipPath!=='';
-      img.style.clipPath=isE?'':'inset(10% 10% 10% 10%)';
-      document.getElementById('previewEditBtn').innerHTML=isE?'<i class="fa-solid fa-crop-simple"></i> Edit':'<i class="fa-solid fa-check"></i> Done';
-      document.getElementById('previewLabel').textContent=isE?'Drag to crop area (Edit Mode)':'Crop applied!';
+    document.getElementById('previewCloseBtn').addEventListener('click', function () {
+      document.getElementById('previewOverlay').classList.remove('active');
+    });
+    document.getElementById('previewEditBtn').addEventListener('click', function () {
+      var img = document.getElementById('previewImg'), isE = img.style.clipPath !== '';
+      img.style.clipPath = isE ? '' : 'inset(10% 10% 10% 10%)';
+      document.getElementById('previewEditBtn').innerHTML = isE ? '<i class="fa-solid fa-crop-simple"></i> Edit' : '<i class="fa-solid fa-check"></i> Done';
+      document.getElementById('previewLabel').textContent = isE ? 'Drag to crop area (Edit Mode)' : 'Crop applied!';
     });
 
-    // --- 10. Save Flow ---
-    var docNameInput=document.getElementById('docNameInput'),
-        userNameInput=document.getElementById('userNameInput'),
-        finishedBtn=document.getElementById('finishedBtn');
+    /* ===== 15. Save Flow ===== */
+    var docNameInput = document.getElementById('docNameInput'),
+      userNameInput = document.getElementById('userNameInput'),
+      finishedBtn = document.getElementById('finishedBtn');
 
-    docNameInput.addEventListener('input',validateSave);
-    userNameInput.addEventListener('input',validateSave);
-    document.querySelectorAll('.class-btn').forEach(function(btn){
-      btn.addEventListener('click',function(){
-        document.querySelectorAll('.class-btn').forEach(function(b){b.classList.remove('selected')});
-        btn.classList.add('selected'); targetClass=btn.dataset.class; validateSave();
+    docNameInput.addEventListener('input', validateSave);
+    userNameInput.addEventListener('input', validateSave);
+    document.querySelectorAll('.class-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.class-btn').forEach(function (b) { b.classList.remove('selected'); });
+        btn.classList.add('selected'); targetClass = btn.dataset.class; validateSave();
       });
     });
-    function validateSave(){ finishedBtn.disabled=!(docNameInput.value.trim()&&userNameInput.value.trim()&&targetClass); }
+    function validateSave() { finishedBtn.disabled = !(docNameInput.value.trim() && userNameInput.value.trim() && targetClass); }
 
-    finishedBtn.addEventListener('click', async function(){
-      var name=docNameInput.value.trim(), user=userNameInput.value.trim();
-      if(!name||!user||!targetClass) return;
+    finishedBtn.addEventListener('click', async function () {
+      var name = docNameInput.value.trim(), user = userNameInput.value.trim();
+      if (!name || !user || !targetClass) return;
       document.getElementById('saveOverlay').classList.remove('active');
-      uploadText.textContent='Uploading...'; uploadSub.textContent='Compressing image'; uploadOfflineNote.style.display='none'; uploadOverlay.classList.add('active');
+      uploadText.textContent = 'Uploading...'; uploadSub.textContent = 'Compressing image';
+      uploadOfflineNote.style.display = 'none'; uploadOverlay.classList.add('active');
       try {
-        var base64=await compressImage(currentProcessedImage,0.6,1200);
-        var entry={name:name,user:user,image:base64,timestamp:Date.now()};
-        if(isOnline){ 
-          uploadSub.textContent='Saving to cloud...'; 
-          await restPush(targetClass,entry); 
-          showToast('<i class="fa-solid fa-check-circle"></i> Saved successfully!'); 
-          var cached = viewDataCache[targetClass] || {};
-          var newId = Date.now().toString();
-          cached[newId] = entry;
-          viewDataCache[targetClass] = cached;
-          cacheData(targetClass, cached);
-          if (activeView === targetClass) renderTable(targetClass);
-          updateBadges();
-        } else { 
-          queueOfflinePush(targetClass,entry); 
-          uploadOfflineNote.style.display='flex'; 
-          showToast('<i class="fa-solid fa-wifi-slash"></i> Saved offline');
-          var cached = viewDataCache[targetClass] || {};
-          var newId = 'offline_' + Date.now();
-          cached[newId] = entry;
-          viewDataCache[targetClass] = cached;
-          cacheData(targetClass, cached);
-          if (activeView === targetClass) renderTable(targetClass);
-          updateBadges();
+        var base64 = await compressImage(currentProcessedImage, 0.6, 1200);
+        var entry = { name: name, user: user, image: base64, timestamp: Date.now() };
+
+        var result = await restPush(targetClass, entry);
+
+        // Always update local cache immediately
+        var cached = viewDataCache[targetClass] || {};
+        var newId = result.name || ('local_' + Date.now());
+        cached[newId] = entry;
+        viewDataCache[targetClass] = cached;
+        cacheView(targetClass, cached);
+
+        if (result.offline) {
+          uploadOfflineNote.style.display = 'flex';
+          uploadText.textContent = 'Saved locally'; uploadSub.textContent = 'Will sync to cloud when online';
+          setTimeout(function () { uploadOverlay.classList.remove('active'); }, 1500);
+          showToast('<i class="fa-solid fa-wifi-slash"></i> Saved offline - will sync');
+        } else {
+          uploadOverlay.classList.remove('active');
+          showToast('<i class="fa-solid fa-check-circle"></i> Saved successfully!');
         }
-      } catch(e) { showToast('<i class="fa-solid fa-triangle-exclamation"></i> Error saving'); }
-      uploadOverlay.classList.remove('active'); docNameInput.value=''; userNameInput.value=''; targetClass=null;
-      document.querySelectorAll('.class-btn').forEach(function(b){b.classList.remove('selected')});
-      finishedBtn.disabled=true; document.getElementById('subChoice').classList.remove('visible');
+
+        if (activeView === targetClass) renderTable(targetView);
+        updateBadges();
+      } catch (e) { showToast('<i class="fa-solid fa-triangle-exclamation"></i> Error saving'); uploadOverlay.classList.remove('active'); }
+      docNameInput.value = ''; userNameInput.value = ''; targetClass = null;
+      document.querySelectorAll('.class-btn').forEach(function (b) { b.classList.remove('selected'); });
+      finishedBtn.disabled = true; document.getElementById('subChoice').classList.remove('visible');
     });
 
-    function compressImage(src,q,mw){
-      return new Promise(function(res){
-        var img=new Image();
-        img.onload=function(){
-          var c=document.createElement('canvas'),w=img.width,h=img.height;
-          if(w>mw){h=(mw/w)*h;w=mw;} c.width=w;c.height=h;
-          c.getContext('2d').drawImage(img,0,0,w,h); res(c.toDataURL('image/jpeg',q));
-        }; img.src=src;
+    function compressImage(src, q, mw) {
+      return new Promise(function (res) {
+        var img = new Image();
+        img.onload = function () {
+          var c = document.createElement('canvas'), w = img.width, h = img.height;
+          if (w > mw) { h = (mw / w) * h; w = mw; }
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          res(c.toDataURL('image/jpeg', q));
+        }; img.src = src;
       });
     }
 
-    // --- 11. Table View ---
-    function openTable(view){ 
-      activeView=view; 
-      selectMode=false; 
-      selectedIds.clear(); 
-      exitSelectMode(); 
-      var info=viewMap[view]; 
-      tableCountIcon.textContent='0'; 
-      tableCountIcon.style.background=info.color; 
-      tableTitle.classList.remove('hidden'); 
-      selectBar.classList.remove('visible'); 
-      tableBody.innerHTML=''; 
-      tableOverlay.classList.add('active'); 
-      if (viewDataCache[view]) {
-        renderTableFromData(view, viewDataCache[view]);
-      }
-      renderTable(view); 
+    /* ===== 16. Table View ===== */
+    function openTable(view) {
+      activeView = view; selectMode = false; selectedIds.clear(); exitSelectMode();
+      var info = viewMap[view];
+      tableCountIcon.textContent = '0'; tableCountIcon.style.background = info.color;
+      tableTitle.classList.remove('hidden'); selectBar.classList.remove('visible');
+      tableBody.innerHTML = ''; tableOverlay.classList.add('active');
+      renderTable(view);
     }
 
-    function renderTableFromData(view, data) {
-      tableBody.innerHTML='';
-      if(!data || Object.keys(data).length === 0){ 
-        tableBody.innerHTML='<tr><td colspan="3" class="doc-hint"><i class="fa-solid fa-inbox"></i>No documents yet</td></tr>'; 
-        tableCountIcon.textContent='0'; 
-        return; 
+    function renderTableRows(view, data) {
+      tableBody.innerHTML = '';
+      if (!data || Object.keys(data).length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="3" class="doc-hint"><i class="fa-solid fa-inbox"></i>No documents yet</td></tr>';
+        tableCountIcon.textContent = '0';
+        return;
       }
-      // CHANGED: Sort A to Z by user name (Table Name)
-      var arr = Object.entries(data).sort(function(a, b) {
-        var nameA = (a[1].user || 'Unnamed').toLowerCase();
-        var nameB = (b[1].user || 'Unnamed').toLowerCase();
-        if (nameA < nameB) return -1;
-        if (nameA > nameB) return 1;
-        return 0;
+      var arr = Object.entries(data).sort(function (a, b) {
+        var nA = (a[1].user || 'Unnamed').toLowerCase();
+        var nB = (b[1].user || 'Unnamed').toLowerCase();
+        return nA < nB ? -1 : nA > nB ? 1 : 0;
       });
-      
-      tableCountIcon.textContent=arr.length;
-      if(arr.length===0){ 
-        tableBody.innerHTML='<tr><td colspan="3" class="doc-hint"><i class="fa-solid fa-inbox"></i>No documents yet</td></tr>'; 
-        return; 
-      }
-      arr.forEach(function(item,i){
-        var id=item[0],doc=item[1];
-        var tr=document.createElement('tr'); tr.dataset.id=id; tr.dataset.view=view;
-        tr.innerHTML='<td class="cell-check"><i class="fa-regular fa-square"></i></td><td class="doc-index">'+(i+1)+'</td><td><div class="name-cell"><span class="doc-name-text">'+(doc.user||'Unnamed')+'</span><button class="view-icon-btn" title="View"><i class="fa-solid fa-eye"></i></button></div></td>';
-        tr.addEventListener('click',function(e){ if(selectMode&&!e.target.closest('.view-icon-btn')) toggleSelect(tr,id); else if(e.target.closest('.view-icon-btn')) openDetail(view,id,null); });
+      tableCountIcon.textContent = arr.length;
+      arr.forEach(function (item, i) {
+        var id = item[0], doc = item[1];
+        var tr = document.createElement('tr'); tr.dataset.id = id; tr.dataset.view = view;
+        tr.innerHTML = '<td class="cell-check"><i class="fa-regular fa-square"></i></td><td class="doc-index">' + (i + 1) + '</td><td><div class="name-cell"><span class="doc-name-text">' + (doc.user || 'Unnamed') + '</span><button class="view-icon-btn" title="View"><i class="fa-solid fa-eye"></i></button></div></td>';
+        tr.addEventListener('click', function (e) {
+          if (selectMode && !e.target.closest('.view-icon-btn')) toggleSelect(tr, id);
+          else if (e.target.closest('.view-icon-btn')) openDetail(view, id, null);
+        });
         tableBody.appendChild(tr);
       });
     }
 
-    async function renderTable(view){
-      try {
-        var data=await restGet(view);
-        if (data) {
-          viewDataCache[view] = data;
-          cacheData(view, data);
-          renderTableFromData(view, data);
-        } else if (viewDataCache[view]) {
-          renderTableFromData(view, viewDataCache[view]);
-          if (!isOnline) {
-            showToast('<i class="fa-solid fa-wifi-slash"></i> Offline - showing cached data', 2000);
-          }
-        } else {
-          tableBody.innerHTML='<tr><td colspan="3" class="doc-hint"><i class="fa-solid fa-inbox"></i>No documents yet</td></tr>'; 
-          tableCountIcon.textContent='0';
-        }
-      } catch(e) { 
-        if (viewDataCache[view]) {
-          renderTableFromData(view, viewDataCache[view]);
-          if (!isOnline) {
-            showToast('<i class="fa-solid fa-wifi-slash"></i> Offline - showing cached data', 2000);
-          }
-        } else {
-          tableBody.innerHTML='<tr><td colspan="3" class="doc-hint"><i class="fa-solid fa-triangle-exclamation"></i>Error loading - offline</td></tr>'; 
-          tableCountIcon.textContent='0';
-        }
-      }
+    async function renderTable(view) {
+      // Show cached data instantly for responsiveness
+      var cached = viewDataCache[view];
+      if (cached) renderTableRows(view, cached);
+
+      // Then fetch fresh data from cloud (smart merge handles cross-device deletes)
+      var freshData = await smartFetchView(view);
+      if (freshData) renderTableRows(view, freshData);
     }
 
-    document.getElementById('tableCloseBtn').addEventListener('click',function(){tableOverlay.classList.remove('active')});
-    document.getElementById('searchIconBtn').addEventListener('click',function(){tableTitle.classList.add('search-active')});
-    document.getElementById('searchClearBtn').addEventListener('click',function(){searchInput.value='';filterTable();tableTitle.classList.remove('search-active')});
-    searchInput.addEventListener('input',filterTable);
-    function filterTable(){ var q=searchInput.value.toLowerCase(); document.querySelectorAll('#tableBody tr[data-id]').forEach(function(tr){tr.style.display=tr.textContent.toLowerCase().includes(q)?'':'none';}); }
+    document.getElementById('tableCloseBtn').addEventListener('click', function () { tableOverlay.classList.remove('active'); });
+    document.getElementById('searchIconBtn').addEventListener('click', function () { tableTitle.classList.add('search-active'); });
+    document.getElementById('searchClearBtn').addEventListener('click', function () { searchInput.value = ''; filterTable(); tableTitle.classList.remove('search-active'); });
+    searchInput.addEventListener('input', filterTable);
+    function filterTable() {
+      var q = searchInput.value.toLowerCase();
+      document.querySelectorAll('#tableBody tr[data-id]').forEach(function (tr) {
+        tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    }
 
-    // Select Mode
-    tableCountIcon.addEventListener('click',function(){
-      selectMode=!selectMode;
-      if(!selectMode){exitSelectMode();return;}
-      selectedIds.clear(); tableOverlay.querySelector('.table-wrap').classList.add('select-mode'); tableTitle.classList.add('hidden'); selectBar.classList.add('visible'); updateSelectUI();
+    /* ===== 17. Select Mode ===== */
+    tableCountIcon.addEventListener('click', function () {
+      selectMode = !selectMode;
+      if (!selectMode) { exitSelectMode(); return; }
+      selectedIds.clear();
+      tableOverlay.querySelector('.table-wrap').classList.add('select-mode');
+      tableTitle.classList.add('hidden'); selectBar.classList.add('visible');
+      updateSelectUI();
     });
-    tableBody.addEventListener('dblclick',function(e){
-      if(selectMode) return;
-      var tr=e.target.closest('tr[data-id]'); if(!tr) return;
-      selectMode=true; selectedIds.clear(); 
-      tableOverlay.querySelector('.table-wrap').classList.add('select-mode'); 
-      tableTitle.classList.add('hidden'); 
-      selectBar.classList.add('visible'); 
+    tableBody.addEventListener('dblclick', function (e) {
+      if (selectMode) return;
+      var tr = e.target.closest('tr[data-id]'); if (!tr) return;
+      selectMode = true; selectedIds.clear();
+      tableOverlay.querySelector('.table-wrap').classList.add('select-mode');
+      tableTitle.classList.add('hidden'); selectBar.classList.add('visible');
       toggleSelect(tr, tr.dataset.id);
     });
-    document.getElementById('exitSelectBtn').addEventListener('click',exitSelectMode);
-    document.getElementById('selectAllBtn').addEventListener('click',function(){
-      var allIds=[...document.querySelectorAll('#tableBody tr[data-id]')].map(function(t){return t.dataset.id});
-      if(selectedIds.size===allIds.length) selectedIds.clear(); else allIds.forEach(function(id){selectedIds.add(id)});
-      document.querySelectorAll('#tableBody tr[data-id]').forEach(function(tr){var ck=selectedIds.has(tr.dataset.id);tr.classList.toggle('row-selected',ck);tr.querySelector('.cell-check i').className=ck?'fa-solid fa-square-check checked check-anim':'fa-regular fa-square';}); updateSelectUI();
+    document.getElementById('exitSelectBtn').addEventListener('click', exitSelectMode);
+    document.getElementById('selectAllBtn').addEventListener('click', function () {
+      var allIds = [...document.querySelectorAll('#tableBody tr[data-id]')].map(function (t) { return t.dataset.id; });
+      if (selectedIds.size === allIds.length) selectedIds.clear();
+      else allIds.forEach(function (id) { selectedIds.add(id); });
+      document.querySelectorAll('#tableBody tr[data-id]').forEach(function (tr) {
+        var ck = selectedIds.has(tr.dataset.id);
+        tr.classList.toggle('row-selected', ck);
+        tr.querySelector('.cell-check i').className = ck ? 'fa-solid fa-square-check checked check-anim' : 'fa-regular fa-square';
+      });
+      updateSelectUI();
     });
 
-    function toggleSelect(tr,id){ if(selectedIds.has(id)){selectedIds.delete(id);tr.classList.remove('row-selected');tr.querySelector('.cell-check i').className='fa-regular fa-square';}else{selectedIds.add(id);tr.classList.add('row-selected');tr.querySelector('.cell-check i').className='fa-solid fa-square-check checked check-anim';} updateSelectUI(); }
-    function updateSelectUI(){ document.getElementById('selectCount').textContent=selectedIds.size; document.getElementById('moveBtn').disabled=selectedIds.size===0; document.getElementById('deleteSelBtn').disabled=selectedIds.size===0; }
-
-    function exitSelectMode(){
-      selectMode=false; selectedIds.clear();
-      var wrap=tableOverlay.querySelector('.table-wrap'); if(wrap) wrap.classList.remove('select-mode');
+    function toggleSelect(tr, id) {
+      if (selectedIds.has(id)) {
+        selectedIds.delete(id); tr.classList.remove('row-selected');
+        tr.querySelector('.cell-check i').className = 'fa-regular fa-square';
+      } else {
+        selectedIds.add(id); tr.classList.add('row-selected');
+        tr.querySelector('.cell-check i').className = 'fa-solid fa-square-check checked check-anim';
+      }
+      updateSelectUI();
+    }
+    function updateSelectUI() {
+      document.getElementById('selectCount').textContent = selectedIds.size;
+      document.getElementById('moveBtn').disabled = selectedIds.size === 0;
+      document.getElementById('deleteSelBtn').disabled = selectedIds.size === 0;
+    }
+    function exitSelectMode() {
+      selectMode = false; selectedIds.clear();
+      var wrap = tableOverlay.querySelector('.table-wrap'); if (wrap) wrap.classList.remove('select-mode');
       tableTitle.classList.remove('hidden'); selectBar.classList.remove('visible');
-      document.querySelectorAll('#tableBody tr[data-id]').forEach(function(tr){tr.classList.remove('row-selected');tr.querySelector('.cell-check i').className='fa-regular fa-square';});
+      document.querySelectorAll('#tableBody tr[data-id]').forEach(function (tr) {
+        tr.classList.remove('row-selected');
+        tr.querySelector('.cell-check i').className = 'fa-regular fa-square';
+      });
     }
 
-    // Move & Delete
-    document.getElementById('moveBtn').addEventListener('click',function(){
-      if(selectedIds.size===0) return;
-      var moveOpts=document.getElementById('moveOptions'); moveOpts.innerHTML='';
-      Object.entries(viewMap).forEach(function(entry){
-        var key=entry[0],val=entry[1]; if(key===activeView) return;
-        var btn=document.createElement('button'); btn.className='move-opt-btn';
-        btn.innerHTML='<span class="move-dot" style="background:'+val.color+'"></span> '+val.title;
-        btn.onclick=function(){ requireAuth(function(){document.getElementById('moveOverlay').classList.remove('active');performMove(key)}); document.getElementById('moveOverlay').classList.remove('active'); };
+    /* ===== 18. Move & Delete ===== */
+    document.getElementById('moveBtn').addEventListener('click', function () {
+      if (selectedIds.size === 0) return;
+      var moveOpts = document.getElementById('moveOptions'); moveOpts.innerHTML = '';
+      Object.entries(viewMap).forEach(function (entry) {
+        var key = entry[0], val = entry[1]; if (key === activeView) return;
+        var btn = document.createElement('button'); btn.className = 'move-opt-btn';
+        btn.innerHTML = '<span class="move-dot" style="background:' + val.color + '"></span> ' + val.title;
+        btn.onclick = function () {
+          document.getElementById('moveOverlay').classList.remove('active');
+          requireAuth(function () { performMove(key); });
+        };
         moveOpts.appendChild(btn);
-      }); document.getElementById('moveOverlay').classList.add('active');
+      });
+      document.getElementById('moveOverlay').classList.add('active');
     });
 
-    async function performMove(targetView){
+    async function performMove(targetView) {
       try {
-        // Show overlay immediately
-        uploadText.textContent='Moving...'; uploadSub.textContent='Please wait'; uploadOfflineNote.style.display='none'; uploadOverlay.classList.add('active');
+        uploadText.textContent = 'Moving...'; uploadSub.textContent = 'Please wait';
+        uploadOfflineNote.style.display = 'none'; uploadOverlay.classList.add('active');
 
-        var _sel=[...selectedIds];
+        var ids = [...selectedIds];
         var wasOffline = false;
-        for(var i=0;i<_sel.length;i++){
-          var id=_sel[i], data=await restGet(activeView+'/'+id);
-          if(data) {
-            var setResult = await restSet(targetView+'/'+id,data);
-            if (setResult && setResult.offline) wasOffline = true;
+
+        // Copy items to target
+        for (var i = 0; i < ids.length; i++) {
+          var id = ids[i];
+          var data = await restGet(activeView + '/' + id);
+          if (data) {
+            var r = await restSet(targetView + '/' + id, data);
+            if (r.offline) wasOffline = true;
           }
         }
-        var updates={}; selectedIds.forEach(function(id){updates[activeView+'/'+id]=null});
-        var patchResult = await restPatch(updates);
-        if (patchResult && patchResult.offline) wasOffline = true;
 
-        // Update local cache immediately
-        var sourceData = viewDataCache[activeView] || {};
-        var targetData = viewDataCache[targetView] || {};
-        selectedIds.forEach(function(id){
-          if (sourceData[id]) {
-            targetData[id] = sourceData[id];
-            delete sourceData[id];
-          }
+        // Delete items from source
+        var updates = {};
+        ids.forEach(function (id) { updates[activeView + '/' + id] = null; });
+        var pr = await restPatch(updates);
+        if (pr.offline) wasOffline = true;
+
+        // Update local caches immediately
+        var srcData = viewDataCache[activeView] || {};
+        var tgtData = viewDataCache[targetView] || {};
+        ids.forEach(function (id) {
+          if (srcData[id]) { tgtData[id] = srcData[id]; delete srcData[id]; }
         });
-        viewDataCache[activeView] = sourceData;
-        viewDataCache[targetView] = targetData;
-        cacheData(activeView, sourceData);
-        cacheData(targetView, targetData);
+        viewDataCache[activeView] = srcData; viewDataCache[targetView] = tgtData;
+        cacheView(activeView, srcData); cacheView(targetView, tgtData);
 
         if (wasOffline) {
-          uploadOfflineNote.style.display='flex'; 
-          uploadText.textContent='Moved locally'; uploadSub.textContent='Will sync to cloud when online';
-          setTimeout(function(){ uploadOverlay.classList.remove('active'); }, 1500);
+          uploadOfflineNote.style.display = 'flex';
+          uploadText.textContent = 'Moved locally'; uploadSub.textContent = 'Will sync to cloud when online';
+          setTimeout(function () { uploadOverlay.classList.remove('active'); }, 1500);
           showToast('<i class="fa-solid fa-wifi-slash"></i> Moved offline - will sync', 3000);
         } else {
           uploadOverlay.classList.remove('active');
-          showToast('<i class="fa-solid fa-check"></i> Moved to cloud & local!');
+          showToast('<i class="fa-solid fa-check"></i> Moved successfully!');
         }
-        exitSelectMode(); renderTable(activeView);
-      } catch(e) { 
+        exitSelectMode(); renderTable(activeView); updateBadges();
+      } catch (e) {
         uploadOverlay.classList.remove('active');
-        showToast('<i class="fa-solid fa-triangle-exclamation"></i> Move error'); 
+        showToast('<i class="fa-solid fa-triangle-exclamation"></i> Move error');
       }
     }
 
-    document.getElementById('deleteSelBtn').addEventListener('click',function(){ if(selectedIds.size===0) return; requireAuth(function(){performDelete(selectedIds)}); });
-    async function performDelete(ids){ 
-      try{ 
-        // Show overlay immediately
-        uploadText.textContent='Deleting...'; uploadSub.textContent='Please wait'; uploadOfflineNote.style.display='none'; uploadOverlay.classList.add('active');
+    document.getElementById('deleteSelBtn').addEventListener('click', function () {
+      if (selectedIds.size === 0) return;
+      requireAuth(function () { performDelete(new Set(selectedIds)); });
+    });
 
-        var updates={}; 
-        ids.forEach(function(id){updates[activeView+'/'+id]=null}); 
+    async function performDelete(ids) {
+      try {
+        uploadText.textContent = 'Deleting...'; uploadSub.textContent = 'Please wait';
+        uploadOfflineNote.style.display = 'none'; uploadOverlay.classList.add('active');
+
+        var idArr = [...ids];
+        var updates = {};
+        idArr.forEach(function (id) { updates[activeView + '/' + id] = null; });
+
         var result = await restPatch(updates);
 
-        // Remove from local cache immediately
+        // Update local cache immediately - REMOVE deleted items
         var data = viewDataCache[activeView] || {};
-        ids.forEach(function(id){ delete data[id]; });
+        idArr.forEach(function (id) { delete data[id]; });
         viewDataCache[activeView] = data;
-        cacheData(activeView, data);
+        cacheView(activeView, data);
 
-        if (result && result.offline) {
-          uploadOfflineNote.style.display='flex'; 
-          uploadText.textContent='Deleted locally'; uploadSub.textContent='Will sync to cloud when online';
-          setTimeout(function(){ uploadOverlay.classList.remove('active'); }, 1500);
+        if (result.offline) {
+          uploadOfflineNote.style.display = 'flex';
+          uploadText.textContent = 'Deleted locally'; uploadSub.textContent = 'Will sync to cloud when online';
+          setTimeout(function () { uploadOverlay.classList.remove('active'); }, 1500);
           showToast('<i class="fa-solid fa-wifi-slash"></i> Deleted offline - will sync');
         } else {
-          showToast('<i class="fa-solid fa-trash"></i> Deleted from cloud & local'); 
           uploadOverlay.classList.remove('active');
+          showToast('<i class="fa-solid fa-trash"></i> Deleted successfully!');
         }
-        exitSelectMode(); renderTable(activeView); 
-      }catch(e){
+        exitSelectMode(); renderTable(activeView); updateBadges();
+      } catch (e) {
         uploadOverlay.classList.remove('active');
         showToast('<i class="fa-solid fa-triangle-exclamation"></i> Delete error');
-      } 
+      }
     }
-    document.getElementById('moveCancelBtn').addEventListener('click',function(){document.getElementById('moveOverlay').classList.remove('active')});
+    document.getElementById('moveCancelBtn').addEventListener('click', function () {
+      document.getElementById('moveOverlay').classList.remove('active');
+    });
 
-    // --- 12. Detail View ---
-    async function openDetail(view,id,doc){
-      currentDetailId=id; currentDetailView=view; detailImages.innerHTML='';
+    /* ===== 19. Detail View ===== */
+    async function openDetail(view, id, doc) {
+      currentDetailId = id; currentDetailView = view; detailImages.innerHTML = '';
       detailOverlay.classList.add('active');
-      if(!doc){
-        detailImages.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted)">Loading image...</div>';
-        try { 
-          doc=await restGet(view+'/'+id);
-          if (!doc) {
-            var cached = viewDataCache[view];
-            if (cached && cached[id]) {
-              doc = cached[id];
-            }
-          }
-        } catch(e){ 
-          var cached = viewDataCache[view];
-          if (cached && cached[id]) {
-            doc = cached[id];
-          } else {
-            detailImages.innerHTML='<div style="text-align:center;padding:30px;color:var(--accent)">Error loading</div>'; 
-            return; 
-          }
+      if (!doc) {
+        detailImages.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><span class="spinner"></span> Loading...</div>';
+        // Try cache first, then cloud
+        doc = viewDataCache[view] ? (viewDataCache[view][id] || null) : null;
+        if (!doc && isOnline) {
+          try { doc = await restGet(view + '/' + id); } catch (e) {}
         }
-        if(!doc){ 
-          detailImages.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted)">Not found</div>'; 
-          return; 
+        if (!doc) {
+          detailImages.innerHTML = '<div style="text-align:center;padding:30px;color:var(--accent)"><i class="fa-solid fa-triangle-exclamation" style="font-size:1.5rem;display:block;margin-bottom:8px"></i>This item may have been deleted from another device</div>';
+          return;
         }
-        detailImages.innerHTML='';
+        detailImages.innerHTML = '';
       }
-      addImageToDetail(doc.image,doc.name,doc.user,id,view);
-      if(doc.extraImages){ 
-        Object.entries(doc.extraImages).forEach(function(e){ 
-          addImageToDetail(e[1].image,e[1].name,doc.user,e[0],view,true,id); 
-        }); 
+      addImageToDetail(doc.image, doc.name, doc.user, id, view);
+      if (doc.extraImages) {
+        Object.entries(doc.extraImages).forEach(function (e) {
+          addImageToDetail(e[1].image, e[1].name, doc.user, e[0], view, true, id);
+        });
       }
     }
 
-    function addImageToDetail(src,name,user,id,view,isExtra,parentId){
-      isExtra=isExtra||false; parentId=parentId||null;
-      var item=document.createElement('div'); item.className='detail-img-item';
-      item.innerHTML='<div class="detail-img-stage"><img src="'+src+'" alt="'+name+'"></div><div class="detail-img-name-block"><div class="detail-img-main-name">'+name+'</div><div class="detail-img-user-name">'+user+'</div></div><div class="img-divider"></div><div class="img-actions"><button class="download-btn"><i class="fa-solid fa-download"></i> Download</button><button class="delete-btn"><i class="fa-solid fa-trash-can"></i> Delete</button></div>';
-      
-      item.querySelector('.download-btn').onclick=function(){ 
-        fetch(src).then(function(r){return r.blob()}).then(function(blob){ 
-          var url=URL.createObjectURL(blob); 
-          var a=document.createElement('a'); 
-          a.href=url; 
-          a.download = (user || 'User') + ' (' + (name || 'Image') + ').jpg';
-          document.body.appendChild(a); 
-          a.click(); 
-          a.remove(); 
-          URL.revokeObjectURL(url); 
-        }); 
-      };
-      
-      item.querySelector('.delete-btn').onclick=function(){ 
-        requireAuth(async function(){ 
-          try{ 
-            var delResult;
-            if(isExtra) delResult = await restDelete(view+'/'+parentId+'/extraImages/'+id); 
-            else delResult = await restDelete(view+'/'+id); 
+    function addImageToDetail(src, name, user, id, view, isExtra, parentId) {
+      isExtra = isExtra || false; parentId = parentId || null;
+      var item = document.createElement('div'); item.className = 'detail-img-item';
+      item.innerHTML = '<div class="detail-img-stage"><img src="' + src + '" alt="' + name + '"></div><div class="detail-img-name-block"><div class="detail-img-main-name">' + name + '</div><div class="detail-img-user-name">' + user + '</div></div><div class="img-divider"></div><div class="img-actions"><button class="download-btn"><i class="fa-solid fa-download"></i> Download</button><button class="delete-btn"><i class="fa-solid fa-trash-can"></i> Delete</button></div>';
 
-            // Remove from local cache immediately
+      item.querySelector('.download-btn').onclick = function () {
+        fetch(src).then(function (r) { return r.blob(); }).then(function (blob) {
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement('a'); a.href = url;
+          a.download = (user || 'User') + ' (' + (name || 'Image') + ').jpg';
+          document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        });
+      };
+
+      item.querySelector('.delete-btn').onclick = function () {
+        requireAuth(async function () {
+          try {
+            var delPath = isExtra ? (view + '/' + parentId + '/extraImages/' + id) : (view + '/' + id);
+            var delResult = await restDelete(delPath);
+
+            // Update local cache immediately
             if (!isExtra) {
               var data = viewDataCache[view] || {};
               delete data[id];
               viewDataCache[view] = data;
-              cacheData(view, data);
+              cacheView(view, data);
             } else {
-              // Update extraImages in local cache
               var parentData = viewDataCache[view];
               if (parentData && parentId && parentData[parentId] && parentData[parentId].extraImages) {
                 delete parentData[parentId].extraImages[id];
-                cacheData(view, parentData);
+                cacheView(view, parentData);
               }
             }
 
-            // Remove from UI immediately with animation
-            item.style.animation='imgOutro .3s ease forwards'; 
-            setTimeout(function(){item.remove();if(detailImages.children.length===0)detailOverlay.classList.remove('active')},300); 
+            // Animate removal from UI
+            item.style.animation = 'imgOutro .3s ease forwards';
+            setTimeout(function () {
+              item.remove();
+              if (detailImages.children.length === 0) detailOverlay.classList.remove('active');
+            }, 300);
 
-            if (delResult && delResult.offline) {
+            if (delResult.offline) {
               showToast('<i class="fa-solid fa-wifi-slash"></i> Deleted offline - will sync', 3000);
             } else {
-              showToast('<i class="fa-solid fa-trash"></i> Deleted from cloud & local'); 
+              showToast('<i class="fa-solid fa-trash"></i> Deleted successfully!');
             }
             if (!isExtra && activeView === view) renderTable(view);
-          }catch(e){showToast('Delete error')} 
-        }); 
+            updateBadges();
+          } catch (e) { showToast('Delete error'); }
+        });
       };
       detailImages.appendChild(item);
     }
-    document.getElementById('detailCloseBtn').addEventListener('click',function(){detailOverlay.classList.remove('active')});
-
-    // --- 13. Add Extra Images ---
-    document.getElementById('addImgBtn').addEventListener('click',function(){resetAddImgSteps();addImgOverlay.classList.add('active')});
-    document.getElementById('addImgCancelBtn').addEventListener('click',function(){addImgOverlay.classList.remove('active')});
-    document.getElementById('addImgFileBtn').addEventListener('click',function(){addImgFileInput.click()});
-    addImgFileInput.addEventListener('change',function(e){ if(e.target.files[0]) processAddImg(URL.createObjectURL(e.target.files[0])); addImgFileInput.value=''; });
-
-    document.getElementById('addImgCamBtn').addEventListener('click', async function(){
-      try {
-        var camStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{exact:"environment"}},audio:false}).catch(function(){return navigator.mediaDevices.getUserMedia({video:true,audio:false})});
-        cameraVideo.srcObject=camStream; cameraOverlay.classList.add('active');
-        document.getElementById('captureBtn').onclick=function(){
-          document.getElementById('flash').classList.add('fire');
-          captureCanvas.width=cameraVideo.videoWidth; captureCanvas.height=cameraVideo.videoHeight;
-          captureCanvas.getContext('2d').drawImage(cameraVideo,0,0);
-          if(camStream) camStream.getTracks().forEach(function(t){t.stop()});
-          cameraOverlay.classList.remove('active');
-          processAddImg(captureCanvas.toDataURL('image/jpeg',0.85));
-        };
-      } catch(e) { showToast('<i class="fa-solid fa-camera-rotate"></i> Camera error'); }
+    document.getElementById('detailCloseBtn').addEventListener('click', function () {
+      detailOverlay.classList.remove('active');
     });
 
-    function resetAddImgSteps(){
-      document.getElementById('addImgStep1').style.display='flex';
+    /* ===== 20. Add Extra Images ===== */
+    document.getElementById('addImgBtn').addEventListener('click', function () {
+      resetAddImgSteps(); addImgOverlay.classList.add('active');
+    });
+    document.getElementById('addImgCancelBtn').addEventListener('click', function () {
+      addImgOverlay.classList.remove('active');
+    });
+    document.getElementById('addImgFileBtn').addEventListener('click', function () { addImgFileInput.click(); });
+    addImgFileInput.addEventListener('change', function (e) {
+      if (e.target.files[0]) processAddImg(URL.createObjectURL(e.target.files[0]));
+      addImgFileInput.value = '';
+    });
+
+    document.getElementById('addImgCamBtn').addEventListener('click', async function () {
+      try {
+        var camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: 'environment' } }, audio: false })
+          .catch(function () { return navigator.mediaDevices.getUserMedia({ video: true, audio: false }); });
+        cameraVideo.srcObject = camStream; cameraOverlay.classList.add('active');
+        document.getElementById('captureBtn').onclick = function () {
+          document.getElementById('flash').classList.add('fire');
+          captureCanvas.width = cameraVideo.videoWidth; captureCanvas.height = cameraVideo.videoHeight;
+          captureCanvas.getContext('2d').drawImage(cameraVideo, 0, 0);
+          if (camStream) camStream.getTracks().forEach(function (t) { t.stop(); });
+          cameraOverlay.classList.remove('active');
+          processAddImg(captureCanvas.toDataURL('image/jpeg', 0.85));
+        };
+      } catch (e) { showToast('<i class="fa-solid fa-camera-rotate"></i> Camera error'); }
+    });
+
+    function resetAddImgSteps() {
+      document.getElementById('addImgStep1').style.display = 'flex';
       document.getElementById('addImgStep2').classList.remove('visible');
       document.getElementById('addImgStep3').classList.remove('visible');
-      document.getElementById('addImgNameInput').value='';
-      document.getElementById('addImgSaveBtn').disabled=true;
-      newExtraImg=null;
+      document.getElementById('addImgNameInput').value = '';
+      document.getElementById('addImgSaveBtn').disabled = true;
+      newExtraImg = null;
     }
 
-    function processAddImg(src){
-      newExtraImg=src;
-      document.getElementById('addImgPreview').src=src; document.getElementById('addImgPreview').style.clipPath='';
-      document.getElementById('addImgStep1').style.display='none';
+    function processAddImg(src) {
+      newExtraImg = src;
+      document.getElementById('addImgPreview').src = src;
+      document.getElementById('addImgPreview').style.clipPath = '';
+      document.getElementById('addImgStep1').style.display = 'none';
       document.getElementById('addImgStep2').classList.add('visible');
-      document.getElementById('addImgEditBtn').innerHTML='<i class="fa-solid fa-crop-simple"></i> Edit';
-      var nextHandler=function(){
-        document.getElementById('addImgThumb').src=newExtraImg;
+      document.getElementById('addImgEditBtn').innerHTML = '<i class="fa-solid fa-crop-simple"></i> Edit';
+      var nextHandler = function () {
+        document.getElementById('addImgThumb').src = newExtraImg;
         document.getElementById('addImgStep2').classList.remove('visible');
         document.getElementById('addImgStep3').classList.add('visible');
         document.getElementById('addImgNameInput').focus();
-        document.getElementById('addImgNextBtn').removeEventListener('click',nextHandler);
+        document.getElementById('addImgNextBtn').removeEventListener('click', nextHandler);
       };
-      document.getElementById('addImgNextBtn').addEventListener('click',nextHandler);
+      document.getElementById('addImgNextBtn').addEventListener('click', nextHandler);
     }
 
-    document.getElementById('addImgEditBtn').addEventListener('click',function(){
-      var img=document.getElementById('addImgPreview'),isE=img.style.clipPath!=='';
-      img.style.clipPath=isE?'':'inset(10% 10% 10% 10%)';
-      document.getElementById('addImgEditBtn').innerHTML=isE?'<i class="fa-solid fa-crop-simple"></i> Edit':'<i class="fa-solid fa-check"></i> Done';
+    document.getElementById('addImgEditBtn').addEventListener('click', function () {
+      var img = document.getElementById('addImgPreview'), isE = img.style.clipPath !== '';
+      img.style.clipPath = isE ? '' : 'inset(10% 10% 10% 10%)';
+      document.getElementById('addImgEditBtn').innerHTML = isE ? '<i class="fa-solid fa-crop-simple"></i> Edit' : '<i class="fa-solid fa-check"></i> Done';
     });
 
-    document.getElementById('addImgNameInput').addEventListener('input',function(e){document.getElementById('addImgSaveBtn').disabled=!e.target.value.trim()});
+    document.getElementById('addImgNameInput').addEventListener('input', function (e) {
+      document.getElementById('addImgSaveBtn').disabled = !e.target.value.trim();
+    });
 
-    document.getElementById('addImgSaveBtn').addEventListener('click', async function(){
-      var name=document.getElementById('addImgNameInput').value.trim();
-      if(!name||!newExtraImg||!currentDetailId) return;
-      uploadOverlay.classList.add('active'); uploadText.textContent='Adding Image...'; uploadSub.textContent='Compressing'; uploadOfflineNote.style.display='none';
+    document.getElementById('addImgSaveBtn').addEventListener('click', async function () {
+      var name = document.getElementById('addImgNameInput').value.trim();
+      if (!name || !newExtraImg || !currentDetailId) return;
+      uploadOverlay.classList.add('active');
+      uploadText.textContent = 'Adding Image...'; uploadSub.textContent = 'Compressing';
+      uploadOfflineNote.style.display = 'none';
       try {
-        var base64=await compressImage(newExtraImg,0.6,1200);
-        var entry={name:name,image:base64};
-        if(isOnline){ 
-          await restPush(currentDetailView+'/'+currentDetailId+'/extraImages',entry); 
-          showToast('<i class="fa-solid fa-check"></i> Image added!'); 
-        } else { 
-          queueOfflinePush(currentDetailView+'/'+currentDetailId+'/extraImages',entry); 
-          uploadOfflineNote.style.display='flex'; 
-          showToast('<i class="fa-solid fa-wifi-slash"></i> Saved offline');
+        var base64 = await compressImage(newExtraImg, 0.6, 1200);
+        var entry = { name: name, image: base64 };
+        var result = await restPush(currentDetailView + '/' + currentDetailId + '/extraImages', entry);
+
+        // Update local cache
+        if (viewDataCache[currentDetailView] && viewDataCache[currentDetailView][currentDetailId]) {
+          if (!viewDataCache[currentDetailView][currentDetailId].extraImages) {
+            viewDataCache[currentDetailView][currentDetailId].extraImages = {};
+          }
+          var newEid = result.name || ('local_' + Date.now());
+          viewDataCache[currentDetailView][currentDetailId].extraImages[newEid] = entry;
+          cacheView(currentDetailView, viewDataCache[currentDetailView]);
         }
+
+        if (result.offline) {
+          uploadOfflineNote.style.display = 'flex';
+          showToast('<i class="fa-solid fa-wifi-slash"></i> Saved offline');
+        } else {
+          showToast('<i class="fa-solid fa-check"></i> Image added!');
+        }
+
         addImgOverlay.classList.remove('active'); uploadOverlay.classList.remove('active');
-        var docData=await restGet(currentDetailView+'/'+currentDetailId);
-        if(docData) openDetail(currentDetailView,currentDetailId,docData);
-      } catch(e) { showToast('Error adding image'); uploadOverlay.classList.remove('active'); }
+        // Refresh detail view
+        var docData = viewDataCache[currentDetailView] ? viewDataCache[currentDetailView][currentDetailId] : null;
+        if (docData) openDetail(currentDetailView, currentDetailId, docData);
+      } catch (e) { showToast('Error adding image'); uploadOverlay.classList.remove('active'); }
     });
 
-    // --- 14. Offline Sync ---
-    // (queueOfflinePush is defined above at line ~428 with proper 'type' field)
-
-    async function syncOfflineData(){
-      var q=JSON.parse(localStorage.getItem('offlineQueue')||'[]'); 
-      if(!q.length) return;
-      var sc=0;
-      var remaining=[];  // items that failed mid-sync - kept for next retry
-      for (var i = 0; i < q.length; i++) {
-        var item = q[i];
-        var ok = false;
-        try {
-          if (item.type === 'push') {
-            // Direct fetch (bypass restPush so a failure doesn't auto-re-queue
-            // and then get wiped by the removeItem below - that was the old bug)
-            var res = await fetch(restUrl(item.path), { method:'POST', body: JSON.stringify(item.data) });
-            if (res.ok) ok = true;
-          } else if (item.type === 'delete') {
-            var res2 = await fetch(restUrl(item.path), { method:'DELETE' });
-            if (res2.ok) ok = true;
-          } else if (item.type === 'patch') {
-            var res3 = await fetch(restUrl(''), { method:'PATCH', body: JSON.stringify(item.updates) });
-            if (res3.ok) ok = true;
-          }
-        } catch(e) {}
-        if (ok) {
-          sc++;
-        } else {
-          // Keep failed item for next online event - don't lose user data
-          remaining.push(item);
-        }
-      }
-      // Persist the surviving queue (or clear it if everything succeeded)
-      if (remaining.length === 0) {
-        localStorage.removeItem('offlineQueue');
-      } else {
-        localStorage.setItem('offlineQueue', JSON.stringify(remaining));
-      }
-      if(sc>0){
-        showToast('<i class="fa-solid fa-cloud-arrow-up"></i> Synced '+sc+' items!'+(remaining.length?' ('+remaining.length+' pending)':''),3000);
-        updateAllViews();
-        updateBadges();
-      } else if (remaining.length > 0) {
-        showToast('<i class="fa-solid fa-triangle-exclamation"></i> Sync failed - will retry when online',3000);
-      }
+    /* ===== 21. Background Particles ===== */
+    var particlesEl = document.getElementById('particles');
+    for (var i = 0; i < 25; i++) {
+      var p = document.createElement('div'); p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%'; p.style.bottom = '-10px';
+      particlesEl.appendChild(p);
     }
 
-    // --- 15. Background Particles ---
-    var particlesEl=document.getElementById('particles');
-    for(var i=0;i<25;i++){var p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.bottom='-10px';p.style.animationDuration=(Math.random()*10+8)+'s';p.style.animationDelay=(Math.random()*10)+'s';p.style.width=(Math.random()*3+1)+'px';p.style.height=p.style.width;particlesEl.appendChild(p);}
-
+    // Initial offline warning
     if (!navigator.onLine) {
-      showToast('<i class="fa-solid fa-wifi-slash"></i> You are offline - using cached data', 3000);
+      showToast('<i class="fa-solid fa-wifi-slash"></i> Offline - using cached data', 3000);
     }
-
   </script>
-
 </body>
 </html>
