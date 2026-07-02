@@ -587,8 +587,14 @@
     authCancel.addEventListener('click', function(){ authOverlay.classList.remove('active'); authBtn.disabled=false; authBtn.innerHTML='Confirm'; });
 
     // --- 7. Init App ---
+    // Cross-device sync: compares fresh cloud data to local viewDataCache on
+    // every poll. IDs that exist in local cache but are missing from cloud =
+    // deleted by ANOTHER device (since our own deletes already removed them
+    // from viewDataCache). No separate snapshot to keep in sync.
+    var syncInFlight = false;        // prevents overlapping updateBadges runs
+    var firstSyncDone = false;       // suppresses "N removed" toast on first load
+
     function initApp() {
-      updateBadges();
       Object.keys(viewMap).forEach(function(key) {
         try {
           const cached = localStorage.getItem('cache_' + key);
@@ -597,14 +603,51 @@
           }
         } catch(e) {}
       });
-      pollTimer = setInterval(updateBadges, 30000);
+      // First fetch fires immediately; subsequent polls every 15s.
+      updateBadges();
+      pollTimer = setInterval(updateBadges, 15000);
+
+      // When user returns to the tab, refresh immediately so cross-device
+      // deletions show up within ~1s instead of waiting for the next poll.
+      document.addEventListener('visibilitychange', function(){
+        if (!document.hidden && isOnline) { updateBadges(); }
+      });
+      window.addEventListener('focus', function(){
+        if (isOnline) { updateBadges(); }
+      });
     }
 
     async function updateBadges() {
+      // Prevent overlapping runs (poll + visibility + focus can fire concurrently)
+      if (syncInFlight) return;
+      syncInFlight = true;
+      // Skip cloud polling when offline - we'd just hit cache and waste a cycle
+      if (!isOnline) { syncInFlight = false; return; }
+
+      var totalRemoved = 0;
+      var activeViewChanged = false;
+
       try {
         var promises = Object.keys(viewMap).map(async function(key) {
           try {
             var data = await restGet(key);
+
+            // Cross-device delete detection: any ID in our local cache but
+            // missing from cloud = deleted on another device. (Our own deletes
+            // already updated viewDataCache, so they won't show up here.)
+            var localCache = viewDataCache[key] || {};
+            var localIds = Object.keys(localCache);
+            if (firstSyncDone && localIds.length > 0) {
+              var removedHere = 0;
+              for (var k = 0; k < localIds.length; k++) {
+                if (!(localIds[k] in (data || {}))) removedHere++;
+              }
+              if (removedHere > 0) {
+                totalRemoved += removedHere;
+                if (key === activeView) activeViewChanged = true;
+              }
+            }
+
             if (data) {
               viewDataCache[key] = data;
               cacheData(key, data);
@@ -620,7 +663,20 @@
           } catch(e) {}
         });
         await Promise.all(promises);
-      } catch(e) {}
+      } catch(e) {} finally {
+        syncInFlight = false;
+        firstSyncDone = true;
+      }
+
+      // Cross-device delete propagation: re-render the open table if its view
+      // lost items, and toast so the user knows why rows disappeared.
+      if (totalRemoved > 0) {
+        if (activeViewChanged && tableOverlay.classList.contains('active') && viewDataCache[activeView]) {
+          renderTableFromData(activeView, viewDataCache[activeView]);
+        }
+        showToast('<i class="fa-solid fa-arrows-rotate"></i> ' + totalRemoved +
+                  ' item(s) removed by another device', 3500);
+      }
     }
 
     function updateAllViews() {
@@ -1126,26 +1182,43 @@
       var q=JSON.parse(localStorage.getItem('offlineQueue')||'[]'); 
       if(!q.length) return;
       var sc=0;
+      var remaining=[];  // items that failed mid-sync - kept for next retry
       for (var i = 0; i < q.length; i++) {
         var item = q[i];
+        var ok = false;
         try {
           if (item.type === 'push') {
-            await restPush(item.path, item.data);
-            sc++;
+            // Direct fetch (bypass restPush so a failure doesn't auto-re-queue
+            // and then get wiped by the removeItem below - that was the old bug)
+            var res = await fetch(restUrl(item.path), { method:'POST', body: JSON.stringify(item.data) });
+            if (res.ok) ok = true;
           } else if (item.type === 'delete') {
-            await restDelete(item.path);
-            sc++;
+            var res2 = await fetch(restUrl(item.path), { method:'DELETE' });
+            if (res2.ok) ok = true;
           } else if (item.type === 'patch') {
-            await restPatch(item.updates);
-            sc++;
+            var res3 = await fetch(restUrl(''), { method:'PATCH', body: JSON.stringify(item.updates) });
+            if (res3.ok) ok = true;
           }
         } catch(e) {}
+        if (ok) {
+          sc++;
+        } else {
+          // Keep failed item for next online event - don't lose user data
+          remaining.push(item);
+        }
+      }
+      // Persist the surviving queue (or clear it if everything succeeded)
+      if (remaining.length === 0) {
+        localStorage.removeItem('offlineQueue');
+      } else {
+        localStorage.setItem('offlineQueue', JSON.stringify(remaining));
       }
       if(sc>0){
-        localStorage.removeItem('offlineQueue');
-        showToast('<i class="fa-solid fa-cloud-arrow-up"></i> Synced '+sc+' items!',3000);
+        showToast('<i class="fa-solid fa-cloud-arrow-up"></i> Synced '+sc+' items!'+(remaining.length?' ('+remaining.length+' pending)':''),3000);
         updateAllViews();
         updateBadges();
+      } else if (remaining.length > 0) {
+        showToast('<i class="fa-solid fa-triangle-exclamation"></i> Sync failed - will retry when online',3000);
       }
     }
 
