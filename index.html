@@ -136,6 +136,11 @@
     .finished-btn:hover{box-shadow:0 6px 24px var(--gold-glow);transform:translateY(-2px)}
     .finished-btn:active{transform:translateY(0) scale(.98)}
     .finished-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+    .save-action-row{display:flex;gap:10px;align-items:stretch}
+    .save-action-row .finished-btn{flex:1}
+    .cancel-mini-btn{padding:14px 18px;border-radius:12px;border:1px solid rgba(255,77,77,.35);background:rgba(255,77,77,.08);color:#ff6b6b;font-family:'Space Grotesk',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:6px;flex-shrink:0}
+    .cancel-mini-btn:hover{background:rgba(255,77,77,.18);border-color:rgba(255,77,77,.55);color:#ff8585;transform:translateY(-2px)}
+    .cancel-mini-btn:active{transform:translateY(0) scale(.98)}
     .table-box{width:440px;max-width:92vw;max-height:80vh;background:rgba(22,22,30,.96);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:16px;overflow:hidden}
     .table-header{display:flex;align-items:center;justify-content:space-between;min-height:40px}
     .header-left{position:relative;display:flex;align-items:center;flex:1;overflow:hidden;height:40px}
@@ -339,7 +344,7 @@
 
   <div class="overlay preview-overlay" id="previewOverlay"><div class="overlay-bg"></div><div class="anim-box preview-content"><div class="preview-stage" id="previewStage"><img id="previewImg" src="" alt="Preview"></div><p class="preview-label" id="previewLabel">Drag to crop area (Edit Mode)</p><div class="preview-actions"><button class="preview-btn" id="previewCloseBtn"><i class="fa-solid fa-xmark"></i> Close</button><button class="preview-btn edit-btn" id="previewEditBtn"><i class="fa-solid fa-crop-simple"></i> Edit</button><button class="preview-btn next-btn" id="previewNextBtn"><i class="fa-solid fa-arrow-right"></i> Next</button></div></div></div>
   
-  <div class="overlay save-overlay" id="saveOverlay"><div class="overlay-bg"></div><div class="anim-box save-box"><div class="save-box-title"><i class="fa-solid fa-floppy-disk"></i> Save Document</div><div class="input-group"><label for="docNameInput">Image Name</label><input type="text" id="docNameInput" placeholder="Enter image name..."><div class="error-msg" id="nameError"></div></div><div class="input-group"><label for="userNameInput">Your Name (Table Name)</label><input type="text" id="userNameInput" placeholder="Enter your name..."><div class="error-msg" id="userError"></div></div><div class="birthday-group"><label><i class="fa-solid fa-cake-candles" style="margin-right:4px;color:var(--gold)"></i> Birthday</label><div class="birthday-row"><div class="b-input"><input type="number" id="birthDay" min="1" max="30" placeholder="Day (1-30)"></div><div class="b-input"><select id="birthMonth"><option value="">ወር (Month)</option><option value="1">1 - መስከረም</option><option value="2">2 - ጥቅምት</option><option value="3">3 - ኅዳር</option><option value="4">4 - ታኅሣሥ</option><option value="5">5 - ጥር</option><option value="6">6 - የካቲት</option><option value="7">7 - መጋቢት</option><option value="8">8 - ሚያዝያ</option><option value="9">9 - ግንቦት</option><option value="10">10 - ሰኔ</option><option value="11">11 - ሐምሌ</option><option value="12">12 - ነሐሴ</option><option value="13">13 - ጳጉሜን</option></select></div><div class="b-input"><input type="number" id="birthYear" min="1890" max="2020" placeholder="Year (E.C.)"></div></div><div class="age-display" id="ageDisplay"></div></div><div class="photo-section"><label><i class="fa-solid fa-id-card" style="margin-right:4px;color:var(--gold)"></i> Personal Photo</label><div class="photo-row"><button class="photo-opt-btn" id="personalFileBtn"><i class="fa-solid fa-folder-open" style="color:var(--gold)"></i> File</button><button class="photo-opt-btn" id="personalCamBtn"><i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera</button><div class="photo-thumb-wrap" id="personalPhotoWrap"><img id="personalPhotoPreview" alt="Photo"><button class="photo-remove-btn" id="personalPhotoRemoveBtn"><i class="fa-solid fa-xmark"></i></button></div></div></div><div class="class-group"><label>Choose Class</label><div class="class-options"><button class="class-btn c1" data-class="view1"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--teal);font-size:.85rem"></i> የህፃናት</button><button class="class-btn c2" data-class="view2"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--sky);font-size:.85rem"></i> የታዳጊ</button><button class="class-btn c3" data-class="view3"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--purple);font-size:.85rem"></i> የማእከላውያን</button><button class="class-btn c4" data-class="view4"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--rose);font-size:.85rem"></i> የወጣቶች</button></div></div><button class="finished-btn" id="finishedBtn" disabled><i class="fa-solid fa-check"></i> Finished</button></div></div>
+  <div class="overlay save-overlay" id="saveOverlay"><div class="overlay-bg"></div><div class="anim-box save-box"><div class="save-box-title"><i class="fa-solid fa-floppy-disk"></i> Save Document</div><div class="input-group"><label for="docNameInput">Image Name</label><input type="text" id="docNameInput" placeholder="Enter image name..."><div class="error-msg" id="nameError"></div></div><div class="input-group"><label for="userNameInput">Your Name (Table Name)</label><input type="text" id="userNameInput" placeholder="Enter your name..."><div class="error-msg" id="userError"></div></div><div class="birthday-group"><label><i class="fa-solid fa-cake-candles" style="margin-right:4px;color:var(--gold)"></i> Birthday</label><div class="birthday-row"><div class="b-input"><input type="number" id="birthDay" min="1" max="30" placeholder="Day (1-30)"></div><div class="b-input"><select id="birthMonth"><option value="">ወር (Month)</option><option value="1">1 - መስከረም</option><option value="2">2 - ጥቅምት</option><option value="3">3 - ኅዳር</option><option value="4">4 - ታኅሣሥ</option><option value="5">5 - ጥር</option><option value="6">6 - የካቲት</option><option value="7">7 - መጋቢት</option><option value="8">8 - ሚያዝያ</option><option value="9">9 - ግንቦት</option><option value="10">10 - ሰኔ</option><option value="11">11 - ሐምሌ</option><option value="12">12 - ነሐሴ</option><option value="13">13 - ጳጉሜን</option></select></div><div class="b-input"><input type="number" id="birthYear" min="1890" max="2020" placeholder="Year (E.C.)"></div></div><div class="age-display" id="ageDisplay"></div></div><div class="photo-section"><label><i class="fa-solid fa-id-card" style="margin-right:4px;color:var(--gold)"></i> Personal Photo</label><div class="photo-row"><button class="photo-opt-btn" id="personalFileBtn"><i class="fa-solid fa-folder-open" style="color:var(--gold)"></i> File</button><button class="photo-opt-btn" id="personalCamBtn"><i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera</button><div class="photo-thumb-wrap" id="personalPhotoWrap"><img id="personalPhotoPreview" alt="Photo"><button class="photo-remove-btn" id="personalPhotoRemoveBtn"><i class="fa-solid fa-xmark"></i></button></div></div></div><div class="class-group"><label>Choose Class</label><div class="class-options"><button class="class-btn c1" data-class="view1"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--teal);font-size:.85rem"></i> የህፃናት</button><button class="class-btn c2" data-class="view2"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--sky);font-size:.85rem"></i> የታዳጊ</button><button class="class-btn c3" data-class="view3"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--purple);font-size:.85rem"></i> የማእከላውያን</button><button class="class-btn c4" data-class="view4"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--rose);font-size:.85rem"></i> የወጣቶች</button></div></div><div class="save-action-row"><button class="cancel-mini-btn" id="saveCancelBtn" type="button"><i class="fa-solid fa-xmark"></i> Cancel</button><button class="finished-btn" id="finishedBtn" disabled><i class="fa-solid fa-check"></i> Finished</button></div></div></div>
 
   <div class="overlay table-overlay" id="tableOverlay"><div class="overlay-bg"></div><div class="anim-box table-box"><div class="table-header"><div class="header-left"><div class="table-title" id="tableTitle"><span class="doc-count-icon" id="tableCountIcon">0</span><button class="search-icon-btn" id="searchIconBtn" title="Search names"><i class="fa-solid fa-magnifying-glass"></i></button><input type="text" class="search-input" id="searchInput" placeholder="Name or Age..."><button class="search-clear-btn" id="searchClearBtn" title="Clear search"><i class="fa-solid fa-xmark"></i></button></div><div class="select-bar" id="selectBar"><button class="sel-btn" id="selectAllBtn"><i class="fa-solid fa-check-double"></i> All</button><button class="sel-btn move-btn" id="moveBtn" disabled><i class="fa-solid fa-arrows-up-down-left-right"></i> Move</button><button class="sel-btn delete-sel-btn" id="deleteSelBtn" disabled><i class="fa-solid fa-trash-can"></i> Delete</button><button class="sel-btn exit-btn" id="exitSelectBtn"><i class="fa-solid fa-xmark"></i> Exit</button><span class="sel-count"><i class="fa-solid fa-circle-info"></i> <span id="selectCount">0</span></span></div></div><button class="table-close" id="tableCloseBtn"><i class="fa-solid fa-xmark"></i></button></div><div class="table-wrap"><table class="doc-table" id="docTable"><thead><tr><th class="col-check"></th><th>#</th><th>Name</th></tr></thead><tbody id="tableBody"></tbody></table></div></div></div>
 
@@ -967,6 +972,26 @@
       finishedBtn.disabled = true; document.getElementById('subChoice').classList.remove('visible');
     });
 
+    /* ===== 15b. Cancel Save - mini cancel button on the left of Finished */
+    document.getElementById('saveCancelBtn').addEventListener('click', function () {
+      // Close the save overlay
+      document.getElementById('saveOverlay').classList.remove('active');
+      // Reset all form fields
+      docNameInput.value = ''; userNameInput.value = ''; targetClass = null;
+      document.getElementById('birthDay').value = '';
+      document.getElementById('birthMonth').value = '';
+      document.getElementById('birthYear').value = '';
+      document.getElementById('ageDisplay').innerHTML = '';
+      clearPersonalPhoto();
+      document.querySelectorAll('.class-btn').forEach(function (b) { b.classList.remove('selected'); });
+      finishedBtn.disabled = true;
+      // Hide the sub-choice (File / Camera) panel too
+      document.getElementById('subChoice').classList.remove('visible');
+      // Discard any pending processed image
+      currentProcessedImage = null;
+      showToast('<i class="fa-solid fa-xmark"></i> Cancelled', 1500);
+    });
+
     function compressImage(src, q, mw) {
       return new Promise(function (res) {
         var img = new Image();
@@ -1052,7 +1077,23 @@
           tr.style.display = (!q || tr.textContent.toLowerCase().includes(q)) ? '' : 'none';
         }
       });
-      document.querySelectorAll('#tableBody tr[data-id]').forEach(function(tr) { if (tr.style.display !== 'none') visibleCount++; });
+      // Re-number visible rows sequentially 1, 2, 3 ... so search results
+      // always start at 1 regardless of their original position in the table.
+      var seq = 0;
+      document.querySelectorAll('#tableBody tr[data-id]').forEach(function (tr) {
+        if (tr.style.display !== 'none') {
+          visibleCount++;
+          seq++;
+          var idxCell = tr.querySelector('.doc-index');
+          if (idxCell) idxCell.textContent = seq;
+        } else {
+          // Hidden rows keep their original number hidden from view, but we
+          // reset it so when search is cleared they get fresh numbers via
+          // the next renderTable call.
+          var idxCell = tr.querySelector('.doc-index');
+          if (idxCell) idxCell.textContent = '';
+        }
+      });
       tableCountIcon.textContent = visibleCount;
     }
 
