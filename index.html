@@ -6,6 +6,8 @@
   <title>የሐመረ-ኖኅ ሰንበት ት/ቤት የተማሪዎች ሰነድ መያዣ ድህረ ገፅ</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
   <style>
     :root{--bg:#0e0f14;--fg:#f0ece4;--muted:#6b6872;--accent:#e8553d;--accent-glow:rgba(232,85,61,0.35);--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.07);--teal:#2ec4a2;--teal-glow:rgba(46,196,162,0.3);--gold:#d4a03c;--gold-glow:rgba(212,160,60,0.3);--sky:#3daae8;--sky-glow:rgba(61,170,232,0.3);--purple:#9b59b6;--purple-glow:rgba(155,89,182,0.3);--rose:#e85577;--rose-glow:rgba(232,85,119,0.3)}
     *{margin:0;padding:0;box-sizing:border-box}
@@ -17,7 +19,6 @@
     .blob-3{width:350px;height:350px;background:radial-gradient(circle,var(--gold) 0%,transparent 70%);top:50%;left:55%;transform:translate(-50%,-50%);animation-duration:18s;animation-delay:-8s;opacity:.3}
     @keyframes blobFloat{0%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,-40px) scale(1.1)}66%{transform:translate(-30px,50px) scale(.95)}100%{transform:translate(40px,20px) scale(1.05)}}
     .grid-overlay{position:fixed;inset:0;z-index:1;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:60px 60px;opacity:.15;animation:none}
-    .noise-overlay{display:none}
     .particles{position:fixed;inset:0;z-index:3;pointer-events:none}
     .particle{display:none}
     .main-container{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;gap:44px}
@@ -70,18 +71,6 @@
     .doc-btn:active{transform:translateY(-1px) scale(.98)}
     .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.2);transform:scale(0);animation:rippleAnim .6s ease-out forwards;pointer-events:none}
     @keyframes rippleAnim{to{transform:scale(4);opacity:0}}
-    .sub-choice{display:none;flex-direction:column;gap:12px;animation:fadeSlideUp .35s ease-out both;grid-column:1/-1}
-    .sub-choice.visible{display:flex}
-    .sub-choice-row{display:flex;gap:12px}
-    .sub-btn{display:flex;align-items:center;gap:10px;padding:14px 20px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--fg);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .3s ease;flex:1}
-    .sub-btn:hover{transform:translateY(-2px)}
-    .sub-btn .sub-icon{display:flex;align-items:center;justify-content:center;width:36px;height:36px;min-width:36px;border-radius:8px;font-size:.95rem}
-    .sub-btn.choose-file .sub-icon{background:linear-gradient(135deg,var(--gold),#b8882e);color:#fff}
-    .sub-btn.choose-file:hover{border-color:var(--gold);box-shadow:0 0 20px var(--gold-glow)}
-    .sub-btn.camera-shot .sub-icon{background:linear-gradient(135deg,var(--accent),#c23a25);color:#fff}
-    .sub-btn.camera-shot:hover{border-color:var(--accent);box-shadow:0 0 20px var(--accent-glow)}
-    .back-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:.75rem;cursor:pointer;transition:all .25s;align-self:flex-start}
-    .back-btn:hover{color:var(--fg);border-color:rgba(255,255,255,.15)}
     .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.7);z-index:105}
     .overlay.active{display:flex}
     .overlay-bg{position:absolute;inset:0;background:rgba(0,0,0,.8);animation:overlayIntro .35s ease-out both}
@@ -103,15 +92,20 @@
     @keyframes flashAnim{0%{opacity:.9}100%{opacity:0}}
     @keyframes imgIntro{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
     @keyframes imgOutro{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.85)}}
+
+    /* QR PREVIEW STYLES (COPIED FROM GENERATOR) */
     .preview-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:90vw}
-    .preview-stage{position:relative;width:100%;display:flex;justify-content:center;min-height:200px}
-    .preview-content img{max-width:80vw;max-height:55vh;border-radius:12px;border:2px solid rgba(255,255,255,.1);box-shadow:0 20px 60px rgba(0,0,0,.5);animation:imgIntro .45s cubic-bezier(.22,1,.36,1) both;object-fit:contain;cursor:crosshair}
-    .preview-label{margin-top:16px;color:var(--fg);font-family:'Space Grotesk',sans-serif;font-size:.9rem;opacity:.7}
-    .preview-actions{display:flex;gap:12px;margin-top:14px}
-    .preview-btn{padding:10px 20px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:var(--fg);font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:8px}
-    .preview-btn:hover{background:rgba(255,255,255,.15)}
-    .preview-btn.edit-btn{border-color:var(--sky);color:var(--sky)}.preview-btn.edit-btn:hover{background:rgba(61,170,232,.15);border-color:var(--sky);color:var(--sky)}
-    .preview-btn.next-btn{background:linear-gradient(135deg,var(--gold),#b8882e);border-color:var(--gold);color:#fff}.preview-btn.next-btn:hover{box-shadow:0 0 20px var(--gold-glow);transform:translateY(-2px)}
+    #qr-with-background {display: none; margin: 20px auto; text-align: center; position: relative; width: 300px; height: 300px;}
+    .preview-content.active #qr-with-background {display: block;}
+    #qr-background-image {width: 100%; height: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); object-fit: contain;}
+    #qr-overlay {position: absolute; top: 50%; left: 50%; margin-top: 25px; transform: translate(-50%, -50%); width: 150px !important; height: 150px !important;}
+    #qr-overlay canvas {width: 100% !important; height: 100% !important; object-fit: contain;}
+    .preview-actions {display: flex; gap: 12px; margin-top: 14px;}
+    .preview-btn {padding: 10px 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.08); color: var(--fg); font-family: 'Space Grotesk',sans-serif; font-size: .85rem; font-weight: 500; cursor: pointer; transition: all .25s; display: flex; align-items: center; gap: 8px;}
+    .preview-btn:hover {background: rgba(255,255,255,.15);}
+    .preview-btn.edit-btn {border-color: var(--sky); color: var(--sky);}.preview-btn.edit-btn:hover {background: rgba(61,170,232,.15); border-color: var(--sky); color: var(--sky);}
+    .preview-btn.next-btn {background: linear-gradient(135deg,var(--gold),#b8882e); border-color: var(--gold); color: #fff;}.preview-btn.next-btn:hover {box-shadow: 0 0 20px var(--gold-glow); transform: translateY(-2px);}
+
     .save-box{width:340px;max-width:90vw;background:rgba(22,22,30,.95);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:20px;max-height:90vh;overflow-y:auto}
     .save-box-title{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--fg);display:flex;align-items:center;gap:10px}
     .save-box-title i{color:var(--gold)}
@@ -121,6 +115,11 @@
     .input-group input::placeholder{color:var(--muted);opacity:.6}
     .input-group input:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-glow)}
     .error-msg{font-size:.72rem;color:var(--accent);min-height:16px}
+    .radio-pill-container {display: flex;gap: 10px;margin-top: 8px;}
+    .radio-pill {flex: 1;text-align: center;}
+    .radio-pill input[type="radio"] {display: none;}
+    .radio-pill label {display: block;padding: 10px;background: var(--card);color: var(--fg);border: 1px solid var(--border);border-radius: 50px;cursor: pointer;transition: all 0.3s;text-align: center;font-weight: 500;font-family: 'Space Grotesk',sans-serif;font-size: .8rem;}
+    .radio-pill input[type="radio"]:checked + label {background: linear-gradient(135deg,var(--gold),#b8882e);border-color: var(--gold);font-weight: 600;color: #fff;}
     .class-group{display:flex;flex-direction:column;gap:6px}
     .class-group label{font-size:.75rem;font-weight:500;color:var(--muted);letter-spacing:.8px;text-transform:uppercase}
     .class-options{display:flex;flex-direction:column;gap:8px}
@@ -291,13 +290,14 @@
     .id-card-bday span{color:var(--fg);font-weight:500}
     .id-card-age{font-size:.73rem;color:var(--teal);font-weight:600;font-family:'Space Grotesk',sans-serif}
 
-    @media(max-width:580px){.btn-grid{grid-template-columns:1fr;max-width:300px}.doc-btn{padding:14px 20px}.sub-choice-row,.addimg-row{flex-direction:column}.save-box,.table-box,.detail-box,.popup-box,.addimg-box{padding:20px}.select-bar{gap:6px}.sel-btn{padding:6px 10px;font-size:.7rem}.img-actions{flex-direction:row;gap:8px;justify-content:center}.delete-btn,.download-btn{padding:8px 14px;font-size:.76rem}.birthday-row{flex-direction:column;gap:6px}.id-card{padding:10px 12px;gap:10px}.id-card-photo{width:50px;height:64px;font-size:1.1rem}}
+    @media(max-width:580px){.btn-grid{grid-template-columns:1fr;max-width:300px}.doc-btn{padding:14px 20px}.save-box,.table-box,.detail-box,.popup-box,.addimg-box{padding:20px}.select-bar{gap:6px}.sel-btn{padding:6px 10px;font-size:.7rem}.img-actions{flex-direction:row;gap:8px;justify-content:center}.delete-btn,.download-btn{padding:8px 14px;font-size:.76rem}.birthday-row{flex-direction:column;gap:6px}.id-card{padding:10px 12px;gap:10px}.id-card-photo{width:50px;height:64px;font-size:1.1rem}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
   </style>
 </head>
 <body>
   <div class="bg-layer"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
-  <div class="grid-overlay"></div><div class="noise-overlay"></div><div class="particles" id="particles"></div><div class="flash" id="flash"></div>
+  <div class="grid-overlay"></div><div class="particles" id="particles"></div><div class="flash" id="flash"></div>
+  <div id="qr-hidden-container" style="display:none;"></div>
 
   <div class="login-overlay" id="loginOverlay">
     <div class="login-box">
@@ -333,18 +333,103 @@
       <button class="doc-btn btn-view3" id="btnView3"><div class="icon-wrap"><i class="fa-solid fa-folder-open"></i></div><div class="btn-text"><span class="label">የማእከላውያን</span></div></button>
       <button class="doc-btn btn-view4" id="btnView4"><div class="icon-wrap"><i class="fa-solid fa-folder-open"></i></div><div class="btn-text"><span class="label">የወጣቶች</span></div></button>
       <button class="doc-btn btn-add2" id="btnAdd2"><div class="icon-wrap"><i class="fa-solid fa-file-pen"></i></div><div class="btn-text"><span class="label">Add Doc</span></div></button>
-      <div class="sub-choice" id="subChoice"><button class="back-btn" id="backBtn"><i class="fa-solid fa-arrow-left"></i> Back</button><div class="sub-choice-row"><button class="sub-btn choose-file" id="chooseFileBtn"><div class="sub-icon"><i class="fa-solid fa-folder-open"></i></div>Choose File</button><button class="sub-btn camera-shot" id="cameraShotBtn"><div class="sub-icon"><i class="fa-solid fa-camera"></i></div>Camera Shot</button></div></div>
     </div>
   </main>
   
-  <input type="file" id="fileInput" accept="image/*" style="display:none">
   <input type="file" id="addImgFileInput" accept="image/*" style="display:none">
   <input type="file" id="personalPhotoInput" accept="image/*" style="display:none">
   <div class="camera-overlay" id="cameraOverlay"><video id="cameraVideo" autoplay playsinline></video><div class="camera-controls"><button class="cam-btn close-cam" id="closeCamBtn"><i class="fa-solid fa-xmark"></i></button><button class="cam-btn capture" id="captureBtn"><i class="fa-solid fa-camera"></i></button></div></div>
 
-  <div class="overlay preview-overlay" id="previewOverlay"><div class="overlay-bg"></div><div class="anim-box preview-content"><div class="preview-stage" id="previewStage"><img id="previewImg" src="" alt="Preview"></div><p class="preview-label" id="previewLabel">Drag to crop area (Edit Mode)</p><div class="preview-actions"><button class="preview-btn" id="previewCloseBtn"><i class="fa-solid fa-xmark"></i> Close</button><button class="preview-btn edit-btn" id="previewEditBtn"><i class="fa-solid fa-crop-simple"></i> Edit</button><button class="preview-btn next-btn" id="previewNextBtn"><i class="fa-solid fa-arrow-right"></i> Next</button></div></div></div>
+  <!-- PREVIEW OVERLAY WITH EXACT GENERATOR STYLES -->
+  <div class="overlay preview-overlay" id="previewOverlay"><div class="overlay-bg"></div>
+    <div class="anim-box preview-content" id="previewContent">
+      <div id="qr-with-background">
+        <img id="qr-background-image" src="" alt="QR Code with Background">
+        <div id="qr-overlay"></div>
+      </div>
+      <div class="preview-actions">
+        <button class="preview-btn" id="previewCloseBtn"><i class="fa-solid fa-xmark"></i> Close</button>
+        <button class="preview-btn next-btn" id="previewNextBtn"><i class="fa-solid fa-arrow-right"></i> Next</button>
+      </div>
+    </div>
+  </div>
   
-  <div class="overlay save-overlay" id="saveOverlay"><div class="overlay-bg"></div><div class="anim-box save-box"><div class="save-box-title"><i class="fa-solid fa-floppy-disk"></i> Save Document</div><div class="input-group"><label for="docNameInput">Image Name</label><input type="text" id="docNameInput" placeholder="Enter image name..."><div class="error-msg" id="nameError"></div></div><div class="input-group"><label for="userNameInput">Your Name (Table Name)</label><input type="text" id="userNameInput" placeholder="Enter your name..."><div class="error-msg" id="userError"></div></div><div class="birthday-group"><label><i class="fa-solid fa-cake-candles" style="margin-right:4px;color:var(--gold)"></i> Birthday</label><div class="birthday-row"><div class="b-input"><input type="number" id="birthDay" min="1" max="30" placeholder="Day (1-30)"></div><div class="b-input"><select id="birthMonth"><option value="">ወር (Month)</option><option value="1">1 - መስከረም</option><option value="2">2 - ጥቅምት</option><option value="3">3 - ኅዳር</option><option value="4">4 - ታኅሣሥ</option><option value="5">5 - ጥር</option><option value="6">6 - የካቲት</option><option value="7">7 - መጋቢት</option><option value="8">8 - ሚያዝያ</option><option value="9">9 - ግንቦት</option><option value="10">10 - ሰኔ</option><option value="11">11 - ሐምሌ</option><option value="12">12 - ነሐሴ</option><option value="13">13 - ጳጉሜን</option></select></div><div class="b-input"><input type="number" id="birthYear" min="1890" max="2020" placeholder="Year (E.C.)"></div></div><div class="age-display" id="ageDisplay"></div></div><div class="photo-section"><label><i class="fa-solid fa-id-card" style="margin-right:4px;color:var(--gold)"></i> Personal Photo</label><div class="photo-row"><button class="photo-opt-btn" id="personalFileBtn"><i class="fa-solid fa-folder-open" style="color:var(--gold)"></i> File</button><button class="photo-opt-btn" id="personalCamBtn"><i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera</button><div class="photo-thumb-wrap" id="personalPhotoWrap"><img id="personalPhotoPreview" alt="Photo"><button class="photo-remove-btn" id="personalPhotoRemoveBtn"><i class="fa-solid fa-xmark"></i></button></div></div></div><div class="class-group"><label>Choose Class</label><div class="class-options"><button class="class-btn c1" data-class="view1"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--teal);font-size:.85rem"></i> የህፃናት</button><button class="class-btn c2" data-class="view2"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--sky);font-size:.85rem"></i> የታዳጊ</button><button class="class-btn c3" data-class="view3"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--purple);font-size:.85rem"></i> የማእከላውያን</button><button class="class-btn c4" data-class="view4"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--rose);font-size:.85rem"></i> የወጣቶች</button></div></div><div class="save-action-row"><button class="cancel-mini-btn" id="saveCancelBtn" type="button"><i class="fa-solid fa-xmark"></i> Cancel</button><button class="finished-btn" id="finishedBtn" disabled><i class="fa-solid fa-check"></i> Finished</button></div></div></div>
+  <div class="overlay save-overlay" id="saveOverlay"><div class="overlay-bg"></div><div class="anim-box save-box">
+    <div class="save-box-title"><i class="fa-solid fa-floppy-disk"></i> Save Document</div>
+    
+    <div class="input-group">
+      <label for="christianName">Christian Name (Image Name)</label>
+      <input type="text" id="christianName" placeholder="ስመ-ክርስትና">
+    </div>
+    
+    <div class="input-group">
+      <label for="firstName">First Name</label>
+      <input type="text" id="firstName" placeholder="First Name">
+    </div>
+    
+    <div class="input-group">
+      <label for="lastName">Last Name</label>
+      <input type="text" id="lastName" placeholder="Last Name">
+    </div>
+
+    <div class="input-group">
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" pattern="[0-9]{10,15}" inputmode="numeric" placeholder="ስልክ ቁጥር">
+    </div>
+
+    <div class="class-group">
+      <label style="text-align: center;">ጾታ</label>
+      <div class="radio-pill-container">
+        <div class="radio-pill">
+          <input type="radio" id="gender-male" name="gender" value="Male">
+          <label for="gender-male">Male</label>
+        </div>
+        <div class="radio-pill">
+          <input type="radio" id="gender-female" name="gender" value="Female">
+          <label for="gender-female">Female</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="birthday-group">
+      <label><i class="fa-solid fa-cake-candles" style="margin-right:4px;color:var(--gold)"></i> Birthday</label>
+      <div class="birthday-row">
+        <div class="b-input"><input type="number" id="birthDay" min="1" max="30" placeholder="Day (1-30)"></div>
+        <div class="b-input">
+          <select id="birthMonth">
+            <option value="">ወር (Month)</option>
+            <option value="1">1 - መስከረም</option><option value="2">2 - ጥቅምት</option><option value="3">3 - ኅዳር</option><option value="4">4 - ታኅሣሥ</option><option value="5">5 - ጥር</option><option value="6">6 - የካቲት</option><option value="7">7 - መጋቢት</option><option value="8">8 - ሚያዝያ</option><option value="9">9 - ግንቦት</option><option value="10">10 - ሰኔ</option><option value="11">11 - ሐምሌ</option><option value="12">12 - ነሐሴ</option><option value="13">13 - ጳጉሜን</option>
+          </select>
+        </div>
+        <div class="b-input"><input type="number" id="birthYear" min="1890" max="2020" placeholder="Year (E.C.)"></div>
+      </div>
+      <div class="age-display" id="ageDisplay"></div>
+    </div>
+
+    <div class="photo-section">
+      <label><i class="fa-solid fa-id-card" style="margin-right:4px;color:var(--gold)"></i> Personal Photo</label>
+      <div class="photo-row">
+        <button class="photo-opt-btn" id="personalFileBtn"><i class="fa-solid fa-folder-open" style="color:var(--gold)"></i> File</button>
+        <button class="photo-opt-btn" id="personalCamBtn"><i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera</button>
+        <div class="photo-thumb-wrap" id="personalPhotoWrap"><img id="personalPhotoPreview" alt="Photo"><button class="photo-remove-btn" id="personalPhotoRemoveBtn"><i class="fa-solid fa-xmark"></i></button></div>
+      </div>
+    </div>
+
+    <div class="class-group">
+      <label>Choose Class</label>
+      <div class="class-options">
+        <button class="class-btn c1" data-class="view1"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--teal);font-size:.85rem"></i> የህፃናት</button>
+        <button class="class-btn c2" data-class="view2"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--sky);font-size:.85rem"></i> የታዳጊ</button>
+        <button class="class-btn c3" data-class="view3"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--purple);font-size:.85rem"></i> የማእከላውያን</button>
+        <button class="class-btn c4" data-class="view4"><span class="class-dot"></span><i class="fa-solid fa-folder-open" style="color:var(--rose);font-size:.85rem"></i> የወጣቶች</button>
+      </div>
+    </div>
+
+    <div class="save-action-row">
+      <button class="cancel-mini-btn" id="saveCancelBtn" type="button"><i class="fa-solid fa-xmark"></i> Cancel</button>
+      <button class="finished-btn" id="finishedBtn" disabled><i class="fa-solid fa-check"></i> Finished</button>
+    </div>
+  </div></div>
 
   <div class="overlay table-overlay" id="tableOverlay"><div class="overlay-bg"></div><div class="anim-box table-box"><div class="table-header"><div class="header-left"><div class="table-title" id="tableTitle"><span class="doc-count-icon" id="tableCountIcon">0</span><button class="search-icon-btn" id="searchIconBtn" title="Search names"><i class="fa-solid fa-magnifying-glass"></i></button><input type="text" class="search-input" id="searchInput" placeholder="Name or Age..."><button class="search-clear-btn" id="searchClearBtn" title="Clear search"><i class="fa-solid fa-xmark"></i></button></div><div class="select-bar" id="selectBar"><button class="sel-btn" id="selectAllBtn"><i class="fa-solid fa-check-double"></i> All</button><button class="sel-btn move-btn" id="moveBtn" disabled><i class="fa-solid fa-arrows-up-down-left-right"></i> Move</button><button class="sel-btn delete-sel-btn" id="deleteSelBtn" disabled><i class="fa-solid fa-trash-can"></i> Delete</button><button class="sel-btn exit-btn" id="exitSelectBtn"><i class="fa-solid fa-xmark"></i> Exit</button><span class="sel-count"><i class="fa-solid fa-circle-info"></i> <span id="selectCount">0</span></span></div></div><button class="table-close" id="tableCloseBtn"><i class="fa-solid fa-xmark"></i></button></div><div class="table-wrap"><table class="doc-table" id="docTable"><thead><tr><th class="col-check"></th><th>#</th><th>Name</th></tr></thead><tbody id="tableBody"></tbody></table></div></div></div>
 
@@ -352,15 +437,12 @@
 
   <div class="overlay" id="addImgOverlay" style="z-index:145"><div class="overlay-bg"></div><div class="anim-box addimg-box"><div class="addimg-title"><i class="fa-solid fa-plus-circle"></i> Add Image</div><div id="addImgStep1" class="addimg-row"><button class="addimg-opt" id="addImgFileBtn"><i class="fa-solid fa-folder-open" style="color:var(--gold)"></i> Choose File</button><button class="addimg-opt" id="addImgCamBtn"><i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera</button></div><div id="addImgStep2" class="addimg-step2"><div class="preview-stage" id="addImgStage"><img class="addimg-preview" id="addImgPreview" src="" alt="New image"></div><div class="preview-actions" style="width:80vw; justify-content:center"><button class="preview-btn edit-btn" id="addImgEditBtn"><i class="fa-solid fa-crop-simple"></i> Edit</button><button class="preview-btn next-btn" id="addImgNextBtn"><i class="fa-solid fa-arrow-right"></i> Next</button></div></div><div id="addImgStep3" class="addimg-step2"><div class="addimg-thumb-row"><img class="addimg-thumb" id="addImgThumb" src="" alt="Preview"><span class="addimg-thumb-label">Name this image</span></div><div class="input-group"><label for="addImgNameInput">Image Name</label><input type="text" id="addImgNameInput" placeholder="Enter image name..."><div class="error-msg" id="addImgNameError"></div></div><button class="finished-btn" id="addImgSaveBtn" disabled><i class="fa-solid fa-check"></i> Save Image</button></div><button class="addimg-cancel" id="addImgCancelBtn">Cancel</button></div></div>
 
-
-
   <div class="overlay" id="moveOverlay" style="z-index:130"><div class="overlay-bg"></div><div class="anim-box popup-box"><div class="popup-title"><i class="fa-solid fa-arrows-up-down-left-right"></i> Move To</div><div id="moveOptions" style="display:flex;flex-direction:column;gap:8px"></div><button class="login-btn" id="moveCancelBtn" style="background:transparent;border:1px solid var(--border);color:var(--muted)">Cancel</button></div></div>
 
   <div class="upload-overlay" id="uploadOverlay" style="z-index:200"><div class="overlay-bg"></div><div class="upload-box"><div class="upload-spinner"><div class="spinner-ring"></div><div class="spinner-ring"></div><div class="spinner-ring"></div><i class="fa-solid fa-cloud-arrow-up upload-icon"></i></div><div class="upload-text" id="uploadText">Uploading...</div><div class="upload-sub" id="uploadSub">Please wait</div><div class="upload-offline-note" id="uploadOfflineNote" style="display:none"><i class="fa-solid fa-wifi"></i> Offline - saved locally, will sync when online</div></div></div>
 
   <div class="toast" id="toast"></div>
   <canvas id="captureCanvas" style="display:none"></canvas>
-
 
   <script>
     /* ===== 1. REST API Config ===== */
@@ -419,142 +501,140 @@
       } catch (e) { queueOffline({ type: 'patch', updates: updates }); return { offline: true }; }
     }
 
-    /* ===== 2. Offline Queue System ===== */
     function queueOffline(item) {
       var q = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
-      item.t = Date.now();
-      q.push(item);
+      item.t = Date.now(); q.push(item);
       localStorage.setItem('offlineQueue', JSON.stringify(q));
     }
+    function getOfflineQueue() { return JSON.parse(localStorage.getItem('offlineQueue') || '[]'); }
+    function clearOfflineQueue() { localStorage.removeItem('offlineQueue'); }
+    function cacheView(view, data) { try { localStorage.setItem('cache_' + view, JSON.stringify(data)); } catch (e) {} }
+    function getCachedView(view) { try { var c = localStorage.getItem('cache_' + view); return c ? JSON.parse(c) : null; } catch (e) { return null; } }
 
-    function getOfflineQueue() {
-      return JSON.parse(localStorage.getItem('offlineQueue') || '[]');
-    }
-
-    function clearOfflineQueue() {
-      localStorage.removeItem('offlineQueue');
-    }
-
-    /* ===== 3. Cache System ===== */
-    function cacheView(view, data) {
-      try { localStorage.setItem('cache_' + view, JSON.stringify(data)); } catch (e) {}
-    }
-
-    function getCachedView(view) {
-      try { var c = localStorage.getItem('cache_' + view); return c ? JSON.parse(c) : null; } catch (e) { return null; }
-    }
-
-    /* ===== 4. Smart Merge - KEY FUNCTION ===== */
-    // Cloud is always the source of truth when online.
-    // This handles ALL cross-device sync scenarios:
-    //   - Device A deletes → Device B fetches → cloud has no key → local removes it
-    //   - Device A adds → Device B fetches → cloud has new key → local adds it
-    //   - Device A moves → both views update on Device B
-    // If offline, returns local cache unchanged.
     async function smartFetchView(view) {
-      if (!isOnline) {
-        return getCachedView(view) || null;
-      }
-
+      if (!isOnline) return getCachedView(view) || null;
       try {
-        var cloudData = await fetch(restUrl(view)).then(function (r) {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          return r.json();
-        });
-
-        // cloudData is the complete truth - null means empty, object means current state
-        // Replace local cache entirely with cloud data
+        var cloudData = await fetch(restUrl(view)).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
         var cleaned = cloudData || {};
-        cacheView(view, cleaned);
-        viewDataCache[view] = cleaned;
+        cacheView(view, cleaned); viewDataCache[view] = cleaned;
         return cleaned;
-      } catch (e) {
-        // Network error while online - use cache, will retry on next poll
-        return getCachedView(view) || null;
-      }
+      } catch (e) { return getCachedView(view) || null; }
     }
 
-    /* ===== 5. Background Sync Engine ===== */
     var isSyncing = false;
-
     async function syncOfflineQueue() {
       if (isSyncing || !isOnline) return;
-      var q = getOfflineQueue();
-      if (!q.length) return;
-
-      isSyncing = true;
-      var successCount = 0;
-      var failedItems = [];
-
+      var q = getOfflineQueue(); if (!q.length) return;
+      isSyncing = true; var successCount = 0; var failedItems = [];
       for (var i = 0; i < q.length; i++) {
-        var item = q[i];
-        var ok = false;
+        var item = q[i]; var ok = false;
         try {
-          if (item.type === 'push') {
-            var res = await fetch(restUrl(item.path), { method: 'POST', body: JSON.stringify(item.data) });
-            ok = res.ok;
-          } else if (item.type === 'set') {
-            var res = await fetch(restUrl(item.path), { method: 'PUT', body: JSON.stringify(item.data) });
-            ok = res.ok;
-          } else if (item.type === 'delete') {
-            var res = await fetch(restUrl(item.path), { method: 'DELETE' });
-            ok = res.ok;
-          } else if (item.type === 'patch') {
-            var res = await fetch(restUrl(''), { method: 'PATCH', body: JSON.stringify(item.updates) });
-            ok = res.ok;
-          }
+          if (item.type === 'push') { var res = await fetch(restUrl(item.path), { method: 'POST', body: JSON.stringify(item.data) }); ok = res.ok; }
+          else if (item.type === 'set') { var res = await fetch(restUrl(item.path), { method: 'PUT', body: JSON.stringify(item.data) }); ok = res.ok; }
+          else if (item.type === 'delete') { var res = await fetch(restUrl(item.path), { method: 'DELETE' }); ok = res.ok; }
+          else if (item.type === 'patch') { var res = await fetch(restUrl(''), { method: 'PATCH', body: JSON.stringify(item.updates) }); ok = res.ok; }
         } catch (e) { ok = false; }
-
-        if (ok) { successCount++; }
-        else { failedItems.push(item); }
+        if (ok) { successCount++; } else { failedItems.push(item); }
       }
-
-      // Update queue: keep only failed items
-      if (failedItems.length === 0) {
-        clearOfflineQueue();
-      } else {
-        localStorage.setItem('offlineQueue', JSON.stringify(failedItems));
-      }
-
+      if (failedItems.length === 0) clearOfflineQueue(); else localStorage.setItem('offlineQueue', JSON.stringify(failedItems));
       isSyncing = false;
-
       if (successCount > 0) {
         showToast('<i class="fa-solid fa-cloud-arrow-up"></i> Synced ' + successCount + ' operation(s)!', 3000);
-        // After syncing, refresh ALL views from cloud to catch any cross-device changes
         await refreshAllViewsFromCloud();
       }
     }
 
-    // Full cloud refresh for all views - called after sync and on online event
     async function refreshAllViewsFromCloud() {
-      var views = ['view1', 'view2', 'view3', 'view4'];
-      var changed = false;
-
+      var views = ['view1', 'view2', 'view3', 'view4']; var changed = false;
       for (var v = 0; v < views.length; v++) {
         var view = views[v];
         var oldCache = viewDataCache[view] || {};
         var oldKeys = Object.keys(oldCache);
-
         var freshData = await smartFetchView(view);
         var newKeys = freshData ? Object.keys(freshData) : [];
-
-        // Detect if anything changed
         if (oldKeys.length !== newKeys.length) { changed = true; }
-        else {
-          for (var k = 0; k < oldKeys.length; k++) {
-            if (!freshData || !freshData[oldKeys[k]]) { changed = true; break; }
-          }
-        }
+        else { for (var k = 0; k < oldKeys.length; k++) { if (!freshData || !freshData[oldKeys[k]]) { changed = true; break; } } }
       }
-
-      // Update UI if something changed
-      if (changed) {
-        updateBadges();
-        if (activeView) renderTable(activeView);
-      }
+      if (changed) { updateBadges(); if (activeView) renderTable(activeView); }
     }
 
-    /* ===== 6. State ===== */
+    /* ===== QR Code Config & Variables ===== */
+    const CBZ_ZIP_URL = "CBZ.zip"; 
+    const DOWNLOAD_QR_WIDTH = 1400;
+    const DOWNLOAD_QR_HEIGHT = 1400;
+    const QR_LEFT = 545;
+    const QR_TOP = 917;
+    let qrLogoData = null;
+    let qrBgImageUrl = '';
+    
+    const downloadQR = new QRCodeStyling({
+      width: DOWNLOAD_QR_WIDTH, height: DOWNLOAD_QR_HEIGHT, type: "canvas",
+      data: "Initializing...", image: "",
+      dotsOptions: { color: "#000000", type: "rounded" },
+      cornersSquareOptions: { color: "#CB1433", type: "extra-rounded" },
+      backgroundOptions: { color: "transparent" },
+      imageOptions: { crossOrigin: "anonymous", margin: 6 }
+    });
+    // Small QR instance for the live preview overlay
+    const previewQR = new QRCodeStyling({
+      width: 150, height: 150, type: "canvas",
+      data: "Initializing...", image: "",
+      dotsOptions: { color: "#000000", type: "rounded" },
+      cornersSquareOptions: { color: "#CB1433", type: "extra-rounded" },
+      backgroundOptions: { color: "transparent" },
+      imageOptions: { crossOrigin: "anonymous", margin: 6 }
+    });
+
+    async function loadCBZZip() {
+      try {
+        const response = await fetch(CBZ_ZIP_URL);
+        if (!response.ok) return;
+        const zipBlob = await response.blob();
+        const zipFile = new File([zipBlob], 'CBZ.zip', { type: 'application/zip' });
+        await processZipFile(zipFile);
+      } catch (error) { console.error("Error loading CBZ.zip:", error); }
+    }
+
+    async function processZipFile(file) {
+      if (!file) return;
+      try {
+        const zip = new JSZip();
+        const contents = await zip.loadAsync(file);
+        let logoFile = null; let backgroundFile = null;
+        for (const filename in contents.files) {
+          if (contents.files[filename].dir) continue;
+          const lowerFilename = filename.toLowerCase();
+          if (lowerFilename.includes('logo') || lowerFilename.includes('icon')) logoFile = contents.files[filename];
+          else if (lowerFilename.includes('background') || lowerFilename.includes('bg') || lowerFilename.includes('card') || lowerFilename.includes('template')) backgroundFile = contents.files[filename];
+        }
+        if (!logoFile || !backgroundFile) {
+          const imageFiles = [];
+          for (const filename in contents.files) {
+            if (contents.files[filename].dir) continue;
+            const lowerFilename = filename.toLowerCase();
+            if (lowerFilename.endsWith('.png') || lowerFilename.endsWith('.jpg') || lowerFilename.endsWith('.jpeg') || lowerFilename.endsWith('.gif')) imageFiles.push(contents.files[filename]);
+          }
+          if (imageFiles.length > 0 && !logoFile) logoFile = imageFiles[0];
+          if (imageFiles.length > 1 && !backgroundFile) backgroundFile = imageFiles[1];
+        }
+        if (logoFile) {
+          const logoData = await logoFile.async('blob');
+          const reader = new FileReader();
+          reader.onload = function(e) { 
+            qrLogoData = e.target.result; 
+            downloadQR.update({ image: qrLogoData });
+            previewQR.update({ image: qrLogoData });
+          };
+          reader.readAsDataURL(logoData);
+        }
+        if (backgroundFile) {
+          const bgData = await backgroundFile.async('blob');
+          qrBgImageUrl = URL.createObjectURL(bgData);
+          document.getElementById('qr-background-image').src = qrBgImageUrl;
+        }
+      } catch (error) { console.error("Error processing:", error); }
+    }
+
     var currentUser = null, activeView = null, selectMode = false;
     var selectedIds = new Set(), isOnline = navigator.onLine;
     var currentProcessedImage = null, targetClass = null;
@@ -578,52 +658,30 @@
     function updateDayMax() {
       var m = parseInt(document.getElementById('birthMonth').value);
       var dayInput = document.getElementById('birthDay');
-      if (m === 13) {
-        dayInput.max = 6;
-        dayInput.placeholder = 'Day (1-6)';
-      } else if (m >= 1 && m <= 12) {
-        dayInput.max = 30;
-        dayInput.placeholder = 'Day (1-30)';
-      } else {
-        dayInput.max = 30;
-        dayInput.placeholder = 'Day';
-      }
+      if (m === 13) { dayInput.max = 6; dayInput.placeholder = 'Day (1-6)'; } 
+      else if (m >= 1 && m <= 12) { dayInput.max = 30; dayInput.placeholder = 'Day (1-30)'; } 
+      else { dayInput.max = 30; dayInput.placeholder = 'Day'; }
       if (parseInt(dayInput.value) > parseInt(dayInput.max)) dayInput.value = '';
       calculateAge(); validateSave();
     }
     var authCallback = null, pollTimer = null, stream = null;
     var viewDataCache = {};
 
-    /* ===== 7. DOM Refs ===== */
     var loginOverlay = document.getElementById('loginOverlay'),
       mainContainer = document.getElementById('mainContainer'),
-      loginBtn = document.getElementById('loginBtn'),
-      loginPass = document.getElementById('loginPass'),
-      loginError = document.getElementById('loginError'),
-      logoutBtn = document.getElementById('logoutBtn'),
-      authOverlay = document.getElementById('authOverlay'),
-      authBtn = document.getElementById('authBtn'),
-      authCancel = document.getElementById('authCancel'),
-      authPass = document.getElementById('authPass'),
-      authError = document.getElementById('authError'),
-      uploadOverlay = document.getElementById('uploadOverlay'),
-      uploadText = document.getElementById('uploadText'),
-      uploadSub = document.getElementById('uploadSub'),
-      uploadOfflineNote = document.getElementById('uploadOfflineNote'),
-      toastEl = document.getElementById('toast'),
-      fileInput = document.getElementById('fileInput'),
-      cameraOverlay = document.getElementById('cameraOverlay'),
-      cameraVideo = document.getElementById('cameraVideo'),
-      captureCanvas = document.getElementById('captureCanvas'),
-      tableOverlay = document.getElementById('tableOverlay'),
-      tableBody = document.getElementById('tableBody'),
-      tableTitle = document.getElementById('tableTitle'),
-      tableCountIcon = document.getElementById('tableCountIcon'),
-      selectBar = document.getElementById('selectBar'),
-      searchInput = document.getElementById('searchInput'),
-      detailOverlay = document.getElementById('detailOverlay'),
-      detailImages = document.getElementById('detailImages'),
-      addImgOverlay = document.getElementById('addImgOverlay'),
+      loginBtn = document.getElementById('loginBtn'), loginPass = document.getElementById('loginPass'),
+      loginError = document.getElementById('loginError'), logoutBtn = document.getElementById('logoutBtn'),
+      authOverlay = document.getElementById('authOverlay'), authBtn = document.getElementById('authBtn'),
+      authCancel = document.getElementById('authCancel'), authPass = document.getElementById('authPass'),
+      authError = document.getElementById('authError'), uploadOverlay = document.getElementById('uploadOverlay'),
+      uploadText = document.getElementById('uploadText'), uploadSub = document.getElementById('uploadSub'),
+      uploadOfflineNote = document.getElementById('uploadOfflineNote'), toastEl = document.getElementById('toast'),
+      cameraOverlay = document.getElementById('cameraOverlay'), cameraVideo = document.getElementById('cameraVideo'),
+      captureCanvas = document.getElementById('captureCanvas'), tableOverlay = document.getElementById('tableOverlay'),
+      tableBody = document.getElementById('tableBody'), tableTitle = document.getElementById('tableTitle'),
+      tableCountIcon = document.getElementById('tableCountIcon'), selectBar = document.getElementById('selectBar'),
+      searchInput = document.getElementById('searchInput'), detailOverlay = document.getElementById('detailOverlay'),
+      detailImages = document.getElementById('detailImages'), addImgOverlay = document.getElementById('addImgOverlay'),
       addImgFileInput = document.getElementById('addImgFileInput');
 
     var viewMap = {
@@ -633,18 +691,12 @@
       view4: { title: 'የወጣቶች', color: 'var(--rose)' }
     };
 
-    /* ===== 8. Toast & Ripple ===== */
     window.addEventListener('online', function () {
-      isOnline = true;
-      showToast('<i class="fa-solid fa-wifi"></i> Back online!', 2000);
-      // CRITICAL: When coming online, first sync offline queue, then refresh from cloud
-      syncOfflineQueue().then(function () {
-        refreshAllViewsFromCloud();
-      });
+      isOnline = true; showToast('<i class="fa-solid fa-wifi"></i> Back online!', 2000);
+      syncOfflineQueue().then(function () { refreshAllViewsFromCloud(); });
     });
     window.addEventListener('offline', function () {
-      isOnline = false;
-      showToast('<i class="fa-solid fa-wifi-slash"></i> Offline - using cached data', 3000);
+      isOnline = false; showToast('<i class="fa-solid fa-wifi-slash"></i> Offline - using cached data', 3000);
     });
 
     var toastTimer;
@@ -660,13 +712,11 @@
       el.appendChild(r); setTimeout(function () { r.remove(); }, 600);
     }
 
-    /* ===== 9. Password Hash ===== */
     async function hashPassword(pw) {
       var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
       return [...new Uint8Array(buf)].map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
     }
 
-    /* ===== 10. Login ===== */
     async function handleLogin() {
       var pass = loginPass.value;
       if (!pass) { loginError.textContent = 'Password is required'; return; }
@@ -674,14 +724,9 @@
       try {
         var hashed = await hashPassword(pass);
         var stored = await restGet('_config/password');
-        if (stored === null) {
-          await restSet('_config', { password: hashed });
-          loginSuccess();
-        } else if (stored === hashed) {
-          loginSuccess();
-        } else {
-          loginError.textContent = 'Wrong password!';
-        }
+        if (stored === null) { await restSet('_config', { password: hashed }); loginSuccess(); }
+        else if (stored === hashed) { loginSuccess(); }
+        else { loginError.textContent = 'Wrong password!'; }
       } catch (e) {
         if (localStorage.getItem('loggedIn') === 'true') { loginSuccess(); }
         else { loginError.textContent = 'Connection error - try again'; }
@@ -692,10 +737,8 @@
     function loginSuccess() {
       currentUser = 'fileholder@gmail.com';
       localStorage.setItem('loggedIn', 'true');
-      loginOverlay.classList.add('hidden');
-      mainContainer.classList.remove('hidden');
-      logoutBtn.classList.remove('hidden');
-      loginPass.value = ''; loginError.textContent = '';
+      loginOverlay.classList.add('hidden'); mainContainer.classList.remove('hidden');
+      logoutBtn.classList.remove('hidden'); loginPass.value = ''; loginError.textContent = '';
       loginBtn.disabled = false; loginBtn.innerHTML = 'Login';
       initApp();
     }
@@ -703,8 +746,7 @@
     function logout() {
       currentUser = null; activeView = null;
       localStorage.removeItem('loggedIn');
-      mainContainer.classList.add('hidden');
-      logoutBtn.classList.add('hidden');
+      mainContainer.classList.add('hidden'); logoutBtn.classList.add('hidden');
       loginOverlay.classList.remove('hidden');
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
     }
@@ -713,7 +755,6 @@
     loginPass.addEventListener('keyup', function (e) { if (e.key === 'Enter') handleLogin(); });
     logoutBtn.addEventListener('click', logout);
 
-    /* ===== 11. Auth Re-check ===== */
     function requireAuth(cb) {
       authCallback = cb; authPass.value = ''; authError.textContent = '';
       authOverlay.classList.add('active');
@@ -726,10 +767,8 @@
       try {
         var hashed = await hashPassword(pass);
         var stored = await restGet('_config/password');
-        if (stored === hashed) {
-          authOverlay.classList.remove('active');
-          if (authCallback) authCallback();
-        } else { authError.textContent = 'Wrong password!'; }
+        if (stored === hashed) { authOverlay.classList.remove('active'); if (authCallback) authCallback(); }
+        else { authError.textContent = 'Wrong password!'; }
       } catch (e) { authError.textContent = 'Connection error'; }
       authBtn.disabled = false; authBtn.innerHTML = 'Confirm';
     });
@@ -737,19 +776,17 @@
       authOverlay.classList.remove('active'); authBtn.disabled = false; authBtn.innerHTML = 'Confirm';
     });
 
-    /* ===== 12. Init App ===== */
     function initApp() {
-      // Load cached data into memory immediately
       Object.keys(viewMap).forEach(function (key) {
         var cached = getCachedView(key);
         if (cached) viewDataCache[key] = cached;
       });
-
-      // Initial badge update + cloud refresh
-      updateBadges();
-      refreshAllViewsFromCloud();
-
-      // Poll every 15 seconds to detect cross-device changes (deletes, adds, moves)
+      updateBadges(); refreshAllViewsFromCloud();
+      // Append the hidden download QR canvas
+      downloadQR.append(document.getElementById('qr-hidden-container'));
+      // Append the preview QR canvas to the overlay
+      previewQR.append(document.getElementById('qr-overlay'));
+      loadCBZZip(); 
       pollTimer = setInterval(function () {
         if (!isOnline) return;
         refreshAllViewsFromCloud();
@@ -770,7 +807,6 @@
       });
     }
 
-    /* ===== 13. Button Clicks ===== */
     document.querySelectorAll('.doc-btn[id^="btnView"]').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
         e.preventDefault(); e.stopPropagation();
@@ -778,21 +814,24 @@
         addRipple(e, this);
       }, { passive: false });
     });
+    
     document.getElementById('btnAdd2').addEventListener('click', function (e) {
-      document.getElementById('subChoice').classList.add('visible');
       addRipple(e, document.getElementById('btnAdd2'));
-    });
-    document.getElementById('backBtn').addEventListener('click', function () {
-      document.getElementById('subChoice').classList.remove('visible');
+      openSaveOverlay();
     });
 
-    /* ===== 14. File & Camera ===== */
-    document.getElementById('chooseFileBtn').addEventListener('click', function () { fileInput.click(); });
-    fileInput.addEventListener('change', function (e) {
-      if (e.target.files[0]) processImageFile(URL.createObjectURL(e.target.files[0]));
-      fileInput.value = '';
-    });
-    document.getElementById('cameraShotBtn').addEventListener('click', openCam);
+    function openSaveOverlay() {
+      christianNameInput.value = ''; firstNameInput.value = ''; lastNameInput.value = ''; phoneInput.value = '';
+      document.querySelectorAll('input[name="gender"]').forEach(function(el) { el.checked = false; });
+      targetClass = null;
+      document.getElementById('birthDay').value = ''; document.getElementById('birthMonth').value = ''; document.getElementById('birthYear').value = '';
+      document.getElementById('ageDisplay').innerHTML = ''; clearPersonalPhoto();
+      document.querySelectorAll('.class-btn').forEach(function (b) { b.classList.remove('selected'); });
+      finishedBtn.disabled = true;
+      currentProcessedImage = qrBgImageUrl; 
+      document.getElementById('saveOverlay').classList.add('active');
+    }
+
     document.getElementById('closeCamBtn').addEventListener('click', closeCam);
     document.getElementById('captureBtn').addEventListener('click', takePicture);
 
@@ -817,11 +856,10 @@
         personalPhotoMode = false;
         setPersonalPhoto(captureCanvas.toDataURL('image/jpeg', 0.85));
       } else {
-        processImageFile(captureCanvas.toDataURL('image/jpeg', 0.85));
+        processAddImg(captureCanvas.toDataURL('image/jpeg', 0.85));
       }
     }
 
-    /* ===== 14b. Birthday & Personal Photo ===== */
     function calculateAge() {
       var day = parseInt(document.getElementById('birthDay').value);
       var month = parseInt(document.getElementById('birthMonth').value);
@@ -834,9 +872,7 @@
         var age = ethToday.year - year;
         if (ethToday.month < month || (ethToday.month === month && ethToday.day < day)) age--;
         display.innerHTML = '<i class="fa-solid fa-calculator"></i> Age: ' + age + ' years old';
-      } else {
-        display.innerHTML = '';
-      }
+      } else { display.innerHTML = ''; }
     }
 
     function setPersonalPhoto(src) {
@@ -859,9 +895,7 @@
     document.getElementById('birthMonth').addEventListener('change', function() { updateDayMax(); });
     document.getElementById('birthYear').addEventListener('input', function() { calculateAge(); validateSave(); });
 
-    document.getElementById('personalFileBtn').addEventListener('click', function() {
-      document.getElementById('personalPhotoInput').click();
-    });
+    document.getElementById('personalFileBtn').addEventListener('click', function() { document.getElementById('personalPhotoInput').click(); });
     document.getElementById('personalPhotoInput').addEventListener('change', function(e) {
       if (e.target.files[0]) {
         var reader = new FileReader();
@@ -870,82 +904,95 @@
       }
       e.target.value = '';
     });
-    document.getElementById('personalCamBtn').addEventListener('click', function() {
-      personalPhotoMode = true;
-      openCam();
-    });
-    document.getElementById('personalPhotoRemoveBtn').addEventListener('click', function(e) {
-      e.stopPropagation();
-      clearPersonalPhoto();
-    });
+    document.getElementById('personalCamBtn').addEventListener('click', function() { personalPhotoMode = true; openCam(); });
+    document.getElementById('personalPhotoRemoveBtn').addEventListener('click', function(e) { e.stopPropagation(); clearPersonalPhoto(); });
 
-    function processImageFile(src) {
-      var img = document.getElementById('previewImg');
-      img.src = src; img.dataset.origSrc = src; img.style.clipPath = ''; img.style.transform = '';
-      document.getElementById('previewOverlay').classList.add('active');
-      document.getElementById('previewEditBtn').innerHTML = '<i class="fa-solid fa-crop-simple"></i> Edit';
-      document.getElementById('previewLabel').textContent = 'Drag to crop area (Edit Mode)';
-      var nextHandler = function () {
-        currentProcessedImage = img.src;
-        document.getElementById('previewOverlay').classList.remove('active');
-        document.getElementById('saveOverlay').classList.add('active');
-        document.getElementById('previewNextBtn').removeEventListener('click', nextHandler);
-      };
-      document.getElementById('previewNextBtn').addEventListener('click', nextHandler);
-    }
-
-    document.getElementById('previewCloseBtn').addEventListener('click', function () {
-      document.getElementById('previewOverlay').classList.remove('active');
-    });
-    document.getElementById('previewEditBtn').addEventListener('click', function () {
-      var img = document.getElementById('previewImg'), isE = img.style.clipPath !== '';
-      img.style.clipPath = isE ? '' : 'inset(10% 10% 10% 10%)';
-      document.getElementById('previewEditBtn').innerHTML = isE ? '<i class="fa-solid fa-crop-simple"></i> Edit' : '<i class="fa-solid fa-check"></i> Done';
-      document.getElementById('previewLabel').textContent = isE ? 'Drag to crop area (Edit Mode)' : 'Crop applied!';
-    });
-
-    /* ===== 15. Save Flow ===== */
-    var docNameInput = document.getElementById('docNameInput'),
-      userNameInput = document.getElementById('userNameInput'),
+    var christianNameInput = document.getElementById('christianName'),
+      firstNameInput = document.getElementById('firstName'),
+      lastNameInput = document.getElementById('lastName'),
+      phoneInput = document.getElementById('phone'),
       finishedBtn = document.getElementById('finishedBtn');
 
-    docNameInput.addEventListener('input', validateSave);
-    userNameInput.addEventListener('input', validateSave);
+    christianNameInput.addEventListener('input', validateSave);
+    firstNameInput.addEventListener('input', validateSave);
+    lastNameInput.addEventListener('input', validateSave);
+    phoneInput.addEventListener('input', validateSave);
+    document.querySelectorAll('input[name="gender"]').forEach(function(el) { el.addEventListener('change', validateSave); });
+    
     document.querySelectorAll('.class-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
         document.querySelectorAll('.class-btn').forEach(function (b) { b.classList.remove('selected'); });
         btn.classList.add('selected'); targetClass = btn.dataset.class; validateSave();
       });
     });
+
     function validateSave() {
-      var name = docNameInput.value.trim();
-      var user = userNameInput.value.trim();
+      var cName = christianNameInput.value.trim();
+      var fName = firstNameInput.value.trim();
+      var lName = lastNameInput.value.trim();
+      var phone = phoneInput.value.trim();
+      var gender = document.querySelector('input[name="gender"]:checked');
       var day = parseInt(document.getElementById('birthDay').value);
       var month = parseInt(document.getElementById('birthMonth').value);
       var year = parseInt(document.getElementById('birthYear').value);
       var maxD = month === 13 ? 6 : 30;
       var bdayValid = day && month && year && day >= 1 && day <= maxD && year >= 1890 && year <= 2020;
-      finishedBtn.disabled = !(name && user && targetClass && bdayValid);
+      finishedBtn.disabled = !(cName && fName && lName && phone && gender && targetClass && bdayValid);
     }
 
-    finishedBtn.addEventListener('click', async function () {
-      var name = docNameInput.value.trim(), user = userNameInput.value.trim();
-      if (!name || !user || !targetClass) return;
+    document.getElementById('saveCancelBtn').addEventListener('click', function () {
       document.getElementById('saveOverlay').classList.remove('active');
-      uploadText.textContent = 'Uploading...'; uploadSub.textContent = 'Compressing image';
+      showToast('<i class="fa-solid fa-xmark"></i> Cancelled', 1500);
+    });
+
+    finishedBtn.addEventListener('click', async function () {
+      var cName = christianNameInput.value.trim();
+      var fName = firstNameInput.value.trim();
+      var lName = lastNameInput.value.trim();
+      var phone = phoneInput.value.trim();
+      var gender = document.querySelector('input[name="gender"]:checked').value;
+      
+      if (!cName || !fName || !lName || !targetClass) return;
+      
+      var imgSrc = currentProcessedImage || qrBgImageUrl;
+      if (!imgSrc) { showToast('<i class="fa-solid fa-triangle-exclamation"></i> Template loading, try again', 2000); return; }
+
+      document.getElementById('saveOverlay').classList.remove('active');
+      uploadText.textContent = 'Generating QR...'; uploadSub.textContent = 'Please wait';
       uploadOfflineNote.style.display = 'none'; uploadOverlay.classList.add('active');
+      
       try {
-        var base64 = await compressImage(currentProcessedImage, 0.6, 1200);
+        var qrData = `Church: Hamerenoh\nChristian Name: ${cName}\nFirst Name: ${fName}\nLast Name: ${lName}\nPhone: ${phone}\nGender: ${gender}`;
+        downloadQR.update({ data: qrData, image: qrLogoData || "" });
+        await new Promise(r => setTimeout(r, 600));
+
+        // Exact canvas drawing logic from the provided code
+        var base64 = await new Promise((resolve, reject) => {
+          const bgImg = document.getElementById('qr-background-image');
+          const qrCanvas = document.querySelector('#qr-hidden-container canvas');
+          if (!bgImg || !qrCanvas) return reject("Missing elements");
+          
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = bgImg.naturalWidth || bgImg.width;
+          canvas.height = bgImg.naturalHeight || bgImg.height;
+          ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+          ctx.drawImage(qrCanvas, QR_LEFT, QR_TOP, DOWNLOAD_QR_WIDTH, DOWNLOAD_QR_HEIGHT);
+          resolve(canvas.toDataURL('image/png'));
+        });
+
         var bday = null;
         var bd = parseInt(document.getElementById('birthDay').value);
         var bm = parseInt(document.getElementById('birthMonth').value);
         var by = parseInt(document.getElementById('birthYear').value);
         if (bd && bm && by) { bday = { day: bd, month: bm, monthName: ethMonthNames[bm], year: by }; }
-        var entry = { name: name, user: user, image: base64, timestamp: Date.now(), birthday: bday, personalPhoto: personalPhotoData || null };
+        
+        var entry = { 
+          name: cName, user: fName + ' ' + lName, phone: phone, gender: gender,
+          image: base64, timestamp: Date.now(), birthday: bday, personalPhoto: personalPhotoData || null 
+        };
 
         var result = await restPush(targetClass, entry);
-
-        // Always update local cache immediately
         var cached = viewDataCache[targetClass] || {};
         var newId = result.name || ('local_' + Date.now());
         cached[newId] = entry;
@@ -962,34 +1009,12 @@
           showToast('<i class="fa-solid fa-check-circle"></i> Saved successfully!');
         }
 
-        if (activeView === targetClass) renderTable(targetView);
+        if (activeView === targetClass) renderTable(targetClass);
         updateBadges();
-      } catch (e) { showToast('<i class="fa-solid fa-triangle-exclamation"></i> Error saving'); uploadOverlay.classList.remove('active'); }
-      docNameInput.value = ''; userNameInput.value = ''; targetClass = null;
-      document.getElementById('birthDay').value = ''; document.getElementById('birthMonth').value = ''; document.getElementById('birthYear').value = '';
-      document.getElementById('ageDisplay').innerHTML = ''; clearPersonalPhoto();
-      document.querySelectorAll('.class-btn').forEach(function (b) { b.classList.remove('selected'); });
-      finishedBtn.disabled = true; document.getElementById('subChoice').classList.remove('visible');
-    });
-
-    /* ===== 15b. Cancel Save - mini cancel button on the left of Finished */
-    document.getElementById('saveCancelBtn').addEventListener('click', function () {
-      // Close the save overlay
-      document.getElementById('saveOverlay').classList.remove('active');
-      // Reset all form fields
-      docNameInput.value = ''; userNameInput.value = ''; targetClass = null;
-      document.getElementById('birthDay').value = '';
-      document.getElementById('birthMonth').value = '';
-      document.getElementById('birthYear').value = '';
-      document.getElementById('ageDisplay').innerHTML = '';
-      clearPersonalPhoto();
-      document.querySelectorAll('.class-btn').forEach(function (b) { b.classList.remove('selected'); });
-      finishedBtn.disabled = true;
-      // Hide the sub-choice (File / Camera) panel too
-      document.getElementById('subChoice').classList.remove('visible');
-      // Discard any pending processed image
-      currentProcessedImage = null;
-      showToast('<i class="fa-solid fa-xmark"></i> Cancelled', 1500);
+      } catch (e) { 
+        console.error(e); showToast('<i class="fa-solid fa-triangle-exclamation"></i> Error saving'); 
+        uploadOverlay.classList.remove('active'); 
+      }
     });
 
     function compressImage(src, q, mw) {
@@ -1005,8 +1030,6 @@
       });
     }
 
-    /* ===== 16. Table View ===== */
-
     function openTable(view) {
       activeView = view; selectMode = false; selectedIds.clear(); exitSelectMode();
       var info = viewMap[view];
@@ -1020,8 +1043,7 @@
       tableBody.innerHTML = '';
       if (!data || Object.keys(data).length === 0) {
         tableBody.innerHTML = '<tr><td colspan="3" class="doc-hint"><i class="fa-solid fa-inbox"></i>No documents yet</td></tr>';
-        tableCountIcon.textContent = '0';
-        return;
+        tableCountIcon.textContent = '0'; return;
       }
       var arr = Object.entries(data).sort(function (a, b) {
         var nA = (a[1].user || 'Unnamed').toLowerCase();
@@ -1077,19 +1099,13 @@
           tr.style.display = (!q || tr.textContent.toLowerCase().includes(q)) ? '' : 'none';
         }
       });
-      // Re-number visible rows sequentially 1, 2, 3 ... so search results
-      // always start at 1 regardless of their original position in the table.
       var seq = 0;
       document.querySelectorAll('#tableBody tr[data-id]').forEach(function (tr) {
         if (tr.style.display !== 'none') {
-          visibleCount++;
-          seq++;
+          visibleCount++; seq++;
           var idxCell = tr.querySelector('.doc-index');
           if (idxCell) idxCell.textContent = seq;
         } else {
-          // Hidden rows keep their original number hidden from view, but we
-          // reset it so when search is cleared they get fresh numbers via
-          // the next renderTable call.
           var idxCell = tr.querySelector('.doc-index');
           if (idxCell) idxCell.textContent = '';
         }
@@ -1097,9 +1113,6 @@
       tableCountIcon.textContent = visibleCount;
     }
 
-
-
-    /* ===== 17. Select Mode ===== */
     tableCountIcon.addEventListener('click', function () {
       selectMode = !selectMode;
       if (!selectMode) { exitSelectMode(); return; }
@@ -1155,7 +1168,6 @@
       });
     }
 
-    /* ===== 18. Move & Delete ===== */
     document.getElementById('moveBtn').addEventListener('click', function () {
       if (selectedIds.size === 0) return;
       var moveOpts = document.getElementById('moveOptions'); moveOpts.innerHTML = '';
@@ -1176,11 +1188,8 @@
       try {
         uploadText.textContent = 'Moving...'; uploadSub.textContent = 'Please wait';
         uploadOfflineNote.style.display = 'none'; uploadOverlay.classList.add('active');
-
         var ids = [...selectedIds];
         var wasOffline = false;
-
-        // Copy items to target
         for (var i = 0; i < ids.length; i++) {
           var id = ids[i];
           var data = await restGet(activeView + '/' + id);
@@ -1189,14 +1198,10 @@
             if (r.offline) wasOffline = true;
           }
         }
-
-        // Delete items from source
         var updates = {};
         ids.forEach(function (id) { updates[activeView + '/' + id] = null; });
         var pr = await restPatch(updates);
         if (pr.offline) wasOffline = true;
-
-        // Update local caches immediately
         var srcData = viewDataCache[activeView] || {};
         var tgtData = viewDataCache[targetView] || {};
         ids.forEach(function (id) {
@@ -1204,7 +1209,6 @@
         });
         viewDataCache[activeView] = srcData; viewDataCache[targetView] = tgtData;
         cacheView(activeView, srcData); cacheView(targetView, tgtData);
-
         if (wasOffline) {
           uploadOfflineNote.style.display = 'flex';
           uploadText.textContent = 'Moved locally'; uploadSub.textContent = 'Will sync to cloud when online';
@@ -1230,19 +1234,14 @@
       try {
         uploadText.textContent = 'Deleting...'; uploadSub.textContent = 'Please wait';
         uploadOfflineNote.style.display = 'none'; uploadOverlay.classList.add('active');
-
         var idArr = [...ids];
         var updates = {};
         idArr.forEach(function (id) { updates[activeView + '/' + id] = null; });
-
         var result = await restPatch(updates);
-
-        // Update local cache immediately - REMOVE deleted items
         var data = viewDataCache[activeView] || {};
         idArr.forEach(function (id) { delete data[id]; });
         viewDataCache[activeView] = data;
         cacheView(activeView, data);
-
         if (result.offline) {
           uploadOfflineNote.style.display = 'flex';
           uploadText.textContent = 'Deleted locally'; uploadSub.textContent = 'Will sync to cloud when online';
@@ -1258,17 +1257,13 @@
         showToast('<i class="fa-solid fa-triangle-exclamation"></i> Delete error');
       }
     }
-    document.getElementById('moveCancelBtn').addEventListener('click', function () {
-      document.getElementById('moveOverlay').classList.remove('active');
-    });
+    document.getElementById('moveCancelBtn').addEventListener('click', function () { document.getElementById('moveOverlay').classList.remove('active'); });
 
-    /* ===== 19. Detail View ===== */
     async function openDetail(view, id, doc) {
       currentDetailId = id; currentDetailView = view; detailImages.innerHTML = '';
       detailOverlay.classList.add('active');
       if (!doc) {
         detailImages.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><span class="spinner"></span> Loading...</div>';
-        // Try cache first, then cloud
         doc = viewDataCache[view] ? (viewDataCache[view][id] || null) : null;
         if (!doc && isOnline) {
           try { doc = await restGet(view + '/' + id); } catch (e) {}
@@ -1290,14 +1285,15 @@
 
     function addImageToDetail(src, name, user, id, view, isExtra, parentId) {
       isExtra = isExtra || false; parentId = parentId || null;
-      var item = document.createElement('div'); item.className = 'detail-img-item';
+      var item = document.createElement('div'); 
+      item.className = 'detail-img-item';
       item.innerHTML = '<div class="detail-img-stage"><img src="' + src + '" alt="' + name + '"></div><div class="detail-img-name-block"><div class="detail-img-main-name">' + name + '</div><div class="detail-img-user-name">' + user + '</div></div><div class="img-divider"></div><div class="img-actions"><button class="download-btn"><i class="fa-solid fa-download"></i> Download</button><button class="delete-btn"><i class="fa-solid fa-trash-can"></i> Delete</button></div>';
 
       item.querySelector('.download-btn').onclick = function () {
         fetch(src).then(function (r) { return r.blob(); }).then(function (blob) {
           var url = URL.createObjectURL(blob);
           var a = document.createElement('a'); a.href = url;
-          a.download = (user || 'User') + ' (' + (name || 'Image') + ').jpg';
+          a.download = (user || 'User') + ' (' + (name || 'Image') + ').png';
           document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
         });
       };
@@ -1307,8 +1303,6 @@
           try {
             var delPath = isExtra ? (view + '/' + parentId + '/extraImages/' + id) : (view + '/' + id);
             var delResult = await restDelete(delPath);
-
-            // Update local cache immediately
             if (!isExtra) {
               var data = viewDataCache[view] || {};
               delete data[id];
@@ -1321,14 +1315,11 @@
                 cacheView(view, parentData);
               }
             }
-
-            // Animate removal from UI
             item.style.animation = 'imgOutro .3s ease forwards';
             setTimeout(function () {
               item.remove();
               if (detailImages.children.length === 0) detailOverlay.classList.remove('active');
             }, 300);
-
             if (delResult.offline) {
               showToast('<i class="fa-solid fa-wifi-slash"></i> Deleted offline - will sync', 3000);
             } else {
@@ -1341,16 +1332,14 @@
       };
       detailImages.appendChild(item);
     }
+
     function renderIdCard(doc) {
       var idCard = document.getElementById('idCard');
       if (!doc.birthday && !doc.personalPhoto) { idCard.style.display = 'none'; return; }
       idCard.style.display = 'flex';
       var photoEl = document.getElementById('idCardPhoto');
-      if (doc.personalPhoto) {
-        photoEl.innerHTML = '<img src="' + doc.personalPhoto + '" alt="Photo">';
-      } else {
-        photoEl.innerHTML = '<i class="fa-solid fa-user"></i>';
-      }
+      if (doc.personalPhoto) { photoEl.innerHTML = '<img src="' + doc.personalPhoto + '" alt="Photo">'; } 
+      else { photoEl.innerHTML = '<i class="fa-solid fa-user"></i>'; }
       document.getElementById('idCardName').textContent = doc.user || 'Unnamed';
       if (doc.birthday) {
         var b = doc.birthday;
@@ -1372,13 +1361,8 @@
       document.getElementById('idCard').style.display = 'none';
     });
 
-    /* ===== 20. Add Extra Images ===== */
-    document.getElementById('addImgBtn').addEventListener('click', function () {
-      resetAddImgSteps(); addImgOverlay.classList.add('active');
-    });
-    document.getElementById('addImgCancelBtn').addEventListener('click', function () {
-      addImgOverlay.classList.remove('active');
-    });
+    document.getElementById('addImgBtn').addEventListener('click', function () { resetAddImgSteps(); addImgOverlay.classList.add('active'); });
+    document.getElementById('addImgCancelBtn').addEventListener('click', function () { addImgOverlay.classList.remove('active'); });
     document.getElementById('addImgFileBtn').addEventListener('click', function () { addImgFileInput.click(); });
     addImgFileInput.addEventListener('change', function (e) {
       if (e.target.files[0]) processAddImg(URL.createObjectURL(e.target.files[0]));
@@ -1447,8 +1431,6 @@
         var base64 = await compressImage(newExtraImg, 0.6, 1200);
         var entry = { name: name, image: base64 };
         var result = await restPush(currentDetailView + '/' + currentDetailId + '/extraImages', entry);
-
-        // Update local cache
         if (viewDataCache[currentDetailView] && viewDataCache[currentDetailView][currentDetailId]) {
           if (!viewDataCache[currentDetailView][currentDetailId].extraImages) {
             viewDataCache[currentDetailView][currentDetailId].extraImages = {};
@@ -1457,30 +1439,24 @@
           viewDataCache[currentDetailView][currentDetailId].extraImages[newEid] = entry;
           cacheView(currentDetailView, viewDataCache[currentDetailView]);
         }
-
         if (result.offline) {
           uploadOfflineNote.style.display = 'flex';
           showToast('<i class="fa-solid fa-wifi-slash"></i> Saved offline');
         } else {
           showToast('<i class="fa-solid fa-check"></i> Image added!');
         }
-
         addImgOverlay.classList.remove('active'); uploadOverlay.classList.remove('active');
-        // Refresh detail view
         var docData = viewDataCache[currentDetailView] ? viewDataCache[currentDetailView][currentDetailId] : null;
         if (docData) openDetail(currentDetailView, currentDetailId, docData);
       } catch (e) { showToast('Error adding image'); uploadOverlay.classList.remove('active'); }
     });
 
-    /* ===== 21. Background Particles ===== */
     var particlesEl = document.getElementById('particles');
     for (var i = 0; i < 25; i++) {
       var p = document.createElement('div'); p.className = 'particle';
       p.style.left = Math.random() * 100 + '%'; p.style.bottom = '-10px';
       particlesEl.appendChild(p);
     }
-
-    // Initial offline warning
     if (!navigator.onLine) {
       showToast('<i class="fa-solid fa-wifi-slash"></i> Offline - using cached data', 3000);
     }
