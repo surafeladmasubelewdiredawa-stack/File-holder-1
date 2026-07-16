@@ -93,7 +93,7 @@
     @keyframes imgIntro{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
     @keyframes imgOutro{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.85)}}
 
-    /* PREVIEW CONTENT (Styles applied dynamically via JS) */
+    /* PREVIEW CONTENT (Base layout, specific colors/sizes injected via JS) */
     .preview-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:90vw}
     #qr-with-background {display: none; margin: 20px auto; text-align: center; position: relative; width: 300px; height: 300px;}
     .preview-content.active #qr-with-background {display: block;}
@@ -558,13 +558,13 @@
       if (changed) { updateBadges(); if (activeView) renderTable(activeView); }
     }
 
-    /* ===== NAME OVERLAY SETTINGS ===== */
+    /* ===== NAME OVERLAY SETTINGS (Change sizes and positions easily here) ===== */
     const NAME_CONFIG = {
       DISPLAY: {
         fontSize: 16, top: 270, left: 150, paddingX: 10, paddingY: 6, borderRadius: 5, borderWidth: 3, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
       },
       DOWNLOAD: {
-        fontSize: 75, top: 1920, left: 1245, paddingX: 40, paddingY: 25, borderRadius: 150, borderWidth: 12, fontColor: "#001000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
+        fontSize: 75, top: 1920, left: 1245, paddingX: 40, paddingY: 25, borderRadius: 15, borderWidth: 12, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
       },
       fontWeight: "bold", fontFamily: "Arial, sans-serif"
     };
@@ -763,7 +763,7 @@
         else if (stored === hashed) { loginSuccess(); }
         else { loginError.textContent = 'Wrong password!'; }
       } catch (e) {
-        if (localStorage.getItem('loggedIn') === 'true') { loginSuccess(); }
+        if (localStorage.getItem('authPersist') === 'true') { loginSuccess(); }
         else { loginError.textContent = 'Connection error - try again'; }
       }
       loginBtn.disabled = false; loginBtn.innerHTML = 'Login';
@@ -771,7 +771,9 @@
 
     function loginSuccess() {
       currentUser = 'fileholder@gmail.com';
-      localStorage.setItem('loggedIn', 'true');
+      // Using authPersist to keep the user logged in even if the page is refreshed or closed
+      localStorage.setItem('authPersist', 'true');
+      localStorage.setItem('loggedIn', 'true'); // Keeping for backward compatibility logic if any
       loginOverlay.classList.add('hidden'); mainContainer.classList.remove('hidden');
       logoutBtn.classList.remove('hidden'); loginPass.value = ''; loginError.textContent = '';
       loginBtn.disabled = false; loginBtn.innerHTML = 'Login';
@@ -780,10 +782,16 @@
 
     function logout() {
       currentUser = null; activeView = null;
+      localStorage.removeItem('authPersist');
       localStorage.removeItem('loggedIn');
       mainContainer.classList.add('hidden'); logoutBtn.classList.add('hidden');
       loginOverlay.classList.remove('hidden');
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    }
+
+    // Check if the user was previously logged in (Auto Login on Refresh)
+    if (localStorage.getItem('authPersist') === 'true') {
+      loginSuccess();
     }
 
     loginBtn.addEventListener('click', handleLogin);
@@ -1016,6 +1024,8 @@
         await new Promise(r => setTimeout(r, 600));
 
         var fullName = `${fName} ${lName}`;
+        
+        // Strictly using NAME_CONFIG.DOWNLOAD for the final saved image
         var base64 = await new Promise((resolve, reject) => {
           const bgImg = document.getElementById('qr-background-image');
           const qrCanvas = document.querySelector('#qr-hidden-container canvas');
