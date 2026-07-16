@@ -93,17 +93,20 @@
     @keyframes imgIntro{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
     @keyframes imgOutro{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.85)}}
 
-    /* QR PREVIEW STYLES (COPIED FROM GENERATOR) */
+    /* QR PREVIEW STYLES (Base styles, colors injected by JS) */
     .preview-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:90vw}
     #qr-with-background {display: none; margin: 20px auto; text-align: center; position: relative; width: 300px; height: 300px;}
     .preview-content.active #qr-with-background {display: block;}
     #qr-background-image {width: 100%; height: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); object-fit: contain;}
     #qr-overlay {position: absolute; top: 50%; left: 50%; margin-top: 25px; transform: translate(-50%, -50%); width: 150px !important; height: 150px !important;}
     #qr-overlay canvas {width: 100% !important; height: 100% !important; object-fit: contain;}
+    #name-overlay {
+      position: absolute; transform: translate(-50%, -50%); white-space: nowrap; 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: none; z-index: 10;
+    }
     .preview-actions {display: flex; gap: 12px; margin-top: 14px;}
     .preview-btn {padding: 10px 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.08); color: var(--fg); font-family: 'Space Grotesk',sans-serif; font-size: .85rem; font-weight: 500; cursor: pointer; transition: all .25s; display: flex; align-items: center; gap: 8px;}
     .preview-btn:hover {background: rgba(255,255,255,.15);}
-    .preview-btn.edit-btn {border-color: var(--sky); color: var(--sky);}.preview-btn.edit-btn:hover {background: rgba(61,170,232,.15); border-color: var(--sky); color: var(--sky);}
     .preview-btn.next-btn {background: linear-gradient(135deg,var(--gold),#b8882e); border-color: var(--gold); color: #fff;}.preview-btn.next-btn:hover {box-shadow: 0 0 20px var(--gold-glow); transform: translateY(-2px);}
 
     .save-box{width:340px;max-width:90vw;background:rgba(22,22,30,.95);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:20px;max-height:90vh;overflow-y:auto}
@@ -340,12 +343,12 @@
   <input type="file" id="personalPhotoInput" accept="image/*" style="display:none">
   <div class="camera-overlay" id="cameraOverlay"><video id="cameraVideo" autoplay playsinline></video><div class="camera-controls"><button class="cam-btn close-cam" id="closeCamBtn"><i class="fa-solid fa-xmark"></i></button><button class="cam-btn capture" id="captureBtn"><i class="fa-solid fa-camera"></i></button></div></div>
 
-  <!-- PREVIEW OVERLAY WITH EXACT GENERATOR STYLES -->
   <div class="overlay preview-overlay" id="previewOverlay"><div class="overlay-bg"></div>
     <div class="anim-box preview-content" id="previewContent">
       <div id="qr-with-background">
         <img id="qr-background-image" src="" alt="QR Code with Background">
         <div id="qr-overlay"></div>
+        <div id="name-overlay"></div>
       </div>
       <div class="preview-actions">
         <button class="preview-btn" id="previewCloseBtn"><i class="fa-solid fa-xmark"></i> Close</button>
@@ -558,6 +561,42 @@
       if (changed) { updateBadges(); if (activeView) renderTable(activeView); }
     }
 
+    /* ===== NAME OVERLAY SETTINGS ===== */
+    const NAME_CONFIG = {
+      DISPLAY: {
+        fontSize: 16, top: 270, left: 150, paddingX: 10, paddingY: 6, borderRadius: 10, borderWidth: 3, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
+      },
+      DOWNLOAD: {
+        fontSize: 75, top: 1320, left: 1245, paddingX: 40, paddingY: 25, borderRadius: 45, borderWidth: 12, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
+      },
+      fontWeight: "bold", fontFamily: "Arial, sans-serif"
+    };
+
+    // Apply configurations to CSS dynamically for the Display Preview
+    (function applyNameConfigToCSS() {
+      const style = document.createElement('style');
+      const d = NAME_CONFIG.DISPLAY;
+      const c = d.borderColors;
+      style.innerHTML = `
+        #name-overlay {
+          top: ${d.top}px !important;
+          left: ${d.left}px !important;
+          background-color: ${d.bgColor} !important;
+          color: ${d.fontColor} !important;
+          padding: ${d.paddingY}px ${d.paddingX}px !important;
+          border-radius: ${d.borderRadius}px !important;
+          font-size: ${d.fontSize}px !important;
+          font-weight: ${NAME_CONFIG.fontWeight} !important;
+          font-family: ${NAME_CONFIG.fontFamily} !important;
+          border-top: ${d.borderWidth}px solid ${c.top} !important;
+          border-bottom: ${d.borderWidth}px solid ${c.bottom} !important;
+          border-left: ${d.borderWidth}px solid ${c.left} !important;
+          border-right: ${d.borderWidth}px solid ${c.right} !important;
+        }
+      `;
+      document.head.appendChild(style);
+    })();
+
     /* ===== QR Code Config & Variables ===== */
     const CBZ_ZIP_URL = "CBZ.zip"; 
     const DOWNLOAD_QR_WIDTH = 1400;
@@ -575,7 +614,6 @@
       backgroundOptions: { color: "transparent" },
       imageOptions: { crossOrigin: "anonymous", margin: 6 }
     });
-    // Small QR instance for the live preview overlay
     const previewQR = new QRCodeStyling({
       width: 150, height: 150, type: "canvas",
       data: "Initializing...", image: "",
@@ -782,9 +820,7 @@
         if (cached) viewDataCache[key] = cached;
       });
       updateBadges(); refreshAllViewsFromCloud();
-      // Append the hidden download QR canvas
       downloadQR.append(document.getElementById('qr-hidden-container'));
-      // Append the preview QR canvas to the overlay
       previewQR.append(document.getElementById('qr-overlay'));
       loadCBZZip(); 
       pollTimer = setInterval(function () {
@@ -913,19 +949,6 @@
       phoneInput = document.getElementById('phone'),
       finishedBtn = document.getElementById('finishedBtn');
 
-    christianNameInput.addEventListener('input', validateSave);
-    firstNameInput.addEventListener('input', validateSave);
-    lastNameInput.addEventListener('input', validateSave);
-    phoneInput.addEventListener('input', validateSave);
-    document.querySelectorAll('input[name="gender"]').forEach(function(el) { el.addEventListener('change', validateSave); });
-    
-    document.querySelectorAll('.class-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        document.querySelectorAll('.class-btn').forEach(function (b) { b.classList.remove('selected'); });
-        btn.classList.add('selected'); targetClass = btn.dataset.class; validateSave();
-      });
-    });
-
     function validateSave() {
       var cName = christianNameInput.value.trim();
       var fName = firstNameInput.value.trim();
@@ -940,10 +963,38 @@
       finishedBtn.disabled = !(cName && fName && lName && phone && gender && targetClass && bdayValid);
     }
 
+    christianNameInput.addEventListener('input', validateSave);
+    firstNameInput.addEventListener('input', validateSave);
+    lastNameInput.addEventListener('input', validateSave);
+    phoneInput.addEventListener('input', validateSave);
+    document.querySelectorAll('input[name="gender"]').forEach(function(el) { el.addEventListener('change', validateSave); });
+    
+    document.querySelectorAll('.class-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.class-btn').forEach(function (b) { b.classList.remove('selected'); });
+        btn.classList.add('selected'); targetClass = btn.dataset.class; validateSave();
+      });
+    });
+
     document.getElementById('saveCancelBtn').addEventListener('click', function () {
       document.getElementById('saveOverlay').classList.remove('active');
       showToast('<i class="fa-solid fa-xmark"></i> Cancelled', 1500);
     });
+
+    // Update the live preview name dynamically
+    function updatePreviewName() {
+      var fName = firstNameInput.value.trim();
+      var lName = lastNameInput.value.trim();
+      var nameOverlay = document.getElementById('name-overlay');
+      if (fName || lName) {
+        nameOverlay.textContent = `${fName} ${lName}`.trim();
+        nameOverlay.style.display = "block";
+      } else {
+        nameOverlay.style.display = "none";
+      }
+    }
+    firstNameInput.addEventListener('input', updatePreviewName);
+    lastNameInput.addEventListener('input', updatePreviewName);
 
     finishedBtn.addEventListener('click', async function () {
       var cName = christianNameInput.value.trim();
@@ -966,7 +1017,7 @@
         downloadQR.update({ data: qrData, image: qrLogoData || "" });
         await new Promise(r => setTimeout(r, 600));
 
-        // Exact canvas drawing logic from the provided code
+        var fullName = `${fName} ${lName}`;
         var base64 = await new Promise((resolve, reject) => {
           const bgImg = document.getElementById('qr-background-image');
           const qrCanvas = document.querySelector('#qr-hidden-container canvas');
@@ -978,6 +1029,71 @@
           canvas.height = bgImg.naturalHeight || bgImg.height;
           ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
           ctx.drawImage(qrCanvas, QR_LEFT, QR_TOP, DOWNLOAD_QR_WIDTH, DOWNLOAD_QR_HEIGHT);
+          
+          if (fullName) {
+            const d = NAME_CONFIG.DOWNLOAD;
+            const c = d.borderColors;
+            const bw = d.borderWidth;
+            ctx.font = `${NAME_CONFIG.fontWeight} ${d.fontSize}px ${NAME_CONFIG.fontFamily}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const textWidth = ctx.measureText(fullName).width;
+            const boxWidth = textWidth + d.paddingX * 2 + (bw * 2); 
+            const boxHeight = d.fontSize + d.paddingY * 2 + (bw * 2);
+            const boxX = d.left - boxWidth / 2;
+            const boxY = d.top - boxHeight / 2;
+            const outerRadius = d.borderRadius + bw;
+            const innerRadius = d.borderRadius;
+
+            // 1. Draw Outer Color Borders
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(boxX + outerRadius, boxY);
+            ctx.lineTo(boxX + boxWidth - outerRadius, boxY);
+            ctx.quadraticCurveTo(boxX + boxWidth, boxY, boxX + boxWidth, boxY + outerRadius);
+            ctx.lineTo(boxX + boxWidth, boxY + boxHeight - outerRadius);
+            ctx.quadraticCurveTo(boxX + boxWidth, boxY + boxHeight, boxX + boxWidth - outerRadius, boxY + boxHeight);
+            ctx.lineTo(boxX + outerRadius, boxY + boxHeight);
+            ctx.quadraticCurveTo(boxX, boxY + boxHeight, boxX, boxY + boxHeight - outerRadius);
+            ctx.lineTo(boxX, boxY + outerRadius);
+            ctx.quadraticCurveTo(boxX, boxY, boxX + outerRadius, boxY);
+            ctx.closePath();
+            ctx.clip();
+            
+            const cx = boxX + boxWidth / 2;
+            const cy = boxY + boxHeight / 2;
+            ctx.fillStyle = c.top; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(boxX, boxY); ctx.lineTo(boxX + boxWidth, boxY); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = c.right; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(boxX + boxWidth, boxY); ctx.lineTo(boxX + boxWidth, boxY + boxHeight); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = c.bottom; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(boxX + boxWidth, boxY + boxHeight); ctx.lineTo(boxX, boxY + boxHeight); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = c.left; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(boxX, boxY + boxHeight); ctx.lineTo(boxX, boxY); ctx.closePath(); ctx.fill();
+            ctx.restore();
+
+            // 2. Draw Inner White Background Box
+            const innerX = boxX + bw;
+            const innerY = boxY + bw;
+            const innerW = boxWidth - bw * 2;
+            const innerH = boxHeight - bw * 2;
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(innerX + innerRadius, innerY);
+            ctx.lineTo(innerX + innerW - innerRadius, innerY);
+            ctx.quadraticCurveTo(innerX + innerW, innerY, innerX + innerW, innerY + innerRadius);
+            ctx.lineTo(innerX + innerW, innerY + innerH - innerRadius);
+            ctx.quadraticCurveTo(innerX + innerW, innerY + innerH, innerX + innerW - innerRadius, innerY + innerH);
+            ctx.lineTo(innerX + innerRadius, innerY + innerH);
+            ctx.quadraticCurveTo(innerX, innerY + innerH, innerX, innerY + innerH - innerRadius);
+            ctx.lineTo(innerX, innerY + innerRadius);
+            ctx.quadraticCurveTo(innerX, innerY, innerX + innerRadius, innerY);
+            ctx.closePath();
+            ctx.clip();
+            ctx.fillStyle = d.bgColor;
+            ctx.fillRect(innerX, innerY, innerW, innerH);
+            ctx.restore();
+            
+            // 3. Draw Text
+            ctx.fillStyle = d.fontColor;
+            ctx.fillText(fullName, d.left, d.top);
+          }
           resolve(canvas.toDataURL('image/png'));
         });
 
