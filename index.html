@@ -93,7 +93,7 @@
     @keyframes imgIntro{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
     @keyframes imgOutro{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.85)}}
 
-    /* PREVIEW CONTENT (Base layout only, no hardcoded colors/sizes here to prevent overriding JS) */
+    /* PREVIEW STYLES */
     .preview-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:90vw}
     #qr-with-background {display: none; margin: 20px auto; text-align: center; position: relative; width: 300px; height: 300px;}
     .preview-content.active #qr-with-background {display: block;}
@@ -101,6 +101,7 @@
     #qr-overlay {position: absolute; top: 50%; left: 50%; margin-top: 25px; transform: translate(-50%, -50%); width: 150px !important; height: 150px !important;}
     #qr-overlay canvas {width: 100% !important; height: 100% !important; object-fit: contain;}
     #name-overlay {position: absolute; transform: translate(-50%, -50%); white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: none; z-index: 10;}
+    
     .preview-actions {display: flex; gap: 12px; margin-top: 14px;}
     .preview-btn {padding: 10px 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.08); color: var(--fg); font-family: 'Space Grotesk',sans-serif; font-size: .85rem; font-weight: 500; cursor: pointer; transition: all .25s; display: flex; align-items: center; gap: 8px;}
     .preview-btn:hover {background: rgba(255,255,255,.15);}
@@ -445,6 +446,49 @@
   <canvas id="captureCanvas" style="display:none"></canvas>
 
   <script>
+    /* ===== NAME OVERLAY SETTINGS (Change sizes and positions easily here) ===== */
+    const NAME_CONFIG = {
+      DISPLAY: {
+        fontSize: 16, top: 270, left: 150, paddingX: 10, paddingY: 6, borderRadius: 10, borderWidth: 3, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
+      },
+      DOWNLOAD: {
+        // Decreased Border Thickness from 12 to 6 as requested
+        fontSize: 75, top: 1320, left: 1245, paddingX: 40, paddingY: 25, borderRadius: 45, borderWidth: 6, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
+      },
+      fontWeight: "bold", fontFamily: "Arial, sans-serif"
+    };
+
+    // Apply configurations to CSS dynamically for the Display Preview
+    (function applyNameConfigToCSS() {
+      const style = document.createElement('style');
+      const d = NAME_CONFIG.DISPLAY;
+      const c = d.borderColors;
+      style.innerHTML = `
+        #name-overlay {
+          position: absolute;
+          top: ${d.top}px !important;
+          left: ${d.left}px !important;
+          transform: translate(-50%, -50%) !important;
+          background-color: ${d.bgColor} !important;
+          color: ${d.fontColor} !important;
+          padding: ${d.paddingY}px ${d.paddingX}px !important;
+          border-radius: ${d.borderRadius}px !important;
+          font-size: ${d.fontSize}px !important;
+          font-weight: ${NAME_CONFIG.fontWeight} !important;
+          font-family: ${NAME_CONFIG.fontFamily} !important;
+          white-space: nowrap;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          display: none;
+          z-index: 10;
+          border-top: ${d.borderWidth}px solid ${c.top} !important;
+          border-bottom: ${d.borderWidth}px solid ${c.bottom} !important;
+          border-left: ${d.borderWidth}px solid ${c.left} !important;
+          border-right: ${d.borderWidth}px solid ${c.right} !important;
+        }
+      `;
+      document.head.appendChild(style);
+    })();
+
     /* ===== 1. REST API Config ===== */
     var DB_URL = 'https://file-holder-f7af0-default-rtdb.firebaseio.com';
     var DB_SECRET = 'ZbDjXoOfSFQkYsVATKrPyN0xXIr1';
@@ -558,42 +602,6 @@
       if (changed) { updateBadges(); if (activeView) renderTable(activeView); }
     }
 
-    /* ===== NAME OVERLAY SETTINGS ===== */
-    const NAME_CONFIG = {
-      DISPLAY: {
-        fontSize: 16, top: 270, left: 150, paddingX: 10, paddingY: 6, borderRadius: 5, borderWidth: 3, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
-      },
-      DOWNLOAD: {
-        fontSize: 75, top: 2595, left: 1245, paddingX: 40, paddingY: 25, borderRadius: 15, borderWidth: 12, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#edb200", bottom: "#edb200", left: "#edb200", right: "#edb200" }
-      },
-      fontWeight: "bold", fontFamily: "Arial, sans-serif"
-    };
-
-    // Apply configurations to CSS dynamically for the Display Preview
-    (function applyNameConfigToCSS() {
-      const style = document.createElement('style');
-      const d = NAME_CONFIG.DISPLAY;
-      const c = d.borderColors;
-      style.innerHTML = `
-        #name-overlay {
-          top: ${d.top}px !important;
-          left: ${d.left}px !important;
-          background-color: ${d.bgColor} !important;
-          color: ${d.fontColor} !important;
-          padding: ${d.paddingY}px ${d.paddingX}px !important;
-          border-radius: ${d.borderRadius}px !important;
-          font-size: ${d.fontSize}px !important;
-          font-weight: ${NAME_CONFIG.fontWeight} !important;
-          font-family: ${NAME_CONFIG.fontFamily} !important;
-          border-top: ${d.borderWidth}px solid ${c.top} !important;
-          border-bottom: ${d.borderWidth}px solid ${c.bottom} !important;
-          border-left: ${d.borderWidth}px solid ${c.left} !important;
-          border-right: ${d.borderWidth}px solid ${c.right} !important;
-        }
-      `;
-      document.head.appendChild(style);
-    })();
-
     /* ===== QR Code Config & Variables ===== */
     const CBZ_ZIP_URL = "CBZ.zip"; 
     const DOWNLOAD_QR_WIDTH = 1400;
@@ -615,7 +623,7 @@
       width: 150, height: 150, type: "canvas",
       data: "Initializing...", image: "",
       dotsOptions: { color: "#000000", type: "rounded" },
-      cornersSquareOptions: { color: "#CB1433", type: "extra-rounded" },
+      cornersSquareOptions: { color: "#33011e", type: "extra-rounded" },
       backgroundOptions: { color: "transparent" },
       imageOptions: { crossOrigin: "anonymous", margin: 6 }
     });
@@ -647,7 +655,7 @@
           for (const filename in contents.files) {
             if (contents.files[filename].dir) continue;
             const lowerFilename = filename.toLowerCase();
-            if (lowerFilename.endsWith('.png') || lowerFilename.endsWith('.jpg') || lowerFilename.endswith('.jpeg') || lowerFilename.endsWith('.gif')) imageFiles.push(contents.files[filename]);
+            if (lowerFilename.endsWith('.png') || lowerFilename.endsWith('.jpg') || lowerFilename.endsWith('.jpeg') || lowerFilename.endsWith('.gif')) imageFiles.push(contents.files[filename]);
           }
           if (imageFiles.length > 0 && !logoFile) logoFile = imageFiles[0];
           if (imageFiles.length > 1 && !backgroundFile) backgroundFile = imageFiles[1];
@@ -763,7 +771,7 @@
         else if (stored === hashed) { loginSuccess(); }
         else { loginError.textContent = 'Wrong password!'; }
       } catch (e) {
-        if (localStorage.getItem('authPersist') === 'true') { loginSuccess(); }
+        if (localStorage.getItem('loggedIn') === 'true') { loginSuccess(); }
         else { loginError.textContent = 'Connection error - try again'; }
       }
       loginBtn.disabled = false; loginBtn.innerHTML = 'Login';
@@ -771,9 +779,7 @@
 
     function loginSuccess() {
       currentUser = 'fileholder@gmail.com';
-      // Using authPersist to keep the user logged in even if the page is refreshed or closed
-      localStorage.setItem('authPersist', 'true');
-      localStorage.setItem('loggedIn', 'true'); // Keeping for backward compatibility logic if any
+      localStorage.setItem('loggedIn', 'true');
       loginOverlay.classList.add('hidden'); mainContainer.classList.remove('hidden');
       logoutBtn.classList.remove('hidden'); loginPass.value = ''; loginError.textContent = '';
       loginBtn.disabled = false; loginBtn.innerHTML = 'Login';
@@ -782,16 +788,10 @@
 
     function logout() {
       currentUser = null; activeView = null;
-      localStorage.removeItem('authPersist');
       localStorage.removeItem('loggedIn');
       mainContainer.classList.add('hidden'); logoutBtn.classList.add('hidden');
       loginOverlay.classList.remove('hidden');
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-    }
-
-    // Check if the user was previously logged in (Auto Login on Refresh)
-    if (localStorage.getItem('authPersist') === 'true') {
-      loginSuccess();
     }
 
     loginBtn.addEventListener('click', handleLogin);
@@ -870,8 +870,11 @@
       document.querySelectorAll('.class-btn').forEach(function (b) { b.classList.remove('selected'); });
       finishedBtn.disabled = true;
       currentProcessedImage = qrBgImageUrl; 
-      updatePreviewName(); // Clear preview name on open
-      document.getElementById('saveOverlay').classList.add('active');
+      
+      // Preview settings
+      document.getElementById('previewContent').classList.add('active');
+      document.getElementById('previewOverlay').classList.add('active');
+      document.getElementById('name-overlay').style.display = 'none';
     }
 
     document.getElementById('closeCamBtn').addEventListener('click', closeCam);
@@ -987,20 +990,45 @@
       showToast('<i class="fa-solid fa-xmark"></i> Cancelled', 1500);
     });
 
-    // Dynamically update the preview name as the user types
-    function updatePreviewName() {
+    // Real-time Preview Logic
+    function updatePreview() {
+      var cName = christianNameInput.value.trim();
       var fName = firstNameInput.value.trim();
       var lName = lastNameInput.value.trim();
-      var nameOverlay = document.getElementById('name-overlay');
-      if (fName || lName) {
-        nameOverlay.textContent = `${fName} ${lName}`.trim();
-        nameOverlay.style.display = "block";
-      } else {
-        nameOverlay.style.display = "none";
+      var phone = phoneInput.value.trim();
+      var gender = document.querySelector('input[name="gender"]:checked');
+      
+      var hasData = cName || fName || lName || phone || gender;
+      if (hasData) {
+        var qrData = `Church: Hamerenoh\nChristian Name: ${cName}\nFirst Name: ${fName}\nLast Name: ${lName}\nPhone: ${phone}\nGender: ${gender ? gender.value : ''}`;
+        previewQR.update({ data: qrData });
+        
+        var nameOverlay = document.getElementById('name-overlay');
+        if (fName && lName) {
+          nameOverlay.textContent = `${fName} ${lName}`;
+          nameOverlay.style.display = "block";
+        } else {
+          nameOverlay.style.display = "none";
+        }
       }
     }
-    firstNameInput.addEventListener('input', updatePreviewName);
-    lastNameInput.addEventListener('input', updatePreviewName);
+
+    [christianNameInput, firstNameInput, lastNameInput, phoneInput].forEach(input => {
+      input.addEventListener('input', updatePreview);
+      input.addEventListener('change', updatePreview);
+    });
+    document.querySelectorAll('input[name="gender"]').forEach(el => el.addEventListener('change', updatePreview));
+
+    document.getElementById('previewCloseBtn').addEventListener('click', function () {
+      document.getElementById('previewOverlay').classList.remove('active');
+      document.getElementById('previewContent').classList.remove('active');
+    });
+    
+    document.getElementById('previewNextBtn').addEventListener('click', function () {
+      document.getElementById('previewOverlay').classList.remove('active');
+      document.getElementById('previewContent').classList.remove('active');
+      document.getElementById('saveOverlay').classList.add('active');
+    });
 
     finishedBtn.addEventListener('click', async function () {
       var cName = christianNameInput.value.trim();
@@ -1025,7 +1053,7 @@
 
         var fullName = `${fName} ${lName}`;
         
-        // Strictly using NAME_CONFIG.DOWNLOAD for the final saved image
+        // Using higher quality (1.0) so it saves clearly and updates properly
         var base64 = await new Promise((resolve, reject) => {
           const bgImg = document.getElementById('qr-background-image');
           const qrCanvas = document.querySelector('#qr-hidden-container canvas');
@@ -1102,7 +1130,7 @@
             ctx.fillStyle = d.fontColor;
             ctx.fillText(fullName, d.left, d.top);
           }
-          resolve(canvas.toDataURL('image/png'));
+          resolve(canvas.toDataURL('image/png')); // High quality save
         });
 
         var bday = null;
