@@ -93,7 +93,7 @@
     @keyframes imgIntro{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
     @keyframes imgOutro{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.85)}}
 
-    /* PREVIEW CONTENT (Base layout only, no hardcoded colors/sizes here to prevent overriding JS) */
+    /* PREVIEW CONTENT */
     .preview-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:90vw}
     #qr-with-background {display: none; margin: 20px auto; text-align: center; position: relative; width: 300px; height: 300px;}
     .preview-content.active #qr-with-background {display: block;}
@@ -161,12 +161,13 @@
     #tableTitle.search-active .search-icon-btn{display:none}
     #tableTitle.search-active .search-input{display:block}
     #tableTitle.search-active .search-clear-btn{display:flex}
-    .sel-btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--fg);font-family:'Space Grotesk',sans-serif;font-size:.75rem;font-weight:500;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:6px;white-space:nowrap}
+    .sel-btn{padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--fg);font-family:'Space Grotesk',sans-serif;font-size:.75rem;font-weight:500;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:6px;white-space:nowrap}
     .sel-btn:hover{background:rgba(255,255,255,.12)}
     .sel-btn.move-btn{background:linear-gradient(135deg,var(--gold),#b8882e);border-color:var(--gold);color:#fff}.sel-btn.move-btn:hover{box-shadow:0 4px 12px var(--gold-glow)}
     .sel-btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important;box-shadow:none!important}
     .sel-btn.exit-btn{border-color:rgba(255,77,77,.3);color:#ff6b6b}.sel-btn.exit-btn:hover{background:rgba(255,77,77,.1)}
     .sel-btn.delete-sel-btn{border-color:rgba(255,77,77,.3);color:#ff6b6b}.sel-btn.delete-sel-btn:hover{background:rgba(255,77,77,.15)}
+    .sel-btn.download-qr-btn{border-color:var(--teal);color:var(--teal)}.sel-btn.download-qr-btn:hover{background:rgba(46,196,162,.15)}
     .sel-count{font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:4px;white-space:nowrap}
     .table-wrap{overflow-y:auto;flex:1;border-radius:10px;border:1px solid var(--border)}
     .table-wrap::-webkit-scrollbar{width:4px}.table-wrap::-webkit-scrollbar-thumb{background:var(--muted);border-radius:4px}
@@ -181,8 +182,9 @@
     .doc-index{color:var(--muted);font-size:.75rem;font-weight:500;width:32px}
     .name-cell{display:flex;align-items:center;gap:10px;width:100%;justify-content:space-between}
     .doc-name-text{font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;user-select:text}
-    .view-icon-btn{width:28px;height:28px;border-radius:7px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:var(--muted);font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
-    .view-icon-btn:hover{color:var(--teal);border-color:var(--teal);background:rgba(46,196,162,.08)}
+    .view-icon-btn{width:34px;height:34px;border-radius:50%;border:2px solid var(--gold);background:transparent;color:var(--gold);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;overflow:hidden}
+    .view-icon-btn:hover{background:var(--gold);color:#fff;box-shadow:0 0 12px var(--gold-glow)}
+    .view-icon-btn img{width:100%;height:100%;object-fit:cover;border-radius:50%}
     .col-check,.cell-check{display:none}
     .select-mode .col-check,.select-mode .cell-check{display:table-cell}
     .cell-check{text-align:center;width:40px}
@@ -290,7 +292,7 @@
     .id-card-bday span{color:var(--fg);font-weight:500}
     .id-card-age{font-size:.73rem;color:var(--teal);font-weight:600;font-family:'Space Grotesk',sans-serif}
 
-    @media(max-width:580px){.btn-grid{grid-template-columns:1fr;max-width:300px}.doc-btn{padding:14px 20px}.save-box,.table-box,.detail-box,.popup-box,.addimg-box{padding:20px}.select-bar{gap:6px}.sel-btn{padding:6px 10px;font-size:.7rem}.img-actions{flex-direction:row;gap:8px;justify-content:center}.delete-btn,.download-btn{padding:8px 14px;font-size:.76rem}.birthday-row{flex-direction:column;gap:6px}.id-card{padding:10px 12px;gap:10px}.id-card-photo{width:50px;height:64px;font-size:1.1rem}}
+    @media(max-width:580px){.btn-grid{grid-template-columns:1fr;max-width:300px}.doc-btn{padding:14px 20px}.save-box,.table-box,.detail-box,.popup-box,.addimg-box{padding:20px}.select-bar{gap:6px}.sel-btn{padding:6px 8px;font-size:.7rem}.img-actions{flex-direction:row;gap:8px;justify-content:center}.delete-btn,.download-btn{padding:8px 14px;font-size:.76rem}.birthday-row{flex-direction:column;gap:6px}.id-card{padding:10px 12px;gap:10px}.id-card-photo{width:50px;height:64px;font-size:1.1rem}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
   </style>
 </head>
@@ -302,9 +304,9 @@
   <div class="login-overlay" id="loginOverlay">
     <div class="login-box">
       <div class="login-title" id="loginTitle"><i class="fa-solid fa-lock"></i> Login</div>
-      <input type="hidden" id="loginUser" value="fileholder@gmail.com">
+      <input type="hidden" id="loginUser" value="fileholder@gmail.com" autocomplete="off">
       <div class="auth-label">Password</div>
-      <input type="password" class="login-input" id="loginPass" placeholder="Enter password">
+      <input type="password" class="login-input" id="loginPass" placeholder="Enter password" autocomplete="new-password">
       <div class="login-error" id="loginError"></div>
       <button class="login-btn" id="loginBtn">Login</button>
     </div>
@@ -314,9 +316,9 @@
     <div class="overlay-bg"></div>
     <div class="login-box" style="z-index:161">
       <div class="login-title"><i class="fa-solid fa-shield-halved"></i> Confirm</div>
-      <input type="hidden" id="authUser" value="fileholder@gmail.com">
+      <input type="hidden" id="authUser" value="fileholder@gmail.com" autocomplete="off">
       <div class="auth-label">Password</div>
-      <input type="password" class="login-input" id="authPass" placeholder="Enter password">
+      <input type="password" class="login-input" id="authPass" placeholder="Enter password" autocomplete="new-password">
       <div class="login-error" id="authError"></div>
       <button class="login-btn" id="authBtn">Confirm</button>
       <button class="login-btn" id="authCancel" style="background:transparent;border:1px solid var(--border);color:var(--muted)">Cancel</button>
@@ -359,22 +361,22 @@
     
     <div class="input-group">
       <label for="christianName">Christian Name (Image Name)</label>
-      <input type="text" id="christianName" placeholder="ስመ-ክርስትና">
+      <input type="text" id="christianName" placeholder="ስመ-ክርስትና" autocomplete="off" inputmode="text">
     </div>
     
     <div class="input-group">
       <label for="firstName">First Name</label>
-      <input type="text" id="firstName" placeholder="First Name">
+      <input type="text" id="firstName" placeholder="First Name" autocomplete="off" inputmode="text">
     </div>
     
     <div class="input-group">
       <label for="lastName">Last Name</label>
-      <input type="text" id="lastName" placeholder="Last Name">
+      <input type="text" id="lastName" placeholder="Last Name" autocomplete="off" inputmode="text">
     </div>
 
     <div class="input-group">
       <label for="phone">Phone Number</label>
-      <input type="tel" id="phone" pattern="[0-9]{10,15}" inputmode="numeric" placeholder="ስልክ ቁጥር">
+      <input type="tel" id="phone" pattern="[0-9]{10,15}" inputmode="numeric" placeholder="ስልክ ቁጥር" autocomplete="off">
     </div>
 
     <div class="class-group">
@@ -394,14 +396,14 @@
     <div class="birthday-group">
       <label><i class="fa-solid fa-cake-candles" style="margin-right:4px;color:var(--gold)"></i> Birthday</label>
       <div class="birthday-row">
-        <div class="b-input"><input type="number" id="birthDay" min="1" max="30" placeholder="Day (1-30)"></div>
+        <div class="b-input"><input type="number" id="birthDay" min="1" max="30" placeholder="Day (1-30)" inputmode="numeric"></div>
         <div class="b-input">
           <select id="birthMonth">
             <option value="">ወር (Month)</option>
             <option value="1">1 - መስከረም</option><option value="2">2 - ጥቅምት</option><option value="3">3 - ኅዳር</option><option value="4">4 - ታኅሣሥ</option><option value="5">5 - ጥር</option><option value="6">6 - የካቲት</option><option value="7">7 - መጋቢት</option><option value="8">8 - ሚያዝያ</option><option value="9">9 - ግንቦት</option><option value="10">10 - ሰኔ</option><option value="11">11 - ሐምሌ</option><option value="12">12 - ነሐሴ</option><option value="13">13 - ጳጉሜን</option>
           </select>
         </div>
-        <div class="b-input"><input type="number" id="birthYear" min="1890" max="2020" placeholder="Year (E.C.)"></div>
+        <div class="b-input"><input type="number" id="birthYear" min="1890" max="2020" placeholder="Year (E.C.)" inputmode="numeric"></div>
       </div>
       <div class="age-display" id="ageDisplay"></div>
     </div>
@@ -431,7 +433,7 @@
     </div>
   </div></div>
 
-  <div class="overlay table-overlay" id="tableOverlay"><div class="overlay-bg"></div><div class="anim-box table-box"><div class="table-header"><div class="header-left"><div class="table-title" id="tableTitle"><span class="doc-count-icon" id="tableCountIcon">0</span><button class="search-icon-btn" id="searchIconBtn" title="Search names"><i class="fa-solid fa-magnifying-glass"></i></button><input type="text" class="search-input" id="searchInput" placeholder="Name or Age..."><button class="search-clear-btn" id="searchClearBtn" title="Clear search"><i class="fa-solid fa-xmark"></i></button></div><div class="select-bar" id="selectBar"><button class="sel-btn" id="selectAllBtn"><i class="fa-solid fa-check-double"></i> All</button><button class="sel-btn move-btn" id="moveBtn" disabled><i class="fa-solid fa-arrows-up-down-left-right"></i> Move</button><button class="sel-btn delete-sel-btn" id="deleteSelBtn" disabled><i class="fa-solid fa-trash-can"></i> Delete</button><button class="sel-btn exit-btn" id="exitSelectBtn"><i class="fa-solid fa-xmark"></i> Exit</button><span class="sel-count"><i class="fa-solid fa-circle-info"></i> <span id="selectCount">0</span></span></div></div><button class="table-close" id="tableCloseBtn"><i class="fa-solid fa-xmark"></i></button></div><div class="table-wrap"><table class="doc-table" id="docTable"><thead><tr><th class="col-check"></th><th>#</th><th>Name</th></tr></thead><tbody id="tableBody"></tbody></table></div></div></div>
+  <div class="overlay table-overlay" id="tableOverlay"><div class="overlay-bg"></div><div class="anim-box table-box"><div class="table-header"><div class="header-left"><div class="table-title" id="tableTitle"><span class="doc-count-icon" id="tableCountIcon">0</span><button class="search-icon-btn" id="searchIconBtn" title="Search names"><i class="fa-solid fa-magnifying-glass"></i></button><input type="text" class="search-input" id="searchInput" placeholder="Name or Age..."><button class="search-clear-btn" id="searchClearBtn" title="Clear search"><i class="fa-solid fa-xmark"></i></button></div><div class="select-bar" id="selectBar"><button class="sel-btn" id="selectAllBtn" title="Select All"><i class="fa-solid fa-check-double"></i></button><button class="sel-btn move-btn" id="moveBtn" disabled title="Move"><i class="fa-solid fa-arrows-up-down-left-right"></i></button><button class="sel-btn download-qr-btn" id="downloadQrSelBtn" disabled title="Download QR Codes"><i class="fa-solid fa-qrcode"></i></button><button class="sel-btn delete-sel-btn" id="deleteSelBtn" disabled title="Delete"><i class="fa-solid fa-trash-can"></i></button><button class="sel-btn exit-btn" id="exitSelectBtn" title="Exit"><i class="fa-solid fa-xmark"></i></button><span class="sel-count"><i class="fa-solid fa-circle-info"></i> <span id="selectCount">0</span></span></div></div><button class="table-close" id="tableCloseBtn"><i class="fa-solid fa-xmark"></i></button></div><div class="table-wrap"><table class="doc-table" id="docTable"><thead><tr><th class="col-check"></th><th>#</th><th>Name</th></tr></thead><tbody id="tableBody"></tbody></table></div></div></div>
 
   <div class="overlay detail-overlay" id="detailOverlay"><div class="overlay-bg"></div><div class="anim-box detail-box"><div class="detail-header"><div class="detail-title"><i class="fa-solid fa-images"></i> Image Preview</div><div class="detail-header-right"><button class="add-img-btn" id="addImgBtn"><i class="fa-solid fa-plus"></i> Add Image</button><button class="detail-close" id="detailCloseBtn"><i class="fa-solid fa-xmark"></i></button></div></div><div class="id-card" id="idCard" style="display:none"><div class="id-card-photo" id="idCardPhoto"><i class="fa-solid fa-user"></i></div><div class="id-card-info"><div class="id-card-name" id="idCardName"></div><div class="id-card-bday" id="idCardBday"></div><div class="id-card-age" id="idCardAge"></div></div></div><div class="detail-images" id="detailImages"></div></div></div>
 
@@ -564,7 +566,7 @@
         fontSize: 16, top: 270, left: 150, paddingX: 10, paddingY: 6, borderRadius: 5, borderWidth: 3, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
       },
       DOWNLOAD: {
-        fontSize: 75, top: 2470, left: 1245, paddingX: 40, paddingY: 25, border :20, borderRadius: 15, borderWidth: 12, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
+        fontSize: 75, top: 2500, left: 1245, paddingX: 40, paddingY: 25, borderRadius: 15, borderWidth: 8, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
       },
       fontWeight: "bold", fontFamily: "Arial, sans-serif"
     };
@@ -771,9 +773,8 @@
 
     function loginSuccess() {
       currentUser = 'fileholder@gmail.com';
-      // Using authPersist to keep the user logged in even if the page is refreshed or closed
       localStorage.setItem('authPersist', 'true');
-      localStorage.setItem('loggedIn', 'true'); // Keeping for backward compatibility logic if any
+      localStorage.setItem('loggedIn', 'true');
       loginOverlay.classList.add('hidden'); mainContainer.classList.remove('hidden');
       logoutBtn.classList.remove('hidden'); loginPass.value = ''; loginError.textContent = '';
       loginBtn.disabled = false; loginBtn.innerHTML = 'Login';
@@ -789,7 +790,6 @@
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
     }
 
-    // Check if the user was previously logged in (Auto Login on Refresh)
     if (localStorage.getItem('authPersist') === 'true') {
       loginSuccess();
     }
@@ -870,7 +870,7 @@
       document.querySelectorAll('.class-btn').forEach(function (b) { b.classList.remove('selected'); });
       finishedBtn.disabled = true;
       currentProcessedImage = qrBgImageUrl; 
-      updatePreviewName(); // Clear preview name on open
+      updatePreviewName();
       document.getElementById('saveOverlay').classList.add('active');
     }
 
@@ -987,7 +987,6 @@
       showToast('<i class="fa-solid fa-xmark"></i> Cancelled', 1500);
     });
 
-    // Dynamically update the preview name as the user types
     function updatePreviewName() {
       var fName = firstNameInput.value.trim();
       var lName = lastNameInput.value.trim();
@@ -1001,6 +1000,70 @@
     }
     firstNameInput.addEventListener('input', updatePreviewName);
     lastNameInput.addEventListener('input', updatePreviewName);
+
+    // Function to draw the overlay dynamically based on NAME_CONFIG
+    function drawDynamicOverlay(ctx, doc, d, c, bw) {
+        if (!doc.user) return;
+        ctx.font = `${NAME_CONFIG.fontWeight} ${d.fontSize}px ${NAME_CONFIG.fontFamily}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const textWidth = ctx.measureText(doc.user).width;
+        const boxWidth = textWidth + d.paddingX * 2 + (bw * 2); 
+        const boxHeight = d.fontSize + d.paddingY * 2 + (bw * 2);
+        const boxX = d.left - boxWidth / 2;
+        const boxY = d.top - boxHeight / 2;
+        const outerRadius = d.borderRadius + bw;
+        const innerRadius = d.borderRadius;
+
+        // 1. Draw Outer Color Borders
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(boxX + outerRadius, boxY);
+        ctx.lineTo(boxX + boxWidth - outerRadius, boxY);
+        ctx.quadraticCurveTo(boxX + boxWidth, boxY, boxX + boxWidth, boxY + outerRadius);
+        ctx.lineTo(boxX + boxWidth, boxY + boxHeight - outerRadius);
+        ctx.quadraticCurveTo(boxX + boxWidth, boxY + boxHeight, boxX + boxWidth - outerRadius, boxY + boxHeight);
+        ctx.lineTo(boxX + outerRadius, boxY + boxHeight);
+        ctx.quadraticCurveTo(boxX, boxY + boxHeight, boxX, boxY + boxHeight - outerRadius);
+        ctx.lineTo(boxX, boxY + outerRadius);
+        ctx.quadraticCurveTo(boxX, boxY, boxX + outerRadius, boxY);
+        ctx.closePath();
+        ctx.clip();
+        
+        const cx = boxX + boxWidth / 2;
+        const cy = boxY + boxHeight / 2;
+        ctx.fillStyle = c.top; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(boxX, boxY); ctx.lineTo(boxX + boxWidth, boxY); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = c.right; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(boxX + boxWidth, boxY); ctx.lineTo(boxX + boxWidth, boxY + boxHeight); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = c.bottom; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(boxX + boxWidth, boxY + boxHeight); ctx.lineTo(boxX, boxY + boxHeight); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = c.left; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(boxX, boxY + boxHeight); ctx.lineTo(boxX, boxY); ctx.closePath(); ctx.fill();
+        ctx.restore();
+
+        // 2. Draw Inner White Background Box
+        const innerX = boxX + bw;
+        const innerY = boxY + bw;
+        const innerW = boxWidth - bw * 2;
+        const innerH = boxHeight - bw * 2;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(innerX + innerRadius, innerY);
+        ctx.lineTo(innerX + innerW - innerRadius, innerY);
+        ctx.quadraticCurveTo(innerX + innerW, innerY, innerX + innerW, innerY + innerRadius);
+        ctx.lineTo(innerX + innerW, innerY + innerH - innerRadius);
+        ctx.quadraticCurveTo(innerX + innerW, innerY + innerH, innerX + innerW - innerRadius, innerY + innerH);
+        ctx.lineTo(innerX + innerRadius, innerY + innerH);
+        ctx.quadraticCurveTo(innerX, innerY + innerH, innerX, innerY + innerH - innerRadius);
+        ctx.lineTo(innerX, innerY + innerRadius);
+        ctx.quadraticCurveTo(innerX, innerY, innerX + innerRadius, innerY);
+        ctx.closePath();
+        ctx.clip();
+        ctx.fillStyle = d.bgColor;
+        ctx.fillRect(innerX, innerY, innerW, innerH);
+        ctx.restore();
+        
+        // 3. Draw Text
+        ctx.fillStyle = d.fontColor;
+        ctx.fillText(doc.user, d.left, d.top);
+    }
 
     finishedBtn.addEventListener('click', async function () {
       var cName = christianNameInput.value.trim();
@@ -1024,8 +1087,6 @@
         await new Promise(r => setTimeout(r, 600));
 
         var fullName = `${fName} ${lName}`;
-        
-        // Strictly using NAME_CONFIG.DOWNLOAD for the final saved image
         var base64 = await new Promise((resolve, reject) => {
           const bgImg = document.getElementById('qr-background-image');
           const qrCanvas = document.querySelector('#qr-hidden-container canvas');
@@ -1042,65 +1103,8 @@
             const d = NAME_CONFIG.DOWNLOAD;
             const c = d.borderColors;
             const bw = d.borderWidth;
-            ctx.font = `${NAME_CONFIG.fontWeight} ${d.fontSize}px ${NAME_CONFIG.fontFamily}`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            const textWidth = ctx.measureText(fullName).width;
-            const boxWidth = textWidth + d.paddingX * 2 + (bw * 2); 
-            const boxHeight = d.fontSize + d.paddingY * 2 + (bw * 2);
-            const boxX = d.left - boxWidth / 2;
-            const boxY = d.top - boxHeight / 2;
-            const outerRadius = d.borderRadius + bw;
-            const innerRadius = d.borderRadius;
-
-            // 1. Draw Outer Color Borders (4-Sides)
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(boxX + outerRadius, boxY);
-            ctx.lineTo(boxX + boxWidth - outerRadius, boxY);
-            ctx.quadraticCurveTo(boxX + boxWidth, boxY, boxX + boxWidth, boxY + outerRadius);
-            ctx.lineTo(boxX + boxWidth, boxY + boxHeight - outerRadius);
-            ctx.quadraticCurveTo(boxX + boxWidth, boxY + boxHeight, boxX + boxWidth - outerRadius, boxY + boxHeight);
-            ctx.lineTo(boxX + outerRadius, boxY + boxHeight);
-            ctx.quadraticCurveTo(boxX, boxY + boxHeight, boxX, boxY + boxHeight - outerRadius);
-            ctx.lineTo(boxX, boxY + outerRadius);
-            ctx.quadraticCurveTo(boxX, boxY, boxX + outerRadius, boxY);
-            ctx.closePath();
-            ctx.clip();
-            
-            const cx = boxX + boxWidth / 2;
-            const cy = boxY + boxHeight / 2;
-            ctx.fillStyle = c.top; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(boxX, boxY); ctx.lineTo(boxX + boxWidth, boxY); ctx.closePath(); ctx.fill();
-            ctx.fillStyle = c.right; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(boxX + boxWidth, boxY); ctx.lineTo(boxX + boxWidth, boxY + boxHeight); ctx.closePath(); ctx.fill();
-            ctx.fillStyle = c.bottom; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(boxX + boxWidth, boxY + boxHeight); ctx.lineTo(boxX, boxY + boxHeight); ctx.closePath(); ctx.fill();
-            ctx.fillStyle = c.left; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(boxX, boxY + boxHeight); ctx.lineTo(boxX, boxY); ctx.closePath(); ctx.fill();
-            ctx.restore();
-
-            // 2. Draw Inner White Background Box
-            const innerX = boxX + bw;
-            const innerY = boxY + bw;
-            const innerW = boxWidth - bw * 2;
-            const innerH = boxHeight - bw * 2;
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(innerX + innerRadius, innerY);
-            ctx.lineTo(innerX + innerW - innerRadius, innerY);
-            ctx.quadraticCurveTo(innerX + innerW, innerY, innerX + innerW, innerY + innerRadius);
-            ctx.lineTo(innerX + innerW, innerY + innerH - innerRadius);
-            ctx.quadraticCurveTo(innerX + innerW, innerY + innerH, innerX + innerW - innerRadius, innerY + innerH);
-            ctx.lineTo(innerX + innerRadius, innerY + innerH);
-            ctx.quadraticCurveTo(innerX, innerY + innerH, innerX, innerY + innerH - innerRadius);
-            ctx.lineTo(innerX, innerY + innerRadius);
-            ctx.quadraticCurveTo(innerX, innerY, innerX + innerRadius, innerY);
-            ctx.closePath();
-            ctx.clip();
-            ctx.fillStyle = d.bgColor;
-            ctx.fillRect(innerX, innerY, innerW, innerH);
-            ctx.restore();
-            
-            // 3. Draw Text
-            ctx.fillStyle = d.fontColor;
-            ctx.fillText(fullName, d.left, d.top);
+            const dummyDoc = { user: fullName };
+            drawDynamicOverlay(ctx, dummyDoc, d, c, bw);
           }
           resolve(canvas.toDataURL('image/png'));
         });
@@ -1178,7 +1182,8 @@
       arr.forEach(function (item, i) {
         var id = item[0], doc = item[1];
         var tr = document.createElement('tr'); tr.dataset.id = id; tr.dataset.view = view;
-        tr.innerHTML = '<td class="cell-check"><i class="fa-regular fa-square"></i></td><td class="doc-index">' + (i + 1) + '</td><td><div class="name-cell"><span class="doc-name-text">' + (doc.user || 'Unnamed') + '</span><button class="view-icon-btn" title="View"><i class="fa-solid fa-eye"></i></button></div></td>';
+        var photoHtml = doc.personalPhoto ? `<img src="${doc.personalPhoto}" alt="Photo">` : '<i class="fa-solid fa-user"></i>';
+        tr.innerHTML = '<td class="cell-check"><i class="fa-regular fa-square"></i></td><td class="doc-index">' + (i + 1) + '</td><td><div class="name-cell"><span class="doc-name-text">' + (doc.user || 'Unnamed') + '</span><button class="view-icon-btn" title="View">' + photoHtml + '</button></div></td>';
         tr.addEventListener('click', function (e) {
           if (selectMode && !e.target.closest('.view-icon-btn')) toggleSelect(tr, id);
           else if (e.target.closest('.view-icon-btn')) openDetail(view, id, null);
@@ -1281,6 +1286,7 @@
       document.getElementById('selectCount').textContent = selectedIds.size;
       document.getElementById('moveBtn').disabled = selectedIds.size === 0;
       document.getElementById('deleteSelBtn').disabled = selectedIds.size === 0;
+      document.getElementById('downloadQrSelBtn').disabled = selectedIds.size === 0;
     }
     function exitSelectMode() {
       selectMode = false; selectedIds.clear();
@@ -1306,6 +1312,60 @@
         moveOpts.appendChild(btn);
       });
       document.getElementById('moveOverlay').classList.add('active');
+    });
+
+    // Download only selected QR codes as a ZIP file
+    document.getElementById('downloadQrSelBtn').addEventListener('click', async function() {
+      if (selectedIds.size === 0) return;
+      uploadText.textContent = 'Preparing QR Codes...'; uploadSub.textContent = 'Please wait';
+      uploadOfflineNote.style.display = 'none'; uploadOverlay.classList.add('active');
+      
+      try {
+        var zip = new JSZip();
+        var ids = Array.from(selectedIds);
+        var data = viewDataCache[activeView] || {};
+
+        for (var i = 0; i < ids.length; i++) {
+          var doc = data[ids[i]];
+          if (!doc) continue;
+
+          const bgImg = document.getElementById('qr-background-image');
+          const qrCanvas = document.querySelector('#qr-hidden-container canvas');
+          if (bgImg && qrCanvas) {
+            const c = document.createElement('canvas');
+            const ctx = c.getContext('2d');
+            c.width = bgImg.naturalWidth || bgImg.width;
+            c.height = bgImg.naturalHeight || bgImg.height;
+            ctx.drawImage(bgImg, 0, 0, c.width, c.height);
+            ctx.drawImage(qrCanvas, QR_LEFT, QR_TOP, DOWNLOAD_QR_WIDTH, DOWNLOAD_QR_HEIGHT);
+
+            const d = NAME_CONFIG.DOWNLOAD;
+            const cc = d.borderColors;
+            const bw = d.borderWidth;
+            drawDynamicOverlay(ctx, doc, d, cc, bw);
+
+            var base64Data = c.toDataURL('image/png').split(',')[1];
+            var fileName = (doc.user || 'User').replace(/\s+/g, '_') + '.png';
+            zip.file(fileName, base64Data, {base64: true});
+          }
+        }
+
+        zip.generateAsync({type:"blob"}).then(function(content) {
+          var link = document.createElement('a');
+          link.href = URL.createObjectURL(content);
+          link.download = 'QR_Codes.zip';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(link.href);
+          uploadOverlay.classList.remove('active');
+          showToast('<i class="fa-solid fa-check-circle"></i> QR Codes downloaded successfully!');
+        });
+      } catch(e) {
+        console.error(e);
+        uploadOverlay.classList.remove('active');
+        showToast('<i class="fa-solid fa-triangle-exclamation"></i> Error creating ZIP');
+      }
     });
 
     async function performMove(targetView) {
@@ -1411,10 +1471,38 @@
       isExtra = isExtra || false; parentId = parentId || null;
       var item = document.createElement('div'); 
       item.className = 'detail-img-item';
-      item.innerHTML = '<div class="detail-img-stage"><img src="' + src + '" alt="' + name + '"></div><div class="detail-img-name-block"><div class="detail-img-main-name">' + name + '</div><div class="detail-img-user-name">' + user + '</div></div><div class="img-divider"></div><div class="img-actions"><button class="download-btn"><i class="fa-solid fa-download"></i> Download</button><button class="delete-btn"><i class="fa-solid fa-trash-can"></i> Delete</button></div>';
+      
+      // Dynamically redraw the image with the current NAME_CONFIG settings
+      var displaySrc = src;
+      if (!isExtra && qrBgImageUrl) {
+        var img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = src;
+        img.onload = function() {
+          var c = document.createElement('canvas');
+          var ctx = c.getContext('2d');
+          c.width = img.naturalWidth || img.width;
+          c.height = img.naturalHeight || img.height;
+          ctx.drawImage(img, 0, 0, c.width, c.height);
+          
+          var d = NAME_CONFIG.DOWNLOAD;
+          var cc = d.borderColors;
+          var bw = d.borderWidth;
+          var dummyDoc = { user: user };
+          drawDynamicOverlay(ctx, dummyDoc, d, cc, bw);
+          
+          item.querySelector('img').src = c.toDataURL('image/png');
+        };
+        img.onerror = function() {
+          // Fallback to original if cross-origin blocks
+          item.querySelector('img').src = src;
+        };
+      }
+
+      item.innerHTML = '<div class="detail-img-stage"><img src="' + displaySrc + '" alt="' + name + '"></div><div class="detail-img-name-block"><div class="detail-img-main-name">' + name + '</div><div class="detail-img-user-name">' + user + '</div></div><div class="img-divider"></div><div class="img-actions"><button class="download-btn"><i class="fa-solid fa-download"></i> Download</button><button class="delete-btn"><i class="fa-solid fa-trash-can"></i> Delete</button></div>';
 
       item.querySelector('.download-btn').onclick = function () {
-        fetch(src).then(function (r) { return r.blob(); }).then(function (blob) {
+        fetch(displaySrc).then(function (r) { return r.blob(); }).then(function (blob) {
           var url = URL.createObjectURL(blob);
           var a = document.createElement('a'); a.href = url;
           a.download = (user || 'User') + ' (' + (name || 'Image') + ').png';
