@@ -1098,7 +1098,7 @@
       try {
         var qrData = `Church: Hamerenoh\nChristian Name: ${cName}\nFirst Name: ${fName}\nLast Name: ${lName}\nPhone: ${phone}\nGender: ${gender}`;
         downloadQR.update({ data: qrData, image: qrLogoData || "" });
-        await new Promise(r => setTimeout(r, 600));
+        await new Promise(r => setTimeout(r, 600)); // Wait for QR to render
 
         var fullName = `${fName} ${lName}`;
         var base64 = await new Promise((resolve, reject) => {
@@ -1353,7 +1353,7 @@
             tempQr.append(hiddenDiv);
             document.body.appendChild(hiddenDiv);
             
-            // Wait for QR code to render
+            // Wait for QR code to render completely
             await new Promise(r => setTimeout(r, 300));
 
             var qrCanvas = hiddenDiv.querySelector('canvas');
