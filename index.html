@@ -93,7 +93,7 @@
     @keyframes imgIntro{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
     @keyframes imgOutro{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.85)}}
 
-    /* PREVIEW CONTENT (Base layout, specific colors/sizes injected via JS) */
+    /* PREVIEW CONTENT (Base layout only, no hardcoded colors/sizes here to prevent overriding JS) */
     .preview-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:90vw}
     #qr-with-background {display: none; margin: 20px auto; text-align: center; position: relative; width: 300px; height: 300px;}
     .preview-content.active #qr-with-background {display: block;}
@@ -558,13 +558,13 @@
       if (changed) { updateBadges(); if (activeView) renderTable(activeView); }
     }
 
-    /* ===== NAME OVERLAY SETTINGS (Change sizes and positions easily here) ===== */
+    /* ===== NAME OVERLAY SETTINGS ===== */
     const NAME_CONFIG = {
       DISPLAY: {
         fontSize: 16, top: 270, left: 150, paddingX: 10, paddingY: 6, borderRadius: 5, borderWidth: 3, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
       },
       DOWNLOAD: {
-        fontSize: 75, top: 1920, left: 1245, paddingX: 40, paddingY: 25, borderRadius: 15, borderWidth: 12, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
+        fontSize: 75, top: 1620, left: 1245, paddingX: 40, paddingY: 25, borderRadius: 15, borderWidth: 12, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
       },
       fontWeight: "bold", fontFamily: "Arial, sans-serif"
     };
