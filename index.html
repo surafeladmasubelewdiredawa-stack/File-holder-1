@@ -182,8 +182,8 @@
     .doc-index{color:var(--muted);font-size:.75rem;font-weight:500;width:32px}
     .name-cell{display:flex;align-items:center;gap:10px;width:100%;justify-content:space-between}
     .doc-name-text{font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;user-select:text}
-    .view-icon-btn{width:34px;height:34px;border-radius:50%;border:2px solid var(--gold);background:transparent;color:var(--gold);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;overflow:hidden}
-    .view-icon-btn:hover{background:var(--gold);color:#fff;box-shadow:0 0 12px var(--gold-glow)}
+    .view-icon-btn{width:34px;height:34px;border-radius:50%;border:2px solid #555;background:transparent;color:#888;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;overflow:hidden}
+    .view-icon-btn:hover{border-color:var(--gold);color:var(--gold);box-shadow:0 0 12px var(--gold-glow)}
     .view-icon-btn img{width:100%;height:100%;object-fit:cover;border-radius:50%}
     .col-check,.cell-check{display:none}
     .select-mode .col-check,.select-mode .cell-check{display:table-cell}
@@ -566,7 +566,7 @@
         fontSize: 16, top: 270, left: 150, paddingX: 10, paddingY: 6, borderRadius: 5, borderWidth: 3, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
       },
       DOWNLOAD: {
-        fontSize: 75, top: 2500, left: 1245, paddingX: 40, paddingY: 25, borderRadius: 15, borderWidth: 8, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
+        fontSize: 75, top: 1920, left: 2565, paddingX: 40, paddingY: 25, borderRadius: 15, borderWidth: 5, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
       },
       fontWeight: "bold", fontFamily: "Arial, sans-serif"
     };
@@ -621,6 +621,18 @@
       backgroundOptions: { color: "transparent" },
       imageOptions: { crossOrigin: "anonymous", margin: 6 }
     });
+
+    // Function to generate a unique QR code instance for download
+    function createQrInstance(data) {
+      return new QRCodeStyling({
+        width: DOWNLOAD_QR_WIDTH, height: DOWNLOAD_QR_HEIGHT, type: "canvas",
+        data: data, image: qrLogoData || "",
+        dotsOptions: { color: "#000000", type: "rounded" },
+        cornersSquareOptions: { color: "#CB1433", type: "extra-rounded" },
+        backgroundOptions: { color: "transparent" },
+        imageOptions: { crossOrigin: "anonymous", margin: 6 }
+      });
+    }
 
     async function loadCBZZip() {
       try {
@@ -879,7 +891,9 @@
 
     async function openCam() {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: 'environment' } }, audio: false })
+        // Request user environment camera to force main camera instead of ultra-wide
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false })
+          .catch(function () { return navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: 'environment' } }, audio: false }); })
           .catch(function () { return navigator.mediaDevices.getUserMedia({ video: true, audio: false }); });
         cameraVideo.srcObject = stream; cameraOverlay.classList.add('active');
       } catch (e) { showToast('<i class="fa-solid fa-camera-rotate"></i> Camera not available'); }
@@ -1330,23 +1344,37 @@
           if (!doc) continue;
 
           const bgImg = document.getElementById('qr-background-image');
-          const qrCanvas = document.querySelector('#qr-hidden-container canvas');
-          if (bgImg && qrCanvas) {
-            const c = document.createElement('canvas');
-            const ctx = c.getContext('2d');
-            c.width = bgImg.naturalWidth || bgImg.width;
-            c.height = bgImg.naturalHeight || bgImg.height;
-            ctx.drawImage(bgImg, 0, 0, c.width, c.height);
-            ctx.drawImage(qrCanvas, QR_LEFT, QR_TOP, DOWNLOAD_QR_WIDTH, DOWNLOAD_QR_HEIGHT);
+          if (bgImg && qrBgImageUrl) {
+            // Generate a fresh QR code for each user to ensure it is not empty
+            var qrData = `Church: Hamerenoh\nChristian Name: ${doc.name}\nFirst Name: ${doc.user.split(' ')[0] || ''}\nLast Name: ${doc.user.split(' ')[1] || ''}\nPhone: ${doc.phone}\nGender: ${doc.gender}`;
+            var tempQr = createQrInstance(qrData);
+            var hiddenDiv = document.createElement('div');
+            hiddenDiv.style.display = 'none';
+            tempQr.append(hiddenDiv);
+            document.body.appendChild(hiddenDiv);
+            
+            // Wait for QR code to render
+            await new Promise(r => setTimeout(r, 300));
 
-            const d = NAME_CONFIG.DOWNLOAD;
-            const cc = d.borderColors;
-            const bw = d.borderWidth;
-            drawDynamicOverlay(ctx, doc, d, cc, bw);
+            var qrCanvas = hiddenDiv.querySelector('canvas');
+            if (qrCanvas) {
+              const c = document.createElement('canvas');
+              const ctx = c.getContext('2d');
+              c.width = bgImg.naturalWidth || bgImg.width;
+              c.height = bgImg.naturalHeight || bgImg.height;
+              ctx.drawImage(bgImg, 0, 0, c.width, c.height);
+              ctx.drawImage(qrCanvas, QR_LEFT, QR_TOP, DOWNLOAD_QR_WIDTH, DOWNLOAD_QR_HEIGHT);
 
-            var base64Data = c.toDataURL('image/png').split(',')[1];
-            var fileName = (doc.user || 'User').replace(/\s+/g, '_') + '.png';
-            zip.file(fileName, base64Data, {base64: true});
+              const d = NAME_CONFIG.DOWNLOAD;
+              const cc = d.borderColors;
+              const bw = d.borderWidth;
+              drawDynamicOverlay(ctx, doc, d, cc, bw);
+
+              var base64Data = c.toDataURL('image/png').split(',')[1];
+              var fileName = (doc.user || 'User').replace(/\s+/g, '_') + '.png';
+              zip.file(fileName, base64Data, {base64: true});
+            }
+            document.body.removeChild(hiddenDiv);
           }
         }
 
@@ -1583,7 +1611,9 @@
 
     document.getElementById('addImgCamBtn').addEventListener('click', async function () {
       try {
-        var camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: 'environment' } }, audio: false })
+        // Request user environment camera to force main camera instead of ultra-wide
+        var camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false })
+          .catch(function () { return navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: 'environment' } }, audio: false }); })
           .catch(function () { return navigator.mediaDevices.getUserMedia({ video: true, audio: false }); });
         cameraVideo.srcObject = camStream; cameraOverlay.classList.add('active');
         document.getElementById('captureBtn').onclick = function () {
