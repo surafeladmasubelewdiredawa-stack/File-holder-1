@@ -433,7 +433,7 @@
     </div>
   </div></div>
 
-  <div class="overlay table-overlay" id="tableOverlay"><div class="overlay-bg"></div><div class="anim-box table-box"><div class="table-header"><div class="header-left"><div class="table-title" id="tableTitle"><span class="doc-count-icon" id="tableCountIcon">0</span><button class="search-icon-btn" id="searchIconBtn" title="Search names"><i class="fa-solid fa-magnifying-glass"></i></button><input type="text" class="search-input" id="searchInput" placeholder="Name or Age..."><button class="search-clear-btn" id="searchClearBtn" title="Clear search"><i class="fa-solid fa-xmark"></i></button></div><div class="select-bar" id="selectBar"><button class="sel-btn" id="selectAllBtn" title="Select All"><i class="fa-solid fa-check-double"></i></button><button class="sel-btn move-btn" id="moveBtn" disabled title="Move"><i class="fa-solid fa-arrows-up-down-left-right"></i></button><button class="sel-btn download-qr-btn" id="downloadQrSelBtn" disabled title="Download QR Codes"><i class="fa-solid fa-qrcode"></i></button><button class="sel-btn delete-sel-btn" id="deleteSelBtn" disabled title="Delete"><i class="fa-solid fa-trash-can"></i></button><button class="sel-btn exit-btn" id="exitSelectBtn" title="Exit"><i class="fa-solid fa-xmark"></i></button><span class="sel-count"><i class="fa-solid fa-circle-info"></i> <span id="selectCount">0</span></span></div></div><button class="table-close" id="tableCloseBtn"><i class="fa-solid fa-xmark"></i></button></div><div class="table-wrap"><table class="doc-table" id="docTable"><thead><tr><th class="col-check"></th><th>#</th><th>Name</th></tr></thead><tbody id="tableBody"></tbody></table></div></div></div>
+  <div class="overlay table-overlay" id="tableOverlay"><div class="overlay-bg"></div><div class="anim-box table-box"><div class="table-header"><div class="header-left"><div class="table-title" id="tableTitle"><span class="doc-count-icon" id="tableCountIcon">0</span><button class="search-icon-btn" id="searchIconBtn" title="Search names"><i class="fa-solid fa-magnifying-glass"></i></button><input type="text" class="search-input" id="searchInput" placeholder="Name or Age..."><button class="search-clear-btn" id="searchClearBtn" title="Clear search"><i class="fa-solid fa-xmark"></i></button></div><div class="select-bar" id="selectBar"><button class="sel-btn" id="selectAllBtn" title="Select All"><i class="fa-solid fa-check-double"></i></button><button class="sel-btn move-btn" id="moveBtn" disabled title="Move"><i class="fa-solid fa-arrows-up-down-left-right"></i></button><button class="sel-btn download-qr-btn" id="downloadQrSelBtn" disabled title="Download QR Codes"><i class="fa-solid fa-download"></i></button><button class="sel-btn delete-sel-btn" id="deleteSelBtn" disabled title="Delete"><i class="fa-solid fa-trash-can"></i></button><button class="sel-btn exit-btn" id="exitSelectBtn" title="Exit"><i class="fa-solid fa-xmark"></i></button><span class="sel-count"><i class="fa-solid fa-circle-info"></i> <span id="selectCount">0</span></span></div></div><button class="table-close" id="tableCloseBtn"><i class="fa-solid fa-xmark"></i></button></div><div class="table-wrap"><table class="doc-table" id="docTable"><thead><tr><th class="col-check"></th><th>#</th><th>Name</th></tr></thead><tbody id="tableBody"></tbody></table></div></div></div>
 
   <div class="overlay detail-overlay" id="detailOverlay"><div class="overlay-bg"></div><div class="anim-box detail-box"><div class="detail-header"><div class="detail-title"><i class="fa-solid fa-images"></i> Image Preview</div><div class="detail-header-right"><button class="add-img-btn" id="addImgBtn"><i class="fa-solid fa-plus"></i> Add Image</button><button class="detail-close" id="detailCloseBtn"><i class="fa-solid fa-xmark"></i></button></div></div><div class="id-card" id="idCard" style="display:none"><div class="id-card-photo" id="idCardPhoto"><i class="fa-solid fa-user"></i></div><div class="id-card-info"><div class="id-card-name" id="idCardName"></div><div class="id-card-bday" id="idCardBday"></div><div class="id-card-age" id="idCardAge"></div></div></div><div class="detail-images" id="detailImages"></div></div></div>
 
@@ -566,7 +566,7 @@
         fontSize: 16, top: 270, left: 150, paddingX: 10, paddingY: 6, borderRadius: 5, borderWidth: 3, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
       },
       DOWNLOAD: {
-        fontSize: 75, top: 2560, left: 1245, paddingX: 40, paddingY: 25, borderRadius: 15, borderWidth: 8, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#00FF00", bottom: "#FF0000", left: "#00FF00", right: "#000000" }
+        fontSize: 75, top: 2555, left: 1245, paddingX: 40, paddingY: 25, borderRadius: 15, borderWidth: 2, fontColor: "#000000", bgColor: "#FFFFFF", borderColors: { top: "#edb200", bottom: "#edb200", left: "#edb200", right: "#edb200" }
       },
       fontWeight: "bold", fontFamily: "Arial, sans-serif"
     };
@@ -621,18 +621,6 @@
       backgroundOptions: { color: "transparent" },
       imageOptions: { crossOrigin: "anonymous", margin: 6 }
     });
-
-    // Function to generate a unique QR code instance for download
-    function createQrInstance(data) {
-      return new QRCodeStyling({
-        width: DOWNLOAD_QR_WIDTH, height: DOWNLOAD_QR_HEIGHT, type: "canvas",
-        data: data, image: qrLogoData || "",
-        dotsOptions: { color: "#000000", type: "rounded" },
-        cornersSquareOptions: { color: "#CB1433", type: "extra-rounded" },
-        backgroundOptions: { color: "transparent" },
-        imageOptions: { crossOrigin: "anonymous", margin: 6 }
-      });
-    }
 
     async function loadCBZZip() {
       try {
@@ -1328,7 +1316,7 @@
       document.getElementById('moveOverlay').classList.add('active');
     });
 
-    // Download only selected QR codes as a ZIP file
+    // Download only selected QR codes as a ZIP file using existing images
     document.getElementById('downloadQrSelBtn').addEventListener('click', async function() {
       if (selectedIds.size === 0) return;
       uploadText.textContent = 'Preparing QR Codes...'; uploadSub.textContent = 'Please wait';
@@ -1341,40 +1329,10 @@
 
         for (var i = 0; i < ids.length; i++) {
           var doc = data[ids[i]];
-          if (!doc) continue;
-
-          const bgImg = document.getElementById('qr-background-image');
-          if (bgImg && qrBgImageUrl) {
-            // Generate a fresh QR code for each user to ensure it is not empty
-            var qrData = `Church: Hamerenoh\nChristian Name: ${doc.name}\nFirst Name: ${doc.user.split(' ')[0] || ''}\nLast Name: ${doc.user.split(' ')[1] || ''}\nPhone: ${doc.phone}\nGender: ${doc.gender}`;
-            var tempQr = createQrInstance(qrData);
-            var hiddenDiv = document.createElement('div');
-            hiddenDiv.style.display = 'none';
-            tempQr.append(hiddenDiv);
-            document.body.appendChild(hiddenDiv);
-            
-            // Wait for QR code to render
-            await new Promise(r => setTimeout(r, 300));
-
-            var qrCanvas = hiddenDiv.querySelector('canvas');
-            if (qrCanvas) {
-              const c = document.createElement('canvas');
-              const ctx = c.getContext('2d');
-              c.width = bgImg.naturalWidth || bgImg.width;
-              c.height = bgImg.naturalHeight || bgImg.height;
-              ctx.drawImage(bgImg, 0, 0, c.width, c.height);
-              ctx.drawImage(qrCanvas, QR_LEFT, QR_TOP, DOWNLOAD_QR_WIDTH, DOWNLOAD_QR_HEIGHT);
-
-              const d = NAME_CONFIG.DOWNLOAD;
-              const cc = d.borderColors;
-              const bw = d.borderWidth;
-              drawDynamicOverlay(ctx, doc, d, cc, bw);
-
-              var base64Data = c.toDataURL('image/png').split(',')[1];
-              var fileName = (doc.user || 'User').replace(/\s+/g, '_') + '.png';
-              zip.file(fileName, base64Data, {base64: true});
-            }
-            document.body.removeChild(hiddenDiv);
+          if (doc && doc.image) {
+            var base64Data = doc.image.split(',')[1];
+            var fileName = (doc.user || 'User').replace(/\s+/g, '_') + '.png';
+            zip.file(fileName, base64Data, {base64: true});
           }
         }
 
