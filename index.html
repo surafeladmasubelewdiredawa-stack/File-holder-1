@@ -100,30 +100,6 @@
     #qr-background-image {width: 100%; height: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); object-fit: contain;}
     #qr-overlay {position: absolute; top: 50%; left: 50%; margin-top: 25px; transform: translate(-50%, -50%); width: 150px !important; height: 150px !important;}
     #qr-overlay canvas {width: 100% !important; height: 100% !important; object-fit: contain;}
-    
-    /* NEW: QR Loading Animation */
-    .qr-loading-spinner {
-      position: absolute;
-      top: 50%; left: 50%;
-      margin-top: 25px;
-      transform: translate(-50%, -50%);
-      width: 90px; height: 90px;
-      display: flex; align-items: center; justify-content: center;
-      pointer-events: none;
-    }
-    .qr-loading-spinner .ring {
-      position: absolute;
-      border-radius: 50%;
-      border: 4px solid transparent;
-      animation: spin 1.5s linear infinite;
-    }
-    .qr-loading-spinner .ring:nth-child(1) { width: 90px; height: 90px; border-top-color: var(--gold); border-bottom-color: var(--gold); }
-    .qr-loading-spinner .ring:nth-child(2) { width: 70px; height: 70px; border-top-color: var(--accent); border-left-color: var(--accent); animation-duration: 2s; animation-direction: reverse; }
-    .qr-loading-spinner .ring:nth-child(3) { width: 50px; height: 50px; border-top-color: var(--teal); border-right-color: var(--teal); animation-duration: 1s; }
-    .qr-loading-spinner i { color: var(--gold); font-size: 1.2rem; animation: pulse 1s ease-in-out infinite; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    @keyframes pulse { 0%, 100% { opacity: 0.5; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
-    
     #name-overlay {position: absolute; transform: translate(-50%, -50%); white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: none; z-index: 10;}
     .preview-actions {display: flex; gap: 12px; margin-top: 14px;}
     .preview-btn {padding: 10px 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.08); color: var(--fg); font-family: 'Space Grotesk',sans-serif; font-size: .85rem; font-weight: 500; cursor: pointer; transition: all .25s; display: flex; align-items: center; gap: 8px;}
@@ -315,15 +291,11 @@
     .id-card-bday{font-size:.76rem;color:var(--muted);font-family:'Space Grotesk',sans-serif;line-height:1.4}
     .id-card-bday span{color:var(--fg);font-weight:500}
     .id-card-age{font-size:.73rem;color:var(--teal);font-weight:600;font-family:'Space Grotesk',sans-serif}
-    .id-card-edit-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:1px solid var(--gold);background:rgba(212,160,60,.1);color:var(--gold);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .id-card-edit-btn{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;border:1px solid var(--gold);background:rgba(212,160,60,.1);color:var(--gold);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:.7rem}
     .id-card-edit-btn:hover{background:var(--gold);color:#fff}
 
-    /* NEW: Small Inline Name Editor in Table Box */
-    .inline-edit-row { display: flex; gap: 8px; align-items: center; padding: 8px 10px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--border); margin-top: 10px; }
-    .inline-edit-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid transparent; border-radius: 6px; padding: 6px 8px; color: var(--fg); font-family: 'Space Grotesk',sans-serif; font-size: 0.8rem; outline: none; transition: all 0.2s; }
-    .inline-edit-input:focus { border-color: var(--gold); background: rgba(255,255,255,0.08); }
-    .inline-edit-btn { padding: 6px 12px; border-radius: 6px; border: none; background: var(--gold); color: #fff; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-    .inline-edit-btn:hover { background: #e6b352; transform: scale(1.05); }
+    /* Local loading spinner for detail image */
+    .qr-local-spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 130px auto; }
 
     @media(max-width:580px){.btn-grid{grid-template-columns:1fr;max-width:300px}.doc-btn{padding:14px 20px}.save-box,.table-box,.detail-box,.popup-box,.addimg-box{padding:20px}.select-bar{gap:6px}.sel-btn{padding:6px 8px;font-size:.7rem}.img-actions{flex-direction:row;gap:8px;justify-content:center}.delete-btn,.download-btn{padding:8px 14px;font-size:.76rem}.birthday-row{flex-direction:column;gap:6px}.id-card{padding:10px 12px;gap:10px}.id-card-photo{width:50px;height:64px;font-size:1.1rem}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
@@ -381,10 +353,6 @@
       <div id="qr-with-background">
         <img id="qr-background-image" src="" alt="QR Code with Background">
         <div id="qr-overlay"></div>
-        <div class="qr-loading-spinner" id="qrLoadingSpinner" style="display:none;">
-          <div class="ring"></div><div class="ring"></div><div class="ring"></div>
-          <i class="fa-solid fa-qrcode"></i>
-        </div>
         <div id="name-overlay"></div>
       </div>
       <div class="preview-actions">
@@ -471,15 +439,7 @@
     </div>
   </div></div>
 
-  <div class="overlay table-overlay" id="tableOverlay"><div class="overlay-bg"></div><div class="anim-box table-box"><div class="table-header"><div class="header-left"><div class="table-title" id="tableTitle"><span class="doc-count-icon" id="tableCountIcon">0</span><button class="search-icon-btn" id="searchIconBtn" title="Search names"><i class="fa-solid fa-magnifying-glass"></i></button><input type="text" class="search-input" id="searchInput" placeholder="Name or Age..."><button class="search-clear-btn" id="searchClearBtn" title="Clear search"><i class="fa-solid fa-xmark"></i></button></div><div class="select-bar" id="selectBar"><button class="sel-btn" id="selectAllBtn" title="Select All"><i class="fa-solid fa-check-double"></i></button><button class="sel-btn move-btn" id="moveBtn" disabled title="Move"><i class="fa-solid fa-arrows-up-down-left-right"></i></button><button class="sel-btn download-qr-btn" id="downloadQrSelBtn" disabled title="Download QR Codes"><i class="fa-solid fa-qrcode"></i></button><button class="sel-btn delete-sel-btn" id="deleteSelBtn" disabled title="Delete"><i class="fa-solid fa-trash-can"></i></button><button class="sel-btn exit-btn" id="exitSelectBtn" title="Exit"><i class="fa-solid fa-xmark"></i></button><span class="sel-count"><i class="fa-solid fa-circle-info"></i> <span id="selectCount">0</span></span></div></div><button class="table-close" id="tableCloseBtn"><i class="fa-solid fa-xmark"></i></button></div><div class="table-wrap"><table class="doc-table" id="docTable"><thead><tr><th class="col-check"></th><th>#</th><th>Name</th></tr></thead><tbody id="tableBody"></tbody></table></div>
-  
-  <!-- NEW: Small inline edit row at the bottom of table box -->
-  <div class="inline-edit-row" id="inlineEditRow" style="display:none;">
-    <input type="text" class="inline-edit-input" id="inlineEditName" placeholder="Edit First Name...">
-    <button class="inline-edit-btn" id="inlineEditApplyBtn">Apply</button>
-  </div>
-  
-  </div></div>
+  <div class="overlay table-overlay" id="tableOverlay"><div class="overlay-bg"></div><div class="anim-box table-box"><div class="table-header"><div class="header-left"><div class="table-title" id="tableTitle"><span class="doc-count-icon" id="tableCountIcon">0</span><button class="search-icon-btn" id="searchIconBtn" title="Search names"><i class="fa-solid fa-magnifying-glass"></i></button><input type="text" class="search-input" id="searchInput" placeholder="Name or Age..."><button class="search-clear-btn" id="searchClearBtn" title="Clear search"><i class="fa-solid fa-xmark"></i></button></div><div class="select-bar" id="selectBar"><button class="sel-btn" id="selectAllBtn" title="Select All"><i class="fa-solid fa-check-double"></i></button><button class="sel-btn move-btn" id="moveBtn" disabled title="Move"><i class="fa-solid fa-arrows-up-down-left-right"></i></button><button class="sel-btn download-qr-btn" id="downloadQrSelBtn" disabled title="Download QR Codes"><i class="fa-solid fa-qrcode"></i></button><button class="sel-btn delete-sel-btn" id="deleteSelBtn" disabled title="Delete"><i class="fa-solid fa-trash-can"></i></button><button class="sel-btn exit-btn" id="exitSelectBtn" title="Exit"><i class="fa-solid fa-xmark"></i></button><span class="sel-count"><i class="fa-solid fa-circle-info"></i> <span id="selectCount">0</span></span></div></div><button class="table-close" id="tableCloseBtn"><i class="fa-solid fa-xmark"></i></button></div><div class="table-wrap"><table class="doc-table" id="docTable"><thead><tr><th class="col-check"></th><th>#</th><th>Name</th></tr></thead><tbody id="tableBody"></tbody></table></div></div></div>
 
   <div class="overlay detail-overlay" id="detailOverlay"><div class="overlay-bg"></div><div class="anim-box detail-box"><div class="detail-header"><div class="detail-title"><i class="fa-solid fa-images"></i> Image Preview</div><div class="detail-header-right"><button class="add-img-btn" id="addImgBtn"><i class="fa-solid fa-plus"></i> Add Image</button><button class="detail-close" id="detailCloseBtn"><i class="fa-solid fa-xmark"></i></button></div></div><div class="id-card" id="idCard" style="display:none"><div class="id-card-photo" id="idCardPhoto"><i class="fa-solid fa-user"></i></div><div class="id-card-info"><div class="id-card-name" id="idCardName"></div><div class="id-card-bday" id="idCardBday"></div><div class="id-card-age" id="idCardAge"></div></div><button class="id-card-edit-btn" id="idCardEditBtn" title="Edit Info"><i class="fa-solid fa-pen"></i></button></div><div class="detail-images" id="detailImages"></div></div></div>
 
@@ -487,7 +447,7 @@
 
   <div class="overlay" id="moveOverlay" style="z-index:130"><div class="overlay-bg"></div><div class="anim-box popup-box"><div class="popup-title"><i class="fa-solid fa-arrows-up-down-left-right"></i> Move To</div><div id="moveOptions" style="display:flex;flex-direction:column;gap:8px"></div><button class="login-btn" id="moveCancelBtn" style="background:transparent;border:1px solid var(--border);color:var(--muted)">Cancel</button></div></div>
 
-  <!-- EDIT PERSONAL INFO OVERLAY (With Photo Option Added) -->
+  <!-- Edit Personal Info Overlay -->
   <div class="overlay" id="editInfoOverlay" style="z-index:150"><div class="overlay-bg"></div><div class="anim-box save-box" style="max-height:85vh;overflow-y:auto">
     <div class="save-box-title"><i class="fa-solid fa-user-pen"></i> Edit Personal Info</div>
     <div class="input-group"><label for="editFirstName">First Name</label><input type="text" id="editFirstName" placeholder="First Name"></div>
@@ -504,10 +464,22 @@
         <div class="photo-thumb-wrap" id="editPersonalPhotoWrap"><img id="editPersonalPhotoPreview" alt="Photo"><button class="photo-remove-btn" id="editPersonalPhotoRemoveBtn"><i class="fa-solid fa-xmark"></i></button></div>
       </div>
     </div>
-    
+
     <div class="save-action-row">
       <button class="cancel-mini-btn" id="editInfoCancelBtn" type="button"><i class="fa-solid fa-xmark"></i> Cancel</button>
       <button class="finished-btn" id="editInfoSaveBtn"><i class="fa-solid fa-check"></i> Save Changes</button>
+    </div>
+  </div></div>
+
+  <!-- Edit Name Overlay (Name Config) -->
+  <div class="overlay" id="editNameOverlay" style="z-index:150"><div class="overlay-bg"></div><div class="anim-box popup-box" style="width:350px">
+    <div class="popup-title"><i class="fa-solid fa-pen-ruler"></i> Edit Name Tag</div>
+    <div class="input-group" style="margin-top:10px"><label for="editNameText">Display Name</label><input type="text" id="editNameText" placeholder="Name on Image"></div>
+    <div class="input-group" style="margin-top:10px"><label>Font Color</label><input type="color" id="editNameColor" value="#000000" style="width:100%;height:40px;border:none;background:transparent;cursor:pointer"></div>
+    <div class="input-group" style="margin-top:10px"><label>Font Size</label><input type="number" id="editNameSize" value="16" style="width:100%"></div>
+    <div class="save-action-row" style="margin-top:16px">
+      <button class="cancel-mini-btn" id="editNameCancelBtn" type="button"><i class="fa-solid fa-xmark"></i> Cancel</button>
+      <button class="finished-btn" id="editNameApplyBtn"><i class="fa-solid fa-check"></i> Apply</button>
     </div>
   </div></div>
 
@@ -881,7 +853,6 @@
     loginPass.addEventListener('keyup', function (e) { if (e.key === 'Enter') handleLogin(); });
     logoutBtn.addEventListener('click', logout);
 
-    // --- Require Auth for Edit/Delete ---
     function requireAuth(cb) {
       authCallback = cb; authPass.value = ''; authError.textContent = '';
       authOverlay.classList.add('active');
@@ -1020,6 +991,23 @@
       document.getElementById('personalCamBtn').innerHTML = '<i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera';
     }
 
+    // Edit Photo Functions
+    function setEditPersonalPhoto(src) {
+      editPersonalPhotoData = src;
+      document.getElementById('editPersonalPhotoPreview').src = src;
+      document.getElementById('editPersonalPhotoWrap').classList.add('visible');
+      document.getElementById('editPersonalFileBtn').innerHTML = '<i class="fa-solid fa-pen" style="color:var(--gold)"></i> Change';
+      document.getElementById('editPersonalCamBtn').innerHTML = '<i class="fa-solid fa-camera" style="color:var(--accent)"></i> Retake';
+    }
+
+    function clearEditPersonalPhoto() {
+      editPersonalPhotoData = null;
+      document.getElementById('editPersonalPhotoWrap').classList.remove('visible');
+      document.getElementById('editPersonalPhotoPreview').src = '';
+      document.getElementById('editPersonalFileBtn').innerHTML = '<i class="fa-solid fa-folder-open" style="color:var(--gold)"></i> File';
+      document.getElementById('editPersonalCamBtn').innerHTML = '<i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera';
+    }
+
     document.getElementById('birthDay').addEventListener('input', function() { calculateAge(); validateSave(); });
     document.getElementById('birthMonth').addEventListener('change', function() { updateDayMax(); });
     document.getElementById('birthYear').addEventListener('input', function() { calculateAge(); validateSave(); });
@@ -1035,6 +1023,19 @@
     });
     document.getElementById('personalCamBtn').addEventListener('click', function() { personalPhotoMode = true; openCam(); });
     document.getElementById('personalPhotoRemoveBtn').addEventListener('click', function(e) { e.stopPropagation(); clearPersonalPhoto(); });
+
+    // Edit Photo Listeners
+    document.getElementById('editPersonalFileBtn').addEventListener('click', function() { document.getElementById('editPersonalPhotoInput').click(); });
+    document.getElementById('editPersonalPhotoInput').addEventListener('change', function(e) {
+      if (e.target.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(ev) { setEditPersonalPhoto(ev.target.result); };
+        reader.readAsDataURL(e.target.files[0]);
+      }
+      e.target.value = '';
+    });
+    document.getElementById('editPersonalCamBtn').addEventListener('click', function() { editPersonalPhotoMode = true; openCam(); });
+    document.getElementById('editPersonalPhotoRemoveBtn').addEventListener('click', function(e) { e.stopPropagation(); clearEditPersonalPhoto(); });
 
     var christianNameInput = document.getElementById('christianName'),
       firstNameInput = document.getElementById('firstName'),
@@ -1135,7 +1136,7 @@
         ctx.fillText(doc.user, d.left, d.top);
     }
 
-    // MODIFIED: Save logic simplified - NO UPLOAD POPUP
+    // MODIFIED: Save logic simplified - no popup loading. Direct to Image Preview.
     finishedBtn.addEventListener('click', async function () {
       var cName = christianNameInput.value.trim();
       var fName = firstNameInput.value.trim();
@@ -1180,7 +1181,11 @@
         viewDataCache[targetClass] = cached;
         cacheView(targetClass, cached);
 
-        showToast('<i class="fa-solid fa-check-circle"></i> Saved successfully!');
+        if (result.offline) {
+          showToast('<i class="fa-solid fa-wifi-slash"></i> Saved offline - will sync');
+        } else {
+          showToast('<i class="fa-solid fa-check-circle"></i> Saved successfully!');
+        }
 
         if (activeView === targetClass) renderTable(targetClass);
         updateBadges();
@@ -1246,7 +1251,7 @@
       if (freshData) { renderTableRows(view, freshData); }
     }
 
-    document.getElementById('tableCloseBtn').addEventListener('click', function () { tableOverlay.classList.remove('active'); document.getElementById('inlineEditRow').style.display = 'none'; });
+    document.getElementById('tableCloseBtn').addEventListener('click', function () { tableOverlay.classList.remove('active'); });
     document.getElementById('searchIconBtn').addEventListener('click', function () { tableTitle.classList.add('search-active'); });
     document.getElementById('searchClearBtn').addEventListener('click', function () { searchInput.value = ''; filterTable(); tableTitle.classList.remove('search-active'); });
     searchInput.addEventListener('input', filterTable);
@@ -1522,8 +1527,11 @@
       
       // Generate QR code and render the main image dynamically here
       if (qrBgImageUrl) {
-        var spinner = document.getElementById('qrLoadingSpinner');
-        if (spinner) spinner.style.display = 'flex'; // Show Loading
+        // Local spinner inside the 300x300 box container
+        var item = document.createElement('div'); 
+        item.className = 'detail-img-item';
+        item.innerHTML = '<div class="detail-img-stage" style="width:300px;height:300px;display:flex;align-items:center;justify-content:center;"><div class="qr-local-spinner"></div></div>';
+        detailImages.appendChild(item);
         
         try {
           var qrData = `Church: Hamerenoh\nChristian Name: ${doc.name}\nFirst Name: ${doc.user.split(' ')[0] || ''}\nLast Name: ${doc.user.split(' ')[1] || ''}\nPhone: ${doc.phone}\nGender: ${doc.gender}`;
@@ -1534,7 +1542,7 @@
           tempQr.append(hiddenDiv);
           document.body.appendChild(hiddenDiv);
           
-          await new Promise(r => setTimeout(r, 300));
+          await new Promise(r => setTimeout(r, 300)); // wait for QR generation
           var qrCanvas = hiddenDiv.querySelector('canvas');
           
           const bgImg = document.getElementById('qr-background-image');
@@ -1554,26 +1562,27 @@
           
           // Update DB if the image wasn't generated before
           if (doc.image && doc.image.length < 5000) {
-            var updates = { image: newBase64 };
             await restPatch({ [view + '/' + id + '/image']: newBase64 });
             doc.image = newBase64;
             if (viewDataCache[view] && viewDataCache[view][id]) viewDataCache[view][id].image = newBase64;
             cacheView(view, viewDataCache[view]);
           }
           
-          if (spinner) spinner.style.display = 'none'; // Hide Loading
+          // Replace spinner with actual image
+          item.remove();
           addImageToDetail(newBase64, doc.name, doc.user, id, view);
           
           document.body.removeChild(hiddenDiv);
         } catch (e) {
           console.error(e);
-          if (spinner) spinner.style.display = 'none';
+          item.remove();
           addImageToDetail(doc.image, doc.name, doc.user, id, view);
         }
       } else {
         addImageToDetail(doc.image, doc.name, doc.user, id, view);
       }
 
+      // Extra images don't wait for QR
       if (doc.extraImages) {
         Object.entries(doc.extraImages).forEach(function (e) {
           addImageToDetail(e[1].image, e[1].name, doc.user, e[0], view, true, id);
@@ -1585,8 +1594,7 @@
       isExtra = isExtra || false; parentId = parentId || null;
       var item = document.createElement('div'); 
       item.className = 'detail-img-item';
-      
-      // REMOVED: Edit Name Tag Text completely
+      // Removed the 'Edit Name Tag' button from here as requested
       item.innerHTML = '<div class="detail-img-stage"><img src="' + src + '" alt="' + name + '"></div><div class="detail-img-name-block"><div class="detail-img-main-name">' + name + '</div><div class="detail-img-user-name">' + user + '</div></div><div class="img-divider"></div><div class="img-actions"><button class="download-btn"><i class="fa-solid fa-download"></i> Download</button><button class="delete-btn"><i class="fa-solid fa-trash-can"></i> Delete</button></div>';
 
       item.querySelector('.download-btn').onclick = function () {
@@ -1661,75 +1669,44 @@
       document.getElementById('idCard').style.display = 'none';
     });
 
-    // --- NEW: Edit Info Logic (Require Auth First) ---
+    // --- NEW: Edit Info Logic ---
+    // Ask for password before opening edit overlay
     document.getElementById('idCardEditBtn').addEventListener('click', function() {
-      requireAuth(openEditInfoOverlay); // ASK PASSWORD FIRST
-    });
+      requireAuth(function() {
+        var doc = viewDataCache[currentDetailView] ? viewDataCache[currentDetailView][currentDetailId] : null;
+        if (!doc) return;
 
-    function openEditInfoOverlay() {
-      var doc = viewDataCache[currentDetailView] ? viewDataCache[currentDetailView][currentDetailId] : null;
-      if (!doc) return;
-
-      document.getElementById('editFirstName').value = doc.user.split(' ')[0] || '';
-      document.getElementById('editLastName').value = doc.user.split(' ').slice(1).join(' ') || '';
-      document.getElementById('editPhone').value = doc.phone || '';
-      document.querySelectorAll('input[name="editGender"]').forEach(function(el) { 
-        el.checked = (el.value === doc.gender); 
+        document.getElementById('editFirstName').value = doc.user.split(' ')[0] || '';
+        document.getElementById('editLastName').value = doc.user.split(' ').slice(1).join(' ') || '';
+        document.getElementById('editPhone').value = doc.phone || '';
+        document.querySelectorAll('input[name="editGender"]').forEach(function(el) { 
+          el.checked = (el.value === doc.gender); 
+        });
+        
+        if (doc.birthday) {
+          document.getElementById('editBirthDay').value = doc.birthday.day || '';
+          document.getElementById('editBirthMonth').value = doc.birthday.month || '';
+          document.getElementById('editBirthYear').value = doc.birthday.year || '';
+        } else {
+          document.getElementById('editBirthDay').value = '';
+          document.getElementById('editBirthMonth').value = '';
+          document.getElementById('editBirthYear').value = '';
+        }
+        
+        // Handle personal photo load
+        if (doc.personalPhoto) {
+          setEditPersonalPhoto(doc.personalPhoto);
+        } else {
+          clearEditPersonalPhoto();
+        }
+        
+        document.getElementById('editInfoOverlay').classList.add('active');
       });
-      
-      if (doc.birthday) {
-        document.getElementById('editBirthDay').value = doc.birthday.day || '';
-        document.getElementById('editBirthMonth').value = doc.birthday.month || '';
-        document.getElementById('editBirthYear').value = doc.birthday.year || '';
-      } else {
-        document.getElementById('editBirthDay').value = '';
-        document.getElementById('editBirthMonth').value = '';
-        document.getElementById('editBirthYear').value = '';
-      }
-      
-      // Set initial edit photo
-      editPersonalPhotoData = doc.personalPhoto || null;
-      if (editPersonalPhotoData) {
-        setEditPersonalPhoto(editPersonalPhotoData);
-      } else {
-        clearEditPersonalPhoto();
-      }
-      
-      document.getElementById('editInfoOverlay').classList.add('active');
-    }
+    });
 
     document.getElementById('editInfoCancelBtn').addEventListener('click', function() {
       document.getElementById('editInfoOverlay').classList.remove('active');
     });
-
-    // --- NEW: Edit Personal Photo Logic (Inside Edit Info Overlay) ---
-    function setEditPersonalPhoto(src) {
-      editPersonalPhotoData = src;
-      document.getElementById('editPersonalPhotoPreview').src = src;
-      document.getElementById('editPersonalPhotoWrap').classList.add('visible');
-      document.getElementById('editPersonalFileBtn').innerHTML = '<i class="fa-solid fa-pen" style="color:var(--gold)"></i> Change';
-      document.getElementById('editPersonalCamBtn').innerHTML = '<i class="fa-solid fa-camera" style="color:var(--accent)"></i> Retake';
-    }
-
-    function clearEditPersonalPhoto() {
-      editPersonalPhotoData = null;
-      document.getElementById('editPersonalPhotoWrap').classList.remove('visible');
-      document.getElementById('editPersonalPhotoPreview').src = '';
-      document.getElementById('editPersonalFileBtn').innerHTML = '<i class="fa-solid fa-folder-open" style="color:var(--gold)"></i> File';
-      document.getElementById('editPersonalCamBtn').innerHTML = '<i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera';
-    }
-
-    document.getElementById('editPersonalFileBtn').addEventListener('click', function() { document.getElementById('editPersonalPhotoInput').click(); });
-    document.getElementById('editPersonalPhotoInput').addEventListener('change', function(e) {
-      if (e.target.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(ev) { setEditPersonalPhoto(ev.target.result); };
-        reader.readAsDataURL(e.target.files[0]);
-      }
-      e.target.value = '';
-    });
-    document.getElementById('editPersonalCamBtn').addEventListener('click', function() { editPersonalPhotoMode = true; openCam(); });
-    document.getElementById('editPersonalPhotoRemoveBtn').addEventListener('click', function(e) { e.stopPropagation(); clearEditPersonalPhoto(); });
 
     document.getElementById('editInfoSaveBtn').addEventListener('click', async function() {
       var fName = document.getElementById('editFirstName').value.trim();
@@ -1748,10 +1725,6 @@
       
       try {
         var doc = viewDataCache[currentDetailView][currentDetailId];
-        
-        // If photo is not changed, keep the old one
-        var finalPhoto = editPersonalPhotoData !== null ? editPersonalPhotoData : doc.personalPhoto;
-        
         var newQrData = `Church: Hamerenoh\nChristian Name: ${doc.name}\nFirst Name: ${fName}\nLast Name: ${lName}\nPhone: ${phone}\nGender: ${gender}`;
         
         var tempQr = createQrInstance(newQrData);
@@ -1780,13 +1753,16 @@
         var newBase64 = c.toDataURL('image/png');
         document.body.removeChild(hiddenDiv);
 
+        // Use new photo if selected, otherwise keep old photo
+        var finalPhoto = editPersonalPhotoData !== null ? editPersonalPhotoData : doc.personalPhoto;
+
         var updates = {
           user: fullName,
           phone: phone,
           gender: gender,
           birthday: bday,
           image: newBase64,
-          personalPhoto: finalPhoto // Save final photo result
+          personalPhoto: finalPhoto
         };
         
         await restPatch({ [currentDetailView + '/' + currentDetailId]: updates });
@@ -1806,64 +1782,25 @@
       }
     });
 
-    // --- NEW: Inline Name Editor Logic (At the bottom of table box) ---
-    document.getElementById('inlineEditApplyBtn').addEventListener('click', async function() {
-      var newName = document.getElementById('inlineEditName').value.trim();
-      if (!newName || !currentDetailId || !currentDetailView) return;
+    // --- Edit Name Tag Overlay Logic (Kept for config purposes elsewhere, though removed from UI) ---
+    function openEditNameOverlay(currentName, callback) {
+      document.getElementById('editNameText').value = currentName;
+      document.getElementById('editNameColor').value = NAME_CONFIG.DOWNLOAD.fontColor;
+      document.getElementById('editNameSize').value = NAME_CONFIG.DOWNLOAD.fontSize;
+      document.getElementById('editNameOverlay').classList.add('active');
       
-      uploadOverlay.classList.add('active');
-      uploadText.textContent = 'Updating Name...'; uploadSub.textContent = 'Please wait';
-      
-      try {
-        var doc = viewDataCache[currentDetailView][currentDetailId];
-        var nameParts = doc.user.split(' ');
-        var lName = nameParts.slice(1).join(' ');
-        var fullName = `${newName} ${lName}`.trim();
-        
-        var newQrData = `Church: Hamerenoh\nChristian Name: ${doc.name}\nFirst Name: ${newName}\nLast Name: ${lName}\nPhone: ${doc.phone}\nGender: ${doc.gender}`;
-        
-        var tempQr = createQrInstance(newQrData);
-        var hiddenDiv = document.createElement('div');
-        hiddenDiv.style.display = 'none';
-        tempQr.append(hiddenDiv);
-        document.body.appendChild(hiddenDiv);
-        
-        await new Promise(r => setTimeout(r, 300));
-        var qrCanvas = hiddenDiv.querySelector('canvas');
-        
-        const bgImg = document.getElementById('qr-background-image');
-        const c = document.createElement('canvas');
-        const ctx = c.getContext('2d');
-        c.width = bgImg.naturalWidth || bgImg.width;
-        c.height = bgImg.naturalHeight || bgImg.height;
-        ctx.drawImage(bgImg, 0, 0, c.width, c.height);
-        if (qrCanvas) ctx.drawImage(qrCanvas, QR_LEFT, QR_TOP, DOWNLOAD_QR_WIDTH, DOWNLOAD_QR_HEIGHT);
-
-        const d = NAME_CONFIG.DOWNLOAD;
-        const cc = d.borderColors;
-        const bw = d.borderWidth;
-        var dummyDoc = { user: fullName };
-        drawDynamicOverlay(ctx, dummyDoc, d, cc, bw);
-
-        var newBase64 = c.toDataURL('image/png');
-        document.body.removeChild(hiddenDiv);
-        
-        var updates = { user: fullName, image: newBase64 };
-        await restPatch({ [currentDetailView + '/' + currentDetailId]: updates });
-        
-        Object.assign(doc, updates);
-        cacheView(currentDetailView, viewDataCache[currentDetailView]);
-        
-        document.getElementById('inlineEditRow').style.display = 'none';
-        uploadOverlay.classList.remove('active');
-        
-        if (activeView === currentDetailView) renderTable(currentDetailView);
-        showToast('<i class="fa-solid fa-check"></i> Name updated successfully!');
-      } catch (e) {
-        console.error(e);
-        uploadOverlay.classList.remove('active');
-        showToast('<i class="fa-solid fa-triangle-exclamation"></i> Error updating name');
-      }
+      document.getElementById('editNameApplyBtn').onclick = function() {
+        var nText = document.getElementById('editNameText').value.trim();
+        var nColor = document.getElementById('editNameColor').value;
+        var nSize = document.getElementById('editNameSize').value;
+        if (nText) {
+          callback(nText, nColor, nSize);
+          document.getElementById('editNameOverlay').classList.remove('active');
+        }
+      };
+    }
+    document.getElementById('editNameCancelBtn').addEventListener('click', function() {
+      document.getElementById('editNameOverlay').classList.remove('active');
     });
 
     document.getElementById('addImgBtn').addEventListener('click', function () { resetAddImgSteps(); addImgOverlay.classList.add('active'); });
