@@ -1507,15 +1507,25 @@
     document.getElementById('moveCancelBtn').addEventListener('click', function () { document.getElementById('moveOverlay').classList.remove('active'); });
 
     // ================= DETAIL & IMAGE PREVIEW LOGIC =================
-    // Separated the item creation so we can load extra images instantly without waiting for QR
-    function buildImageItem(src, name, user, id, view, isExtra, parentId) {
-      isExtra = isExtra || false; parentId = parentId || null;
+    // Builds the HTML for an image item, supports showing a spinner instead of the image
+    function buildImageItem(src, name, user, id, view, isExtra, parentId, isLoading) {
+      isLoading = isLoading || false;
       var item = document.createElement('div'); 
       item.className = 'detail-img-item';
-      item.innerHTML = '<div class="detail-img-stage"><img src="' + src + '" alt="' + name + '"></div><div class="detail-img-name-block"><div class="detail-img-main-name">' + name + '</div><div class="detail-img-user-name">' + user + '</div></div><div class="img-divider"></div><div class="img-actions"><button class="download-btn"><i class="fa-solid fa-download"></i> Download</button><button class="delete-btn"><i class="fa-solid fa-trash-can"></i> Delete</button></div>';
+      
+      var stageHtml = isLoading 
+          ? '<div class="detail-img-stage" style="width:300px;height:300px;display:flex;align-items:center;justify-content:center;"><div class="qr-local-spinner"></div></div>'
+          : '<div class="detail-img-stage"><img src="' + src + '" alt="' + name + '"></div>';
+
+      item.innerHTML = stageHtml + '<div class="detail-img-name-block"><div class="detail-img-main-name">' + name + '</div><div class="detail-img-user-name">' + user + '</div></div><div class="img-divider"></div><div class="img-actions"><button class="download-btn"><i class="fa-solid fa-download"></i> Download</button><button class="delete-btn"><i class="fa-solid fa-trash-can"></i> Delete</button></div>';
 
       item.querySelector('.download-btn').onclick = function () {
-        fetch(src).then(function (r) { return r.blob(); }).then(function (blob) {
+        var currentSrc = item.dataset.src || src;
+        if (!currentSrc) {
+            showToast('<i class="fa-solid fa-spinner"></i> Please wait, generating QR...');
+            return;
+        }
+        fetch(currentSrc).then(function (r) { return r.blob(); }).then(function (blob) {
           var url = URL.createObjectURL(blob);
           var a = document.createElement('a'); a.href = url;
           a.download = (user || 'User') + ' (' + (name || 'Image') + ').png';
@@ -1559,7 +1569,7 @@
     }
 
     function addImageToDetail(src, name, user, id, view, isExtra, parentId) {
-      var item = buildImageItem(src, name, user, id, view, isExtra, parentId);
+      var item = buildImageItem(src, name, user, id, view, isExtra, parentId, false);
       detailImages.appendChild(item);
     }
 
@@ -1581,19 +1591,14 @@
       
       renderIdCard(doc);
       
-      // 1. Add QR Placeholder Spinner immediately
-      var spinnerItem = document.createElement('div'); 
-      spinnerItem.className = 'detail-img-item';
-      spinnerItem.id = 'qr-spinner-item';
-      
+      // 1. Add Main Item with Spinner but WITH Download/Delete buttons immediately
+      var mainItem;
       if (qrBgImageUrl) {
-        spinnerItem.innerHTML = '<div class="detail-img-stage" style="width:300px;height:300px;display:flex;align-items:center;justify-content:center;"><div class="qr-local-spinner"></div></div>';
-        detailImages.appendChild(spinnerItem);
+        mainItem = buildImageItem(null, doc.name, doc.user, id, view, false, null, true);
       } else {
-        // If no background template, just show whatever image we have
-        var fallbackItem = buildImageItem(doc.image, doc.name, doc.user, id, view, false, null);
-        detailImages.appendChild(fallbackItem);
+        mainItem = buildImageItem(doc.image, doc.name, doc.user, id, view, false, null, false);
       }
+      detailImages.appendChild(mainItem);
 
       // 2. Add Extra Images IMMEDIATELY (no waiting)
       if (doc.extraImages) {
@@ -1602,7 +1607,7 @@
         });
       }
 
-      // 3. Generate QR in background and replace spinner only
+      // 3. Generate QR in background and replace spinner ONLY inside the stage
       if (qrBgImageUrl) {
         try {
           var qrData = `Church: Hamerenoh\nChristian Name: ${doc.name}\nFirst Name: ${doc.user.split(' ')[0] || ''}\nLast Name: ${doc.user.split(' ')[1] || ''}\nPhone: ${doc.phone}\nGender: ${doc.gender}`;
@@ -1639,22 +1644,28 @@
             cacheView(view, viewDataCache[view]);
           }
           
-          // Replace spinner with actual image
-          var mainItem = buildImageItem(newBase64, doc.name, doc.user, id, view, false, null);
-          if (document.getElementById('qr-spinner-item')) {
-            detailImages.replaceChild(mainItem, document.getElementById('qr-spinner-item'));
-          } else {
-            // Fallback just in case
-            detailImages.insertBefore(mainItem, detailImages.firstChild);
+          // Replace spinner with actual image inside the main item
+          var stage = mainItem.querySelector('.detail-img-stage');
+          if (stage) {
+            stage.style.width = '';
+            stage.style.height = '';
+            stage.style.display = '';
+            stage.innerHTML = '<img src="' + newBase64 + '" alt="' + doc.name + '">';
           }
+          // Set src for download button
+          mainItem.dataset.src = newBase64;
           
           document.body.removeChild(hiddenDiv);
         } catch (e) {
           console.error(e);
-          if (document.getElementById('qr-spinner-item')) {
-            var errItem = buildImageItem(doc.image, doc.name, doc.user, id, view, false, null);
-            detailImages.replaceChild(errItem, document.getElementById('qr-spinner-item'));
+          var stage = mainItem.querySelector('.detail-img-stage');
+          if (stage) {
+            stage.style.width = '';
+            stage.style.height = '';
+            stage.style.display = '';
+            stage.innerHTML = '<img src="' + doc.image + '" alt="' + doc.name + '">';
           }
+          mainItem.dataset.src = doc.image;
         }
       }
     }
