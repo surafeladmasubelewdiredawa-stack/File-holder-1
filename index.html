@@ -246,7 +246,7 @@
     .confirm-btn.yes{background:linear-gradient(135deg,var(--gold),#b8882e);border-color:var(--gold);color:#fff}.confirm-btn.yes:hover{box-shadow:0 4px 16px var(--gold-glow)}
     .upload-overlay{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center}
     .upload-overlay.active{display:flex}
-    .upload-box{background:rgba(20,20,28,.95);border:1px solid var(--border);border-radius:20px;padding:40px 48px;text-align:center;animation:popIn .35s cubic-bezier(.25,.46,.45,.94)}
+    .upload-box{background:rgba(20,20,28,.95);border:1px solid var(--border);border-radius:20px;padding:40px 48px;textail-center;animation:popIn .35s cubic-bezier(.25,.46,.45,.94)}
     .upload-spinner{position:relative;width:70px;height:70px;margin:0 auto 20px}
     .spinner-ring{position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:var(--accent);animation:spinRing 1.2s cubic-bezier(.5,0,.5,1) infinite}
     .spinner-ring:nth-child(2){inset:8px;border-top-color:var(--teal);animation-duration:1.6s;animation-direction:reverse}
@@ -367,22 +367,22 @@
     
     <div class="input-group">
       <label for="christianName">Christian Name (Image Name)</label>
-      <input type="text" id="christianName" placeholder="ስመ-ክርስትና" autocomplete="off" inputmode="text">
+      <input type="text" id="christianName" placeholder="ስመ-ክርስትና" autocomplete="off" inputmode="text" enterkeyhint="next">
     </div>
     
     <div class="input-group">
       <label for="firstName">First Name</label>
-      <input type="text" id="firstName" placeholder="First Name" autocomplete="off" inputmode="text">
+      <input type="text" id="firstName" placeholder="First Name" autocomplete="off" inputmode="text" enterkeyhint="next">
     </div>
     
     <div class="input-group">
       <label for="lastName">Last Name</label>
-      <input type="text" id="lastName" placeholder="Last Name" autocomplete="off" inputmode="text">
+      <input type="text" id="lastName" placeholder="Last Name" autocomplete="off" inputmode="text" enterkeyhint="next">
     </div>
 
     <div class="input-group">
       <label for="phone">Phone Number</label>
-      <input type="tel" id="phone" pattern="[0-9]{10,15}" inputmode="numeric" placeholder="ስልክ ቁጥር" autocomplete="off">
+      <input type="tel" id="phone" pattern="[0-9]{10,15}" inputmode="numeric" placeholder="ስልክ ቁጥር" autocomplete="off" enterkeyhint="next">
     </div>
 
     <div class="class-group">
@@ -402,14 +402,14 @@
     <div class="birthday-group">
       <label><i class="fa-solid fa-cake-candles" style="margin-right:4px;color:var(--gold)"></i> Birthday</label>
       <div class="birthday-row">
-        <div class="b-input"><input type="number" id="birthDay" min="1" max="30" placeholder="Day (1-30)" inputmode="numeric"></div>
+        <div class="b-input"><input type="number" id="birthDay" min="1" max="30" placeholder="Day (1-30)" inputmode="numeric" enterkeyhint="next"></div>
         <div class="b-input">
           <select id="birthMonth">
             <option value="">ወር (Month)</option>
             <option value="1">1 - መስከረም</option><option value="2">2 - ጥቅምት</option><option value="3">3 - ኅዳር</option><option value="4">4 - ታኅሣሥ</option><option value="5">5 - ጥር</option><option value="6">6 - የካቲት</option><option value="7">7 - መጋቢት</option><option value="8">8 - ሚያዝያ</option><option value="9">9 - ግንቦት</option><option value="10">10 - ሰኔ</option><option value="11">11 - ሐምሌ</option><option value="12">12 - ነሐሴ</option><option value="13">13 - ጳጉሜን</option>
           </select>
         </div>
-        <div class="b-input"><input type="number" id="birthYear" min="1890" max="2020" placeholder="Year (E.C.)" inputmode="numeric"></div>
+        <div class="b-input"><input type="number" id="birthYear" min="1890" max="2020" placeholder="Year (E.C.)" inputmode="numeric" enterkeyhint="done"></div>
       </div>
       <div class="age-display" id="ageDisplay"></div>
     </div>
@@ -443,18 +443,19 @@
 
   <div class="overlay detail-overlay" id="detailOverlay"><div class="overlay-bg"></div><div class="anim-box detail-box"><div class="detail-header"><div class="detail-title"><i class="fa-solid fa-images"></i> Image Preview</div><div class="detail-header-right"><button class="add-img-btn" id="addImgBtn"><i class="fa-solid fa-plus"></i> Add Image</button><button class="detail-close" id="detailCloseBtn"><i class="fa-solid fa-xmark"></i></button></div></div><div class="id-card" id="idCard" style="display:none"><div class="id-card-photo" id="idCardPhoto"><i class="fa-solid fa-user"></i></div><div class="id-card-info"><div class="id-card-name" id="idCardName"></div><div class="id-card-bday" id="idCardBday"></div><div class="id-card-age" id="idCardAge"></div></div><button class="id-card-edit-btn" id="idCardEditBtn" title="Edit Info"><i class="fa-solid fa-pen"></i></button></div><div class="detail-images" id="detailImages"></div></div></div>
 
-  <div class="overlay" id="addImgOverlay" style="z-index:145"><div class="overlay-bg"></div><div class="anim-box addimg-box"><div class="addimg-title"><i class="fa-solid fa-plus-circle"></i> Add Image</div><div id="addImgStep1" class="addimg-row"><button class="addimg-opt" id="addImgFileBtn"><i class="fa-solid fa-folder-open" style="color:var(--gold)"></i> Choose File</button><button class="addimg-opt" id="addImgCamBtn"><i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera</button></div><div id="addImgStep2" class="addimg-step2"><div class="preview-stage" id="addImgStage"><img class="addimg-preview" id="addImgPreview" src="" alt="New image"></div><div class="preview-actions" style="width:80vw; justify-content:center"><button class="preview-btn edit-btn" id="addImgEditBtn"><i class="fa-solid fa-crop-simple"></i> Edit</button><button class="preview-btn next-btn" id="addImgNextBtn"><i class="fa-solid fa-arrow-right"></i> Next</button></div></div><div id="addImgStep3" class="addimg-step2"><div class="addimg-thumb-row"><img class="addimg-thumb" id="addImgThumb" src="" alt="Preview"><span class="addimg-thumb-label">Name this image</span></div><div class="input-group"><label for="addImgNameInput">Image Name</label><input type="text" id="addImgNameInput" placeholder="Enter image name..."><div class="error-msg" id="addImgNameError"></div></div><button class="finished-btn" id="addImgSaveBtn" disabled><i class="fa-solid fa-check"></i> Save Image</button></div><button class="addimg-cancel" id="addImgCancelBtn">Cancel</button></div></div>
+  <div class="overlay" id="addImgOverlay" style="z-index:145"><div class="overlay-bg"></div><div class="anim-box addimg-box"><div class="addimg-title"><i class="fa-solid fa-plus-circle"></i> Add Image</div><div id="addImgStep1" class="addimg-row"><button class="addimg-opt" id="addImgFileBtn"><i class="fa-solid fa-folder-open" style="color:var(--gold)"></i> Choose File</button><button class="addimg-opt" id="addImgCamBtn"><i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera</button></div><div id="addImgStep2" class="addimg-step2"><div class="preview-stage" id="addImgStage"><img class="addimg-preview" id="addImgPreview" src="" alt="New image"></div><div class="preview-actions" style="width:80vw; justify-content:center"><button class="preview-btn edit-btn" id="addImgEditBtn"><i class="fa-solid fa-crop-simple"></i> Edit</button><button class="preview-btn next-btn" id="addImgNextBtn"><i class="fa-solid fa-arrow-right"></i> Next</button></div></div><div id="addImgStep3" class="addimg-step2"><div class="addimg-thumb-row"><img class="addimg-thumb" id="addImgThumb" src="" alt="Preview"><span class="addimg-thumb-label">Name this image</span></div><div class="input-group"><label for="addImgNameInput">Image Name</label><input type="text" id="addImgNameInput" placeholder="Enter image name..." enterkeyhint="done"><div class="error-msg" id="addImgNameError"></div></div><button class="finished-btn" id="addImgSaveBtn" disabled><i class="fa-solid fa-check"></i> Save Image</button></div><button class="addimg-cancel" id="addImgCancelBtn">Cancel</button></div></div>
 
   <div class="overlay" id="moveOverlay" style="z-index:130"><div class="overlay-bg"></div><div class="anim-box popup-box"><div class="popup-title"><i class="fa-solid fa-arrows-up-down-left-right"></i> Move To</div><div id="moveOptions" style="display:flex;flex-direction:column;gap:8px"></div><button class="login-btn" id="moveCancelBtn" style="background:transparent;border:1px solid var(--border);color:var(--muted)">Cancel</button></div></div>
 
   <!-- Edit Personal Info Overlay -->
   <div class="overlay" id="editInfoOverlay" style="z-index:150"><div class="overlay-bg"></div><div class="anim-box save-box" style="max-height:85vh;overflow-y:auto">
     <div class="save-box-title"><i class="fa-solid fa-user-pen"></i> Edit Personal Info</div>
-    <div class="input-group"><label for="editFirstName">First Name</label><input type="text" id="editFirstName" placeholder="First Name"></div>
-    <div class="input-group"><label for="editLastName">Last Name</label><input type="text" id="editLastName" placeholder="Last Name"></div>
-    <div class="input-group"><label for="editPhone">Phone Number</label><input type="tel" id="editPhone" placeholder="Phone"></div>
+    <div class="input-group"><label for="editChristianName">Christian Name</label><input type="text" id="editChristianName" placeholder="Christian Name" enterkeyhint="next"></div>
+    <div class="input-group"><label for="editFirstName">First Name</label><input type="text" id="editFirstName" placeholder="First Name" enterkeyhint="next"></div>
+    <div class="input-group"><label for="editLastName">Last Name</label><input type="text" id="editLastName" placeholder="Last Name" enterkeyhint="next"></div>
+    <div class="input-group"><label for="editPhone">Phone Number</label><input type="tel" id="editPhone" placeholder="Phone" enterkeyhint="next"></div>
     <div class="class-group"><label style="text-align: center;">ጾታ</label><div class="radio-pill-container"><div class="radio-pill"><input type="radio" id="edit-gender-male" name="editGender" value="Male"><label for="edit-gender-male">Male</label></div><div class="radio-pill"><input type="radio" id="edit-gender-female" name="editGender" value="Female"><label for="edit-gender-female">Female</label></div></div></div>
-    <div class="birthday-group"><label><i class="fa-solid fa-cake-candles" style="margin-right:4px;color:var(--gold)"></i> Birthday</label><div class="birthday-row"><div class="b-input"><input type="number" id="editBirthDay" min="1" max="30" placeholder="Day (1-30)"></div><div class="b-input"><select id="editBirthMonth"><option value="">ወር (Month)</option><option value="1">1 - መስከረም</option><option value="2">2 - ጥቅምት</option><option value="3">3 - ኅዳር</option><option value="4">4 - ታኅሣሥ</option><option value="5">5 - ጥር</option><option value="6">6 - የካቲት</option><option value="7">7 - መጋቢት</option><option value="8">8 - ሚያዝያ</option><option value="9">9 - ግንቦት</option><option value="10">10 - ሰኔ</option><option value="11">11 - ሐምሌ</option><option value="12">12 - ነሐሴ</option><option value="13">13 - ጳጉሜን</option></select></div><div class="b-input"><input type="number" id="editBirthYear" min="1890" max="2020" placeholder="Year (E.C.)"></div></div></div>
+    <div class="birthday-group"><label><i class="fa-solid fa-cake-candles" style="margin-right:4px;color:var(--gold)"></i> Birthday</label><div class="birthday-row"><div class="b-input"><input type="number" id="editBirthDay" min="1" max="30" placeholder="Day (1-30)" enterkeyhint="next"></div><div class="b-input"><select id="editBirthMonth"><option value="">ወር (Month)</option><option value="1">1 - መስከረም</option><option value="2">2 - ጥቅምት</option><option value="3">3 - ኅዳር</option><option value="4">4 - ታኅሣሥ</option><option value="5">5 - ጥር</option><option value="6">6 - የካቲት</option><option value="7">7 - መጋቢት</option><option value="8">8 - ሚያዝያ</option><option value="9">9 - ግንቦት</option><option value="10">10 - ሰኔ</option><option value="11">11 - ሐምሌ</option><option value="12">12 - ነሐሴ</option><option value="13">13 - ጳጉሜን</option></select></div><div class="b-input"><input type="number" id="editBirthYear" min="1890" max="2020" placeholder="Year (E.C.)" enterkeyhint="done"></div></div></div>
     
     <div class="photo-section">
       <label><i class="fa-solid fa-id-card" style="margin-right:4px;color:var(--gold)"></i> Personal Photo</label>
@@ -474,9 +475,9 @@
   <!-- Edit Name Overlay (Name Config) -->
   <div class="overlay" id="editNameOverlay" style="z-index:150"><div class="overlay-bg"></div><div class="anim-box popup-box" style="width:350px">
     <div class="popup-title"><i class="fa-solid fa-pen-ruler"></i> Edit Name Tag</div>
-    <div class="input-group" style="margin-top:10px"><label for="editNameText">Display Name</label><input type="text" id="editNameText" placeholder="Name on Image"></div>
+    <div class="input-group" style="margin-top:10px"><label for="editNameText">Display Name</label><input type="text" id="editNameText" placeholder="Name on Image" enterkeyhint="done"></div>
     <div class="input-group" style="margin-top:10px"><label>Font Color</label><input type="color" id="editNameColor" value="#000000" style="width:100%;height:40px;border:none;background:transparent;cursor:pointer"></div>
-    <div class="input-group" style="margin-top:10px"><label>Font Size</label><input type="number" id="editNameSize" value="16" style="width:100%"></div>
+    <div class="input-group" style="margin-top:10px"><label>Font Size</label><input type="number" id="editNameSize" value="16" style="width:100%" enterkeyhint="done"></div>
     <div class="save-action-row" style="margin-top:16px">
       <button class="cancel-mini-btn" id="editNameCancelBtn" type="button"><i class="fa-solid fa-xmark"></i> Cancel</button>
       <button class="finished-btn" id="editNameApplyBtn"><i class="fa-solid fa-check"></i> Apply</button>
@@ -1057,6 +1058,26 @@
       finishedBtn.disabled = !(cName && fName && lName && phone && gender && targetClass && bdayValid);
     }
 
+    // Handle Next Button on Keyboard for Save Overlay
+    function handleEnterKey(e, nextElementId) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        var nextEl = document.getElementById(nextElementId);
+        if (nextEl) nextEl.focus();
+      }
+    }
+    christianNameInput.addEventListener('keydown', function(e) { handleEnterKey(e, 'firstName'); });
+    firstNameInput.addEventListener('keydown', function(e) { handleEnterKey(e, 'lastName'); });
+    lastNameInput.addEventListener('keydown', function(e) { handleEnterKey(e, 'phone'); });
+    phoneInput.addEventListener('keydown', function(e) { handleEnterKey(e, 'birthDay'); });
+    document.getElementById('birthDay').addEventListener('keydown', function(e) { handleEnterKey(e, 'birthYear'); });
+
+    document.getElementById('editChristianName').addEventListener('keydown', function(e) { handleEnterKey(e, 'editFirstName'); });
+    document.getElementById('editFirstName').addEventListener('keydown', function(e) { handleEnterKey(e, 'editLastName'); });
+    document.getElementById('editLastName').addEventListener('keydown', function(e) { handleEnterKey(e, 'editPhone'); });
+    document.getElementById('editPhone').addEventListener('keydown', function(e) { handleEnterKey(e, 'editBirthDay'); });
+    document.getElementById('editBirthDay').addEventListener('keydown', function(e) { handleEnterKey(e, 'editBirthYear'); });
+
     christianNameInput.addEventListener('input', validateSave);
     firstNameInput.addEventListener('input', validateSave);
     lastNameInput.addEventListener('input', validateSave);
@@ -1395,7 +1416,9 @@
 
           const bgImg = document.getElementById('qr-background-image');
           if (bgImg && qrBgImageUrl) {
-            var qrData = `Church: Hamerenoh\nChristian Name: ${doc.name}\nFirst Name: ${doc.user.split(' ')[0] || ''}\nLast Name: ${doc.user.split(' ')[1] || ''}\nPhone: ${doc.phone}\nGender: ${doc.gender}`;
+            var docName = doc.name || '';
+            var docUser = doc.user || '';
+            var qrData = `Church: Hamerenoh\nChristian Name: ${docName}\nFirst Name: ${docUser.split(' ')[0] || ''}\nLast Name: ${docUser.split(' ')[1] || ''}\nPhone: ${doc.phone || ''}\nGender: ${doc.gender || ''}`;
             var tempQr = createQrInstance(qrData);
             var hiddenDiv = document.createElement('div');
             hiddenDiv.style.display = 'none';
@@ -1526,11 +1549,14 @@
       var item = document.createElement('div'); 
       item.className = 'detail-img-item';
       
+      var safeName = name || 'Unnamed';
+      var safeUser = user || '';
+      
       var stageHtml = isLoading 
           ? '<div class="detail-img-stage" style="width:300px;height:300px;display:flex;align-items:center;justify-content:center;"><div class="qr-local-spinner"></div></div>'
-          : '<div class="detail-img-stage"><img src="' + src + '" alt="' + name + '"></div>';
+          : '<div class="detail-img-stage"><img src="' + src + '" alt="' + safeName + '"></div>';
 
-      item.innerHTML = stageHtml + '<div class="detail-img-name-block"><div class="detail-img-main-name">' + name + '</div><div class="detail-img-user-name">' + user + '</div></div><div class="img-divider"></div><div class="img-actions"><button class="download-btn"><i class="fa-solid fa-download"></i> Download</button><button class="delete-btn"><i class="fa-solid fa-trash-can"></i> Delete</button></div>';
+      item.innerHTML = stageHtml + '<div class="detail-img-name-block"><div class="detail-img-main-name">' + safeName + '</div><div class="detail-img-user-name">' + safeUser + '</div></div><div class="img-divider"></div><div class="img-actions"><button class="download-btn"><i class="fa-solid fa-download"></i> Download</button><button class="delete-btn"><i class="fa-solid fa-trash-can"></i> Delete</button></div>';
 
       item.querySelector('.download-btn').onclick = function () {
         var currentSrc = item.dataset.src || src;
@@ -1541,7 +1567,7 @@
         fetch(currentSrc).then(function (r) { return r.blob(); }).then(function (blob) {
           var url = URL.createObjectURL(blob);
           var a = document.createElement('a'); a.href = url;
-          a.download = (user || 'User') + ' (' + (name || 'Image') + ').png';
+          a.download = (safeUser || 'User') + ' (' + (safeName || 'Image') + ').png';
           document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
         });
       };
@@ -1623,7 +1649,9 @@
       // 3. Generate QR in background and replace spinner ONLY inside the stage
       if (qrBgImageUrl) {
         try {
-          var qrData = `Church: Hamerenoh\nChristian Name: ${doc.name}\nFirst Name: ${doc.user.split(' ')[0] || ''}\nLast Name: ${doc.user.split(' ')[1] || ''}\nPhone: ${doc.phone}\nGender: ${doc.gender}`;
+          var docName = doc.name || '';
+          var docUser = doc.user || '';
+          var qrData = `Church: Hamerenoh\nChristian Name: ${docName}\nFirst Name: ${docUser.split(' ')[0] || ''}\nLast Name: ${docUser.split(' ')[1] || ''}\nPhone: ${doc.phone || ''}\nGender: ${doc.gender || ''}`;
           
           var tempQr = createQrInstance(qrData);
           var hiddenDiv = document.createElement('div');
@@ -1663,7 +1691,7 @@
             stage.style.width = '';
             stage.style.height = '';
             stage.style.display = '';
-            stage.innerHTML = '<img src="' + newBase64 + '" alt="' + doc.name + '">';
+            stage.innerHTML = '<img src="' + newBase64 + '" alt="' + docName + '">';
           }
           // Set src for download button
           mainItem.dataset.src = newBase64;
@@ -1676,7 +1704,7 @@
             stage.style.width = '';
             stage.style.height = '';
             stage.style.display = '';
-            stage.innerHTML = '<img src="' + doc.image + '" alt="' + doc.name + '">';
+            stage.innerHTML = '<img src="' + doc.image + '" alt="' + (doc.name || '') + '">';
           }
           mainItem.dataset.src = doc.image;
         }
@@ -1718,6 +1746,7 @@
         var doc = viewDataCache[currentDetailView] ? viewDataCache[currentDetailView][currentDetailId] : null;
         if (!doc) return;
 
+        document.getElementById('editChristianName').value = doc.name || '';
         document.getElementById('editFirstName').value = doc.user.split(' ')[0] || '';
         document.getElementById('editLastName').value = doc.user.split(' ').slice(1).join(' ') || '';
         document.getElementById('editPhone').value = doc.phone || '';
@@ -1751,6 +1780,7 @@
     });
 
     document.getElementById('editInfoSaveBtn').addEventListener('click', async function() {
+      var cName = document.getElementById('editChristianName').value.trim();
       var fName = document.getElementById('editFirstName').value.trim();
       var lName = document.getElementById('editLastName').value.trim();
       var phone = document.getElementById('editPhone').value.trim();
@@ -1767,7 +1797,7 @@
       
       try {
         var doc = viewDataCache[currentDetailView][currentDetailId];
-        var newQrData = `Church: Hamerenoh\nChristian Name: ${doc.name}\nFirst Name: ${fName}\nLast Name: ${lName}\nPhone: ${phone}\nGender: ${gender}`;
+        var newQrData = `Church: Hamerenoh\nChristian Name: ${cName}\nFirst Name: ${fName}\nLast Name: ${lName}\nPhone: ${phone}\nGender: ${gender}`;
         
         var tempQr = createQrInstance(newQrData);
         var hiddenDiv = document.createElement('div');
@@ -1799,6 +1829,7 @@
         var finalPhoto = editPersonalPhotoData !== null ? editPersonalPhotoData : doc.personalPhoto;
 
         var updates = {
+          name: cName,
           user: fullName,
           phone: phone,
           gender: gender,
