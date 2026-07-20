@@ -291,7 +291,7 @@
     .id-card-bday{font-size:.76rem;color:var(--muted);font-family:'Space Grotesk',sans-serif;line-height:1.4}
     .id-card-bday span{color:var(--fg);font-weight:500}
     .id-card-age{font-size:.73rem;color:var(--teal);font-weight:600;font-family:'Space Grotesk',sans-serif}
-    .id-card-edit-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:1px solid var(--gold);background:rgba(212,160,60,.1);color:var(--gold);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .id-card-edit-btn{position:absolute;bottom:8px;right:8px;width:24px;height:24px;border-radius:50%;border:1px solid var(--gold);background:rgba(212,160,60,.1);color:var(--gold);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:.7rem}
     .id-card-edit-btn:hover{background:var(--gold);color:#fff}
 
     @media(max-width:580px){.btn-grid{grid-template-columns:1fr;max-width:300px}.doc-btn{padding:14px 20px}.save-box,.table-box,.detail-box,.popup-box,.addimg-box{padding:20px}.select-bar{gap:6px}.sel-btn{padding:6px 8px;font-size:.7rem}.img-actions{flex-direction:row;gap:8px;justify-content:center}.delete-btn,.download-btn{padding:8px 14px;font-size:.76rem}.birthday-row{flex-direction:column;gap:6px}.id-card{padding:10px 12px;gap:10px}.id-card-photo{width:50px;height:64px;font-size:1.1rem}}
@@ -342,6 +342,7 @@
   
   <input type="file" id="addImgFileInput" accept="image/*" style="display:none">
   <input type="file" id="personalPhotoInput" accept="image/*" style="display:none">
+  <input type="file" id="editPhotoInput" accept="image/*" style="display:none">
   <div class="camera-overlay" id="cameraOverlay"><video id="cameraVideo" autoplay playsinline></video><div class="camera-controls"><button class="cam-btn close-cam" id="closeCamBtn"><i class="fa-solid fa-xmark"></i></button><button class="cam-btn capture" id="captureBtn"><i class="fa-solid fa-camera"></i></button></div></div>
 
   <div class="overlay preview-overlay" id="previewOverlay"><div class="overlay-bg"></div>
@@ -443,7 +444,7 @@
 
   <div class="overlay" id="moveOverlay" style="z-index:130"><div class="overlay-bg"></div><div class="anim-box popup-box"><div class="popup-title"><i class="fa-solid fa-arrows-up-down-left-right"></i> Move To</div><div id="moveOptions" style="display:flex;flex-direction:column;gap:8px"></div><button class="login-btn" id="moveCancelBtn" style="background:transparent;border:1px solid var(--border);color:var(--muted)">Cancel</button></div></div>
 
-  <!-- NEW: Edit Personal Info Overlay -->
+  <!-- Edit Personal Info Overlay -->
   <div class="overlay" id="editInfoOverlay" style="z-index:150"><div class="overlay-bg"></div><div class="anim-box save-box" style="max-height:85vh;overflow-y:auto">
     <div class="save-box-title"><i class="fa-solid fa-user-pen"></i> Edit Personal Info</div>
     <div class="input-group"><label for="editFirstName">First Name</label><input type="text" id="editFirstName" placeholder="First Name"></div>
@@ -451,13 +452,21 @@
     <div class="input-group"><label for="editPhone">Phone Number</label><input type="tel" id="editPhone" placeholder="Phone"></div>
     <div class="class-group"><label style="text-align: center;">ጾታ</label><div class="radio-pill-container"><div class="radio-pill"><input type="radio" id="edit-gender-male" name="editGender" value="Male"><label for="edit-gender-male">Male</label></div><div class="radio-pill"><input type="radio" id="edit-gender-female" name="editGender" value="Female"><label for="edit-gender-female">Female</label></div></div></div>
     <div class="birthday-group"><label><i class="fa-solid fa-cake-candles" style="margin-right:4px;color:var(--gold)"></i> Birthday</label><div class="birthday-row"><div class="b-input"><input type="number" id="editBirthDay" min="1" max="30" placeholder="Day (1-30)"></div><div class="b-input"><select id="editBirthMonth"><option value="">ወር (Month)</option><option value="1">1 - መስከረም</option><option value="2">2 - ጥቅምት</option><option value="3">3 - ኅዳር</option><option value="4">4 - ታኅሣሥ</option><option value="5">5 - ጥር</option><option value="6">6 - የካቲት</option><option value="7">7 - መጋቢት</option><option value="8">8 - ሚያዝያ</option><option value="9">9 - ግንቦት</option><option value="10">10 - ሰኔ</option><option value="11">11 - ሐምሌ</option><option value="12">12 - ነሐሴ</option><option value="13">13 - ጳጉሜን</option></select></div><div class="b-input"><input type="number" id="editBirthYear" min="1890" max="2020" placeholder="Year (E.C.)"></div></div></div>
+    <div class="photo-section">
+      <label><i class="fa-solid fa-id-card" style="margin-right:4px;color:var(--gold)"></i> Personal Photo</label>
+      <div class="photo-row">
+        <button class="photo-opt-btn" id="editPhotoFileBtn"><i class="fa-solid fa-folder-open" style="color:var(--gold)"></i> File</button>
+        <button class="photo-opt-btn" id="editPhotoCamBtn"><i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera</button>
+        <div class="photo-thumb-wrap" id="editPhotoWrap"><img id="editPhotoPreview" alt="Photo"><button class="photo-remove-btn" id="editPhotoRemoveBtn"><i class="fa-solid fa-xmark"></i></button></div>
+      </div>
+    </div>
     <div class="save-action-row">
       <button class="cancel-mini-btn" id="editInfoCancelBtn" type="button"><i class="fa-solid fa-xmark"></i> Cancel</button>
       <button class="finished-btn" id="editInfoSaveBtn"><i class="fa-solid fa-check"></i> Save Changes</button>
     </div>
   </div></div>
 
-  <!-- NEW: Edit Name Overlay (Name Config) -->
+  <!-- Edit Name Overlay (Name Config) -->
   <div class="overlay" id="editNameOverlay" style="z-index:150"><div class="overlay-bg"></div><div class="anim-box popup-box" style="width:350px">
     <div class="popup-title"><i class="fa-solid fa-pen-ruler"></i> Edit Name Tag</div>
     <div class="input-group" style="margin-top:10px"><label for="editNameText">Display Name</label><input type="text" id="editNameText" placeholder="Name on Image"></div>
@@ -650,7 +659,6 @@
       imageOptions: { crossOrigin: "anonymous", margin: 6 }
     });
 
-    // Function to generate a unique QR code instance for download
     function createQrInstance(data) {
       return new QRCodeStyling({
         width: DOWNLOAD_QR_WIDTH, height: DOWNLOAD_QR_HEIGHT, type: "canvas",
@@ -717,6 +725,7 @@
     var currentProcessedImage = null, targetClass = null;
     var currentDetailId = null, currentDetailView = null, newExtraImg = null;
     var personalPhotoData = null, personalPhotoMode = false;
+    var editPhotoMode = false, editPhotoData = null;
     var ethMonthNames = ['','መስከረም','ጥቅምት','ኅዳር','ታኅሣሥ','ጥር','የካቲት','መጋቢት','ሚያዝያ','ግንቦት','ሰኔ','ሐምሌ','ነሐሴ','ጳጉሜ'];
     function gregorianToEthiopian(gy, gm, gd) {
       var ethEpoch = 1724221;
@@ -937,6 +946,9 @@
       if (personalPhotoMode) {
         personalPhotoMode = false;
         setPersonalPhoto(captureCanvas.toDataURL('image/jpeg', 0.85));
+      } else if (editPhotoMode) {
+        editPhotoMode = false;
+        setEditPhoto(captureCanvas.toDataURL('image/jpeg', 0.85));
       } else {
         processAddImg(captureCanvas.toDataURL('image/jpeg', 0.85));
       }
@@ -989,6 +1001,33 @@
     document.getElementById('personalCamBtn').addEventListener('click', function() { personalPhotoMode = true; openCam(); });
     document.getElementById('personalPhotoRemoveBtn').addEventListener('click', function(e) { e.stopPropagation(); clearPersonalPhoto(); });
 
+    // Edit Photo Logic
+    function setEditPhoto(src) {
+      editPhotoData = src;
+      document.getElementById('editPhotoPreview').src = src;
+      document.getElementById('editPhotoWrap').classList.add('visible');
+      document.getElementById('editPhotoFileBtn').innerHTML = '<i class="fa-solid fa-pen" style="color:var(--gold)"></i> Change';
+      document.getElementById('editPhotoCamBtn').innerHTML = '<i class="fa-solid fa-camera" style="color:var(--accent)"></i> Retake';
+    }
+    function clearEditPhoto() {
+      editPhotoData = null;
+      document.getElementById('editPhotoWrap').classList.remove('visible');
+      document.getElementById('editPhotoPreview').src = '';
+      document.getElementById('editPhotoFileBtn').innerHTML = '<i class="fa-solid fa-folder-open" style="color:var(--gold)"></i> File';
+      document.getElementById('editPhotoCamBtn').innerHTML = '<i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera';
+    }
+    document.getElementById('editPhotoFileBtn').addEventListener('click', function() { document.getElementById('editPhotoInput').click(); });
+    document.getElementById('editPhotoInput').addEventListener('change', function(e) {
+      if (e.target.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(ev) { setEditPhoto(ev.target.result); };
+        reader.readAsDataURL(e.target.files[0]);
+      }
+      e.target.value = '';
+    });
+    document.getElementById('editPhotoCamBtn').addEventListener('click', function() { editPhotoMode = true; openCam(); });
+    document.getElementById('editPhotoRemoveBtn').addEventListener('click', function(e) { e.stopPropagation(); clearEditPhoto(); });
+
     var christianNameInput = document.getElementById('christianName'),
       firstNameInput = document.getElementById('firstName'),
       lastNameInput = document.getElementById('lastName'),
@@ -1027,7 +1066,6 @@
       showToast('<i class="fa-solid fa-xmark"></i> Cancelled', 1500);
     });
 
-    // Function to draw the overlay dynamically based on NAME_CONFIG
     function drawDynamicOverlay(ctx, doc, d, c, bw) {
         if (!doc.user) return;
         ctx.font = `${NAME_CONFIG.fontWeight} ${d.fontSize}px ${NAME_CONFIG.fontFamily}`;
@@ -1088,7 +1126,7 @@
         ctx.fillText(doc.user, d.left, d.top);
     }
 
-    // MODIFIED: Save logic simplified - no longer generates QR code here. Only uploads raw template.
+    // Modified: No popup generating QR, just saving plain template image
     finishedBtn.addEventListener('click', async function () {
       var cName = christianNameInput.value.trim();
       var fName = firstNameInput.value.trim();
@@ -1102,8 +1140,6 @@
       if (!imgSrc) { showToast('<i class="fa-solid fa-triangle-exclamation"></i> Template loading, try again', 2000); return; }
 
       document.getElementById('saveOverlay').classList.remove('active');
-      uploadText.textContent = 'Saving Info...'; uploadSub.textContent = 'Please wait';
-      uploadOfflineNote.style.display = 'none'; uploadOverlay.classList.add('active');
       
       try {
         var fullName = `${fName} ${lName}`;
@@ -1136,23 +1172,18 @@
         cacheView(targetClass, cached);
 
         if (result.offline) {
-          uploadOfflineNote.style.display = 'flex';
-          uploadText.textContent = 'Saved locally'; uploadSub.textContent = 'Will sync to cloud when online';
-          setTimeout(function () { uploadOverlay.classList.remove('active'); }, 1500);
           showToast('<i class="fa-solid fa-wifi-slash"></i> Saved offline - will sync');
         } else {
-          uploadOverlay.classList.remove('active');
           showToast('<i class="fa-solid fa-check-circle"></i> Saved successfully!');
         }
 
         if (activeView === targetClass) renderTable(targetClass);
         updateBadges();
         
-        // Automatically open Image Preview to generate QR
+        // Automatically open Image Preview to generate QR instantly
         openDetail(targetClass, newId, entry);
       } catch (e) { 
         console.error(e); showToast('<i class="fa-solid fa-triangle-exclamation"></i> Error saving'); 
-        uploadOverlay.classList.remove('active'); 
       }
     });
 
@@ -1484,11 +1515,8 @@
       
       renderIdCard(doc);
       
-      // NEW: Generate QR code and render the main image dynamically here
+      // Generate QR directly in the image space instead of showing popup
       if (qrBgImageUrl) {
-        uploadText.textContent = 'Generating QR...'; uploadSub.textContent = 'Please wait';
-        uploadOverlay.classList.add('active');
-        
         try {
           var qrData = `Church: Hamerenoh\nChristian Name: ${doc.name}\nFirst Name: ${doc.user.split(' ')[0] || ''}\nLast Name: ${doc.user.split(' ')[1] || ''}\nPhone: ${doc.phone}\nGender: ${doc.gender}`;
           
@@ -1516,9 +1544,8 @@
 
           var newBase64 = c.toDataURL('image/png');
           
-          // Update DB if the image wasn't generated before
+          // Save generated image if it was missing before
           if (doc.image && doc.image.length < 5000) {
-            var updates = { image: newBase64 };
             await restPatch({ [view + '/' + id + '/image']: newBase64 });
             doc.image = newBase64;
             if (viewDataCache[view] && viewDataCache[view][id]) viewDataCache[view][id].image = newBase64;
@@ -1526,12 +1553,10 @@
           }
           
           addImageToDetail(newBase64, doc.name, doc.user, id, view);
-          uploadOverlay.classList.remove('active');
           
           document.body.removeChild(hiddenDiv);
         } catch (e) {
           console.error(e);
-          uploadOverlay.classList.remove('active');
           addImageToDetail(doc.image, doc.name, doc.user, id, view);
         }
       } else {
@@ -1549,7 +1574,8 @@
       isExtra = isExtra || false; parentId = parentId || null;
       var item = document.createElement('div'); 
       item.className = 'detail-img-item';
-      item.innerHTML = '<div class="detail-img-stage"><img src="' + src + '" alt="' + name + '"></div><div class="detail-img-name-block"><div class="detail-img-main-name">' + name + '</div><div class="detail-img-user-name">' + user + '</div></div><div class="img-divider"></div><div class="img-actions"><button class="download-btn"><i class="fa-solid fa-download"></i> Download</button><button class="delete-btn"><i class="fa-solid fa-trash-can"></i> Delete</button>' + (isExtra ? '' : '<button class="edit-name-btn preview-btn" style="background:rgba(212,160,60,.15);border-color:var(--gold);color:var(--gold)"><i class="fa-solid fa-pen-ruler"></i> Edit Name Tag</button>') + '</div>';
+      // Edit Name Tag button removed completely as requested
+      item.innerHTML = '<div class="detail-img-stage"><img src="' + src + '" alt="' + name + '"></div><div class="detail-img-name-block"><div class="detail-img-main-name">' + name + '</div><div class="detail-img-user-name">' + user + '</div></div><div class="img-divider"></div><div class="img-actions"><button class="download-btn"><i class="fa-solid fa-download"></i> Download</button><button class="delete-btn"><i class="fa-solid fa-trash-can"></i> Delete</button></div>';
 
       item.querySelector('.download-btn').onclick = function () {
         fetch(src).then(function (r) { return r.blob(); }).then(function (blob) {
@@ -1560,48 +1586,8 @@
         });
       };
 
-      if (!isExtra) {
-        item.querySelector('.edit-name-btn').onclick = function() {
-          openEditNameOverlay(user, function(newName, newColor, newSize) {
-            NAME_CONFIG.DOWNLOAD.fontColor = newColor;
-            NAME_CONFIG.DOWNLOAD.fontSize = parseInt(newSize);
-            
-            const bgImg = document.getElementById('qr-background-image');
-            const c = document.createElement('canvas');
-            const ctx = c.getContext('2d');
-            c.width = bgImg.naturalWidth || bgImg.width;
-            c.height = bgImg.naturalHeight || bgImg.height;
-            ctx.drawImage(bgImg, 0, 0, c.width, c.height);
-            
-            var qrCanvas = document.querySelector('#qr-hidden-container canvas');
-            if (qrCanvas) ctx.drawImage(qrCanvas, QR_LEFT, QR_TOP, DOWNLOAD_QR_WIDTH, DOWNLOAD_QR_HEIGHT);
-
-            const d = NAME_CONFIG.DOWNLOAD;
-            const cc = d.borderColors;
-            const bw = d.borderWidth;
-            var dummyDoc = { user: newName };
-            drawDynamicOverlay(ctx, dummyDoc, d, cc, bw);
-
-            var newBase64 = c.toDataURL('image/png');
-            item.querySelector('img').src = newBase64;
-
-            // Update DB
-            var updates = { user: newName, image: newBase64 };
-            restPatch({ [view + '/' + id + '/user']: newName, [view + '/' + id + '/image']: newBase64 });
-            if (viewDataCache[view] && viewDataCache[view][id]) {
-              viewDataCache[view][id].user = newName;
-              viewDataCache[view][id].image = newBase64;
-              cacheView(view, viewDataCache[view]);
-            }
-            renderIdCard(viewDataCache[view][id]);
-            if (activeView === view) renderTable(view);
-            showToast('<i class="fa-solid fa-check"></i> Name Tag updated!');
-          });
-        };
-      }
-
       item.querySelector('.delete-btn').onclick = function () {
-        requireAuth(async function () {
+        requireAuth(async function () { // Password required for deletion
           try {
             var delPath = isExtra ? (view + '/' + parentId + '/extraImages/' + id) : (view + '/' + id);
             var delResult = await restDelete(delPath);
@@ -1663,29 +1649,40 @@
       document.getElementById('idCard').style.display = 'none';
     });
 
-    // --- NEW: Edit Info Logic ---
+    // --- Edit Info Logic ---
     document.getElementById('idCardEditBtn').addEventListener('click', function() {
-      var doc = viewDataCache[currentDetailView] ? viewDataCache[currentDetailView][currentDetailId] : null;
-      if (!doc) return;
+      requireAuth(function() { // Ask password before opening edit info
+        var doc = viewDataCache[currentDetailView] ? viewDataCache[currentDetailView][currentDetailId] : null;
+        if (!doc) return;
 
-      document.getElementById('editFirstName').value = doc.user.split(' ')[0] || '';
-      document.getElementById('editLastName').value = doc.user.split(' ').slice(1).join(' ') || '';
-      document.getElementById('editPhone').value = doc.phone || '';
-      document.querySelectorAll('input[name="editGender"]').forEach(function(el) { 
-        el.checked = (el.value === doc.gender); 
+        document.getElementById('editFirstName').value = doc.user.split(' ')[0] || '';
+        document.getElementById('editLastName').value = doc.user.split(' ').slice(1).join(' ') || '';
+        document.getElementById('editPhone').value = doc.phone || '';
+        document.querySelectorAll('input[name="editGender"]').forEach(function(el) { 
+          el.checked = (el.value === doc.gender); 
+        });
+        
+        if (doc.birthday) {
+          document.getElementById('editBirthDay').value = doc.birthday.day || '';
+          document.getElementById('editBirthMonth').value = doc.birthday.month || '';
+          document.getElementById('editBirthYear').value = doc.birthday.year || '';
+        } else {
+          document.getElementById('editBirthDay').value = '';
+          document.getElementById('editBirthMonth').value = '';
+          document.getElementById('editBirthYear').value = '';
+        }
+
+        // Preload existing photo
+        editPhotoData = doc.personalPhoto || null;
+        if (editPhotoData) {
+          document.getElementById('editPhotoPreview').src = editPhotoData;
+          document.getElementById('editPhotoWrap').classList.add('visible');
+        } else {
+          clearEditPhoto();
+        }
+        
+        document.getElementById('editInfoOverlay').classList.add('active');
       });
-      
-      if (doc.birthday) {
-        document.getElementById('editBirthDay').value = doc.birthday.day || '';
-        document.getElementById('editBirthMonth').value = doc.birthday.month || '';
-        document.getElementById('editBirthYear').value = doc.birthday.year || '';
-      } else {
-        document.getElementById('editBirthDay').value = '';
-        document.getElementById('editBirthMonth').value = '';
-        document.getElementById('editBirthYear').value = '';
-      }
-      
-      document.getElementById('editInfoOverlay').classList.add('active');
     });
 
     document.getElementById('editInfoCancelBtn').addEventListener('click', function() {
@@ -1703,9 +1700,9 @@
       
       var fullName = `${fName} ${lName}`.trim();
       var bday = (bd && bm && by) ? { day: bd, month: bm, monthName: ethMonthNames[bm], year: by } : null;
-
-      uploadText.textContent = 'Updating Info...'; uploadSub.textContent = 'Please wait';
-      uploadOverlay.classList.add('active');
+      
+      // If no new photo was selected, keep the old one
+      var finalPhotoData = editPhotoData || null;
       
       try {
         var doc = viewDataCache[currentDetailView][currentDetailId];
@@ -1742,7 +1739,8 @@
           phone: phone,
           gender: gender,
           birthday: bday,
-          image: newBase64
+          image: newBase64,
+          personalPhoto: finalPhotoData
         };
         
         await restPatch({ [currentDetailView + '/' + currentDetailId]: updates });
@@ -1751,38 +1749,14 @@
         cacheView(currentDetailView, viewDataCache[currentDetailView]);
         
         document.getElementById('editInfoOverlay').classList.remove('active');
-        uploadOverlay.classList.remove('active');
         
         openDetail(currentDetailView, currentDetailId, doc);
         showToast('<i class="fa-solid fa-check"></i> Info & QR updated successfully!');
       } catch (e) {
         console.error(e);
-        uploadOverlay.classList.remove('active');
         showToast('<i class="fa-solid fa-triangle-exclamation"></i> Error updating info');
       }
     });
-
-    // --- NEW: Edit Name Tag Overlay Logic ---
-    function openEditNameOverlay(currentName, callback) {
-      document.getElementById('editNameText').value = currentName;
-      document.getElementById('editNameColor').value = NAME_CONFIG.DOWNLOAD.fontColor;
-      document.getElementById('editNameSize').value = NAME_CONFIG.DOWNLOAD.fontSize;
-      document.getElementById('editNameOverlay').classList.add('active');
-      
-      document.getElementById('editNameApplyBtn').onclick = function() {
-        var nText = document.getElementById('editNameText').value.trim();
-        var nColor = document.getElementById('editNameColor').value;
-        var nSize = document.getElementById('editNameSize').value;
-        if (nText) {
-          callback(nText, nColor, nSize);
-          document.getElementById('editNameOverlay').classList.remove('active');
-        }
-      };
-    }
-    document.getElementById('editNameCancelBtn').addEventListener('click', function() {
-      document.getElementById('editNameOverlay').classList.remove('active');
-    });
-
 
     document.getElementById('addImgBtn').addEventListener('click', function () { resetAddImgSteps(); addImgOverlay.classList.add('active'); });
     document.getElementById('addImgCancelBtn').addEventListener('click', function () { addImgOverlay.classList.remove('active'); });
