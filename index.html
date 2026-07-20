@@ -1136,7 +1136,7 @@
         ctx.fillText(doc.user, d.left, d.top);
     }
 
-    // MODIFIED: Save logic simplified - no popup loading. Direct to Image Preview.
+    // Save logic - Shows uploading loading animation, then opens Image Preview
     finishedBtn.addEventListener('click', async function () {
       var cName = christianNameInput.value.trim();
       var fName = firstNameInput.value.trim();
@@ -1150,6 +1150,12 @@
       if (!imgSrc) { showToast('<i class="fa-solid fa-triangle-exclamation"></i> Template loading, try again', 2000); return; }
 
       document.getElementById('saveOverlay').classList.remove('active');
+      
+      // Show uploading loading animation
+      document.getElementById('uploadText').textContent = 'Uploading...'; 
+      document.getElementById('uploadSub').textContent = 'Please wait';
+      document.getElementById('uploadOfflineNote').style.display = 'none'; 
+      document.getElementById('uploadOverlay').classList.add('active');
       
       try {
         var fullName = `${fName} ${lName}`;
@@ -1182,18 +1188,25 @@
         cacheView(targetClass, cached);
 
         if (result.offline) {
-          showToast('<i class="fa-solid fa-wifi-slash"></i> Saved offline - will sync');
+          document.getElementById('uploadOfflineNote').style.display = 'flex';
+          document.getElementById('uploadText').textContent = 'Saved locally'; 
+          document.getElementById('uploadSub').textContent = 'Will sync to cloud when online';
+          await new Promise(r => setTimeout(r, 1500)); // wait 1.5s
         } else {
-          showToast('<i class="fa-solid fa-check-circle"></i> Saved successfully!');
+          document.getElementById('uploadText').textContent = 'Saved successfully!';
+          await new Promise(r => setTimeout(r, 500)); // wait 0.5s
         }
 
         if (activeView === targetClass) renderTable(targetClass);
         updateBadges();
         
-        // Automatically open Image Preview to generate QR
+        // Hide upload overlay and auto open Image Preview
+        document.getElementById('uploadOverlay').classList.remove('active');
         openDetail(targetClass, newId, entry);
       } catch (e) { 
-        console.error(e); showToast('<i class="fa-solid fa-triangle-exclamation"></i> Error saving'); 
+        console.error(e); 
+        document.getElementById('uploadOverlay').classList.remove('active');
+        showToast('<i class="fa-solid fa-triangle-exclamation"></i> Error saving'); 
       }
     });
 
