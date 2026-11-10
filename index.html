@@ -116,6 +116,12 @@
     .input-group input::placeholder{color:var(--muted);opacity:.6}
     .input-group input:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-glow)}
     .error-msg{font-size:.72rem;color:var(--accent);min-height:16px}
+    .dup-warn{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid rgba(232,85,61,.4);background:rgba(232,85,61,.1);color:var(--accent);font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:500;animation:fadeSlideUp .25s ease-out both}
+    .dup-warn i{font-size:.95rem;flex-shrink:0}
+    .dup-warn strong{color:#fff;font-weight:700}
+    .dup-warn .dup-actions{display:flex;gap:8px;margin-left:auto;flex-shrink:0}
+    .dup-warn .dup-mini-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-size:.7rem;font-weight:600;cursor:pointer;font-family:'Space Grotesk',sans-serif}
+    .dup-warn .dup-mini-btn:hover{background:var(--accent);color:#fff}
     .radio-pill-container {display: flex;gap: 10px;margin-top: 8px;}
     .radio-pill {flex: 1;text-align: center;}
     .radio-pill input[type="radio"] {display: none;}
@@ -231,6 +237,32 @@
     .addimg-thumb{width:56px;height:56px;object-fit:cover;border-radius:10px;border:1px solid var(--border);flex-shrink:0}
     .addimg-thumb-label{font-family:'Space Grotesk',sans-serif;font-size:.85rem;color:var(--muted)}
     .addimg-cancel{padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:.82rem;cursor:pointer;transition:all .25s;text-align:center}
+
+    /* BATCH IMAGE GRID (multiple-file selection in Add Image) */
+    #addImgStepBatch{width:100%;max-width:92vw;gap:12px}
+    .batch-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--card)}
+    .batch-header-left{display:flex;align-items:center;gap:10px}
+    .batch-header-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .batch-sel-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--fg);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s}
+    .batch-sel-btn:hover{background:rgba(255,255,255,.12)}
+    .batch-count{font-family:'Space Grotesk',sans-serif;font-size:.78rem;color:var(--muted);white-space:nowrap}
+    .batch-action-btn{padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--fg);font-family:'Space Grotesk',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .25s}
+    .batch-action-btn:hover{background:rgba(255,255,255,.12)}
+    .batch-action-btn:disabled{opacity:.35;cursor:not-allowed}
+    .batch-download-btn{border-color:var(--teal);color:var(--teal)}.batch-download-btn:hover:not(:disabled){background:rgba(46,196,162,.15)}
+    .batch-delete-btn{border-color:rgba(255,77,77,.3);color:#ff6b6b}.batch-delete-btn:hover:not(:disabled){background:rgba(255,77,77,.15)}
+    .batch-save-btn{border-color:var(--gold);background:linear-gradient(135deg,rgba(212,160,60,.15),transparent);color:var(--gold)}.batch-save-btn:hover:not(:disabled){background:linear-gradient(135deg,var(--gold),#b8882e);color:#fff;box-shadow:0 4px 16px var(--gold-glow)}
+    .batch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;max-height:55vh;overflow-y:auto;padding:4px;border-radius:10px}
+    .batch-grid::-webkit-scrollbar{width:4px}.batch-grid::-webkit-scrollbar-thumb{background:var(--muted);border-radius:4px}
+    .batch-item{position:relative;border-radius:10px;overflow:hidden;border:2px solid var(--border);cursor:pointer;transition:all .25s;background:rgba(0,0,0,.3);aspect-ratio:1;animation:imgIntro .35s cubic-bezier(.22,1,.36,1) both}
+    .batch-item img{width:100%;height:100%;object-fit:cover;display:block}
+    .batch-item:hover{border-color:rgba(255,255,255,.2);transform:translateY(-2px)}
+    .batch-item.selected{border-color:var(--gold);box-shadow:0 0 16px var(--gold-glow)}
+    .batch-check{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.6);border:2px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;transition:all .25s}
+    .batch-item.selected .batch-check{background:var(--gold);border-color:var(--gold)}
+    .batch-item.selected .batch-check::before{content:'\f00c';font-family:'Font Awesome 6 Free';font-weight:900}
+    .batch-filename{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;font-size:.62rem;color:var(--fg);background:linear-gradient(to top,rgba(0,0,0,.85),transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Space Grotesk',sans-serif}
+    .batch-hint{font-size:.72rem;color:var(--muted);text-align:center;padding:8px;line-height:1.5}
     .addimg-cancel:hover{color:var(--fg);border-color:rgba(255,255,255,.15)}
     .popup-box{width:320px;max-width:90vw;background:rgba(22,22,30,.96);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:16px}
     .popup-title{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;color:var(--fg);display:flex;align-items:center;gap:10px}
@@ -344,7 +376,7 @@
     </div>
   </main>
   
-  <input type="file" id="addImgFileInput" accept="image/*" style="display:none">
+  <input type="file" id="addImgFileInput" accept="image/*" multiple style="display:none">
   <input type="file" id="personalPhotoInput" accept="image/*" style="display:none">
   <input type="file" id="editPersonalPhotoInput" accept="image/*" style="display:none">
   <div class="camera-overlay" id="cameraOverlay"><video id="cameraVideo" autoplay playsinline></video><div class="camera-controls"><button class="cam-btn close-cam" id="closeCamBtn"><i class="fa-solid fa-xmark"></i></button><button class="cam-btn capture" id="captureBtn"><i class="fa-solid fa-camera"></i></button></div></div>
@@ -379,6 +411,11 @@
     <div class="input-group">
       <label for="lastName">Last Name</label>
       <input type="text" id="lastName" placeholder="Last Name" autocomplete="off" inputmode="text" enterkeyhint="next">
+    </div>
+
+    <div class="dup-warn" id="dupWarn" style="display:none">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span id="dupWarnText"></span>
     </div>
 
     <div class="input-group">
@@ -444,7 +481,26 @@
 
   <div class="overlay detail-overlay" id="detailOverlay"><div class="overlay-bg"></div><div class="anim-box detail-box"><div class="detail-header"><div class="detail-title"><i class="fa-solid fa-images"></i> Image Preview</div><div class="detail-header-right"><button class="add-img-btn" id="addImgBtn"><i class="fa-solid fa-plus"></i> Add Image</button><button class="detail-close" id="detailCloseBtn"><i class="fa-solid fa-xmark"></i></button></div></div><div class="id-card" id="idCard" style="display:none"><div class="id-card-photo" id="idCardPhoto"><i class="fa-solid fa-user"></i></div><div class="id-card-info"><div class="id-card-name" id="idCardName"></div><div class="id-card-bday" id="idCardBday"></div><div class="id-card-age" id="idCardAge"></div></div><button class="id-card-edit-btn" id="idCardEditBtn" title="Edit Info"><i class="fa-solid fa-pen"></i></button></div><div class="detail-images" id="detailImages"></div></div></div>
 
-  <div class="overlay" id="addImgOverlay" style="z-index:145"><div class="overlay-bg"></div><div class="anim-box addimg-box"><div class="addimg-title"><i class="fa-solid fa-plus-circle"></i> Add Image</div><div id="addImgStep1" class="addimg-row"><button class="addimg-opt" id="addImgFileBtn"><i class="fa-solid fa-folder-open" style="color:var(--gold)"></i> Choose File</button><button class="addimg-opt" id="addImgCamBtn"><i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera</button></div><div id="addImgStep2" class="addimg-step2"><div class="preview-stage" id="addImgStage"><img class="addimg-preview" id="addImgPreview" src="" alt="New image"></div><div class="preview-actions" style="width:80vw; justify-content:center"><button class="preview-btn edit-btn" id="addImgEditBtn"><i class="fa-solid fa-crop-simple"></i> Edit</button><button class="preview-btn next-btn" id="addImgNextBtn"><i class="fa-solid fa-arrow-right"></i> Next</button></div></div><div id="addImgStep3" class="addimg-step2"><div class="addimg-thumb-row"><img class="addimg-thumb" id="addImgThumb" src="" alt="Preview"><span class="addimg-thumb-label">Name this image</span></div><div class="input-group"><label for="addImgNameInput">Image Name</label><input type="text" id="addImgNameInput" placeholder="Enter image name..." enterkeyhint="done"><div class="error-msg" id="addImgNameError"></div></div><button class="finished-btn" id="addImgSaveBtn" disabled><i class="fa-solid fa-check"></i> Save Image</button></div><button class="addimg-cancel" id="addImgCancelBtn">Cancel</button></div></div>
+  <div class="overlay" id="addImgOverlay" style="z-index:145"><div class="overlay-bg"></div><div class="anim-box addimg-box"><div class="addimg-title"><i class="fa-solid fa-plus-circle"></i> Add Image</div><div id="addImgStep1" class="addimg-row"><button class="addimg-opt" id="addImgFileBtn"><i class="fa-solid fa-folder-open" style="color:var(--gold)"></i> Choose File</button><button class="addimg-opt" id="addImgCamBtn"><i class="fa-solid fa-camera" style="color:var(--accent)"></i> Camera</button></div><div id="addImgStep2" class="addimg-step2"><div class="preview-stage" id="addImgStage"><img class="addimg-preview" id="addImgPreview" src="" alt="New image"></div><div class="preview-actions" style="width:80vw; justify-content:center"><button class="preview-btn edit-btn" id="addImgEditBtn"><i class="fa-solid fa-crop-simple"></i> Edit</button><button class="preview-btn next-btn" id="addImgNextBtn"><i class="fa-solid fa-arrow-right"></i> Next</button></div></div><div id="addImgStep3" class="addimg-step2"><div class="addimg-thumb-row"><img class="addimg-thumb" id="addImgThumb" src="" alt="Preview"><span class="addimg-thumb-label">Name this image</span></div><div class="input-group"><label for="addImgNameInput">Image Name</label><input type="text" id="addImgNameInput" placeholder="Enter image name..." enterkeyhint="done"><div class="error-msg" id="addImgNameError"></div></div><button class="finished-btn" id="addImgSaveBtn" disabled><i class="fa-solid fa-check"></i> Save Image</button></div>
+
+    <!-- BATCH STEP: shown when 2+ files are selected at once -->
+    <div id="addImgStepBatch" class="addimg-step2">
+      <div class="batch-header">
+        <div class="batch-header-left">
+          <button class="batch-sel-btn" id="batchSelectAllBtn" title="Select All"><i class="fa-solid fa-check-double"></i></button>
+          <span class="batch-count" id="batchCountText">0 of 0 selected</span>
+        </div>
+        <div class="batch-header-right">
+          <button class="batch-action-btn batch-download-btn" id="batchDownloadBtn" disabled title="Download Selected"><i class="fa-solid fa-download"></i> Download</button>
+          <button class="batch-action-btn batch-delete-btn" id="batchDeleteBtn" disabled title="Remove Selected"><i class="fa-solid fa-trash-can"></i> Remove</button>
+          <button class="batch-action-btn batch-save-btn" id="batchSaveAllBtn" title="Save All to Database"><i class="fa-solid fa-cloud-arrow-up"></i> Save All</button>
+        </div>
+      </div>
+      <div class="batch-grid" id="batchGrid"></div>
+      <div class="batch-hint" id="batchHint">Tap an image to select it. Selected images can be downloaded or removed. "Save All" uploads every image to this student's record.</div>
+    </div>
+
+    <button class="addimg-cancel" id="addImgCancelBtn">Cancel</button></div></div>
 
   <div class="overlay" id="moveOverlay" style="z-index:130"><div class="overlay-bg"></div><div class="anim-box popup-box"><div class="popup-title"><i class="fa-solid fa-arrows-up-down-left-right"></i> Move To</div><div id="moveOptions" style="display:flex;flex-direction:column;gap:8px"></div><button class="login-btn" id="moveCancelBtn" style="background:transparent;border:1px solid var(--border);color:var(--muted)">Cancel</button></div></div>
 
@@ -505,12 +561,29 @@
 
     async function restGet(path) {
       try {
+        if (!isOnline) throw new Error('offline');
         var res = await fetch(restUrl(path || ''));
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return await res.json();
       } catch (e) {
-        var cached = localStorage.getItem('cache_' + (path || 'root'));
-        return cached ? JSON.parse(cached) : null;
+        // Offline fallback: try IndexedDB by view name, then nested path
+        var p = path || '';
+        var parts = p.split('/');
+        if (parts.length >= 1) {
+          var viewName = parts[0];
+          var cached = getCachedView(viewName);
+          if (cached) {
+            if (parts.length === 1) return cached;
+            // Drill into nested path (e.g. view1/id or view1/id/extraImages/eid)
+            var cur = cached;
+            for (var i = 1; i < parts.length; i++) {
+              if (cur && typeof cur === 'object' && parts[i] in cur) cur = cur[parts[i]];
+              else return null;
+            }
+            return cur;
+          }
+        }
+        return null;
       }
     }
 
@@ -554,8 +627,109 @@
     }
     function getOfflineQueue() { return JSON.parse(localStorage.getItem('offlineQueue') || '[]'); }
     function clearOfflineQueue() { localStorage.removeItem('offlineQueue'); }
-    function cacheView(view, data) { try { localStorage.setItem('cache_' + view, JSON.stringify(data)); } catch (e) {} }
-    function getCachedView(view) { try { var c = localStorage.getItem('cache_' + view); return c ? JSON.parse(c) : null; } catch (e) { return null; } }
+
+    /* ===== INDEXEDDB OFFLINE PERSISTENCE =====
+       Replaces localStorage caching for view data. localStorage is too small
+       (~5MB) for big base64 PNG student images; IndexedDB can store hundreds
+       of MB. This makes data survive APK reopen even when offline. */
+    var idb = null;
+    var IDB_NAME = 'hamerenoh_students_db';
+    var IDB_VERSION = 1;
+    var IDB_STORE = 'view_cache';
+
+    function openIDB() {
+      return new Promise(function (resolve) {
+        if (!window.indexedDB) { resolve(null); return; }
+        try {
+          var req = indexedDB.open(IDB_NAME, IDB_VERSION);
+          req.onupgradeneeded = function (e) {
+            var db = e.target.result;
+            if (!db.objectStoreNames.contains(IDB_STORE)) {
+              db.createObjectStore(IDB_STORE, { keyPath: 'view' });
+            }
+          };
+          req.onsuccess = function (e) { idb = e.target.result; resolve(idb); };
+          req.onerror = function () { resolve(null); };
+        } catch (e) { resolve(null); }
+      });
+    }
+
+    function idbGet(view) {
+      return new Promise(function (resolve) {
+        if (!idb) { resolve(null); return; }
+        try {
+          var tx = idb.transaction(IDB_STORE, 'readonly');
+          var store = tx.objectStore(IDB_STORE);
+          var req = store.get(view);
+          req.onsuccess = function (e) { resolve(e.target.result ? e.target.result.data : null); };
+          req.onerror = function () { resolve(null); };
+        } catch (e) { resolve(null); }
+      });
+    }
+
+    function idbPut(view, data) {
+      return new Promise(function (resolve) {
+        if (!idb) { resolve(false); return; }
+        try {
+          var tx = idb.transaction(IDB_STORE, 'readwrite');
+          var store = tx.objectStore(IDB_STORE);
+          store.put({ view: view, data: data, ts: Date.now() });
+          tx.oncomplete = function () { resolve(true); };
+          tx.onerror = function () { resolve(false); };
+        } catch (e) { resolve(false); }
+      });
+    }
+
+    function idbDelete(view) {
+      return new Promise(function (resolve) {
+        if (!idb) { resolve(false); return; }
+        try {
+          var tx = idb.transaction(IDB_STORE, 'readwrite');
+          var store = tx.objectStore(IDB_STORE);
+          store.delete(view);
+          tx.oncomplete = function () { resolve(true); };
+          tx.onerror = function () { resolve(false); };
+        } catch (e) { resolve(false); }
+      });
+    }
+
+    // In-memory mirror of IndexedDB caches (sync access for code that needs it)
+    var idbMemoryCache = {};
+
+    // cacheView: synchronous in-memory update + fire-and-forget IndexedDB write.
+    // Stays synchronous so existing callers don't need to await.
+    function cacheView(view, data) {
+      try {
+        if (typeof viewDataCache === 'undefined') viewDataCache = {};
+        viewDataCache[view] = data;
+        idbMemoryCache[view] = data;
+        idbPut(view, data);
+        // Also keep a tiny marker in localStorage (size only) so we know cache exists
+        try { localStorage.setItem('cache_meta_' + view, JSON.stringify({ ts: Date.now(), count: data ? Object.keys(data).length : 0 })); } catch (e) {}
+      } catch (e) {}
+    }
+
+    // getCachedView: returns in-memory copy if available, else null.
+    // Use loadCachedView (async) at startup to populate idbMemoryCache from IndexedDB.
+    function getCachedView(view) {
+      if (idbMemoryCache[view]) return idbMemoryCache[view];
+      if (viewDataCache[view]) return viewDataCache[view];
+      return null;
+    }
+
+    // Async: load a view's cached data from IndexedDB into memory mirror
+    async function loadCachedView(view) {
+      var data = await idbGet(view);
+      if (data) { idbMemoryCache[view] = data; return data; }
+      return null;
+    }
+
+    // Async: load ALL cached views from IndexedDB at app start
+    async function loadAllCachedViews() {
+      await openIDB();
+      var views = Object.keys(viewMap);
+      await Promise.all(views.map(function (v) { return loadCachedView(v); }));
+    }
 
     async function smartFetchView(view) {
       if (!isOnline) return getCachedView(view) || null;
@@ -672,7 +846,7 @@
         width: DOWNLOAD_QR_WIDTH, height: DOWNLOAD_QR_HEIGHT, type: "canvas",
         data: data, image: qrLogoData || "",
         dotsOptions: { color: "#000000", type: "rounded" },
-        cornersSquareOptions: { color: "#CB1433", type: "extra-rounded" },
+        cornersSquareOptions: { color: "#33011e", type: "extra-rounded" },
         backgroundOptions: { color: "transparent" },
         imageOptions: { crossOrigin: "anonymous", margin: 6 }
       });
@@ -876,7 +1050,12 @@
       authOverlay.classList.remove('active'); authBtn.disabled = false; authBtn.innerHTML = 'Confirm';
     });
 
-    function initApp() {
+    async function initApp() {
+      // Load persisted caches from IndexedDB FIRST so the UI can render
+      // even when the APK starts offline. This is critical: previously data
+      // was lost on offline reopen because localStorage overflowed with
+      // big base64 images. IndexedDB survives across APK restarts.
+      await loadAllCachedViews();
       Object.keys(viewMap).forEach(function (key) {
         var cached = getCachedView(key);
         if (cached) viewDataCache[key] = cached;
@@ -884,7 +1063,7 @@
       updateBadges(); refreshAllViewsFromCloud();
       downloadQR.append(document.getElementById('qr-hidden-container'));
       previewQR.append(document.getElementById('qr-overlay'));
-      loadCBZZip(); 
+      loadCBZZip();
       pollTimer = setInterval(function () {
         if (!isOnline) return;
         refreshAllViewsFromCloud();
@@ -926,7 +1105,11 @@
       document.getElementById('ageDisplay').innerHTML = ''; clearPersonalPhoto();
       document.querySelectorAll('.class-btn').forEach(function (b) { b.classList.remove('selected'); });
       finishedBtn.disabled = true;
-      currentProcessedImage = qrBgImageUrl; 
+      currentProcessedImage = qrBgImageUrl;
+      // Reset duplicate-warning state when overlay reopens
+      duplicateNameConfirmed = false;
+      var dw = document.getElementById('dupWarn');
+      if (dw) dw.style.display = 'none';
       document.getElementById('saveOverlay').classList.add('active');
     }
 
@@ -1080,10 +1263,82 @@
     document.getElementById('editBirthDay').addEventListener('keydown', function(e) { handleEnterKey(e, 'editBirthYear'); });
 
     christianNameInput.addEventListener('input', validateSave);
-    firstNameInput.addEventListener('input', validateSave);
-    lastNameInput.addEventListener('input', validateSave);
+    firstNameInput.addEventListener('input', function() { validateSave(); updateDuplicateWarning(); });
+    lastNameInput.addEventListener('input', function() { validateSave(); updateDuplicateWarning(); });
     phoneInput.addEventListener('input', validateSave);
     document.querySelectorAll('input[name="gender"]').forEach(function(el) { el.addEventListener('change', validateSave); });
+
+    /* ===== DUPLICATE NAME DETECTION =====
+       When a student is being added, scan all view caches for an existing
+       entry with the same First Name + Last Name (case-insensitive).
+       Show a warning and require explicit confirmation before saving. */
+    var duplicateNameConfirmed = false;
+
+    function normalizeName(s) {
+      return (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    }
+
+    // Returns the list of {view, id, doc} matches across ALL views
+    function findDuplicateNames(fName, lName) {
+      var fN = normalizeName(fName);
+      var lN = normalizeName(lName);
+      if (!fN || !lN) return [];
+      // We match the stored "user" field which is "First Last" (case-insensitive)
+      var targetUser = (fN + ' ' + lN).trim();
+      var matches = [];
+      Object.keys(viewMap).forEach(function (viewKey) {
+        var data = viewDataCache[viewKey] || idbMemoryCache[viewKey] || {};
+        Object.keys(data).forEach(function (id) {
+          var doc = data[id];
+          if (!doc || !doc.user) return;
+          // Compare normalized "First Last" against target
+          var normalizedUser = normalizeName(doc.user);
+          if (normalizedUser === targetUser) {
+            matches.push({ view: viewKey, id: id, doc: doc });
+          }
+        });
+      });
+      return matches;
+    }
+
+    function updateDuplicateWarning() {
+      var fName = firstNameInput.value.trim();
+      var lName = lastNameInput.value.trim();
+      var warnEl = document.getElementById('dupWarn');
+      var warnText = document.getElementById('dupWarnText');
+      if (!warnEl || !warnText) return;
+      if (!fName || !lName) {
+        warnEl.style.display = 'none';
+        duplicateNameConfirmed = false;
+        return;
+      }
+      var matches = findDuplicateNames(fName, lName);
+      if (matches.length === 0) {
+        warnEl.style.display = 'none';
+        duplicateNameConfirmed = false;
+        return;
+      }
+      var viewTitles = matches.map(function (m) {
+        return viewMap[m.view] ? viewMap[m.view].title : m.view;
+      });
+      warnText.innerHTML = 'Duplicate name found in: <strong>' + viewTitles.join(', ') + '</strong>.';
+      // Render with a "Save anyway" button so user can override
+      if (!warnEl.querySelector('.dup-actions')) {
+        var actions = document.createElement('div');
+        actions.className = 'dup-actions';
+        var btn = document.createElement('button');
+        btn.className = 'dup-mini-btn';
+        btn.textContent = 'Save anyway';
+        btn.onclick = function (e) {
+          e.stopPropagation();
+          duplicateNameConfirmed = true;
+          warnText.innerHTML = 'Saving duplicate anyway. Click "Finished" to continue.';
+        };
+        actions.appendChild(btn);
+        warnEl.appendChild(actions);
+      }
+      warnEl.style.display = 'flex';
+    }
     
     document.querySelectorAll('.class-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -1165,9 +1420,25 @@
       var lName = lastNameInput.value.trim();
       var phone = phoneInput.value.trim();
       var gender = document.querySelector('input[name="gender"]:checked').value;
-      
+
       if (!cName || !fName || !lName || !targetClass) return;
-      
+
+      // ===== DUPLICATE NAME GATE =====
+      // If a duplicate first+last name exists, require explicit confirmation.
+      // Re-check live in case user edited names after warning.
+      var liveMatches = findDuplicateNames(fName, lName);
+      if (liveMatches.length > 0 && !duplicateNameConfirmed) {
+        var viewTitlesDup = liveMatches.map(function (m) {
+          return viewMap[m.view] ? viewMap[m.view].title : m.view;
+        });
+        var confirmMsg = 'A student named "' + fName + ' ' + lName + '" already exists in: ' +
+          viewTitlesDup.join(', ') + '.\n\nSave this entry anyway as a duplicate?';
+        if (!window.confirm(confirmMsg)) {
+          return; // user cancelled - keep overlay open so they can edit
+        }
+        duplicateNameConfirmed = true;
+      }
+
       var imgSrc = currentProcessedImage || qrBgImageUrl;
       if (!imgSrc) { showToast('<i class="fa-solid fa-triangle-exclamation"></i> Template loading, try again', 2000); return; }
 
@@ -1881,7 +2152,15 @@
     document.getElementById('addImgCancelBtn').addEventListener('click', function () { addImgOverlay.classList.remove('active'); });
     document.getElementById('addImgFileBtn').addEventListener('click', function () { addImgFileInput.click(); });
     addImgFileInput.addEventListener('change', function (e) {
-      if (e.target.files[0]) processAddImg(URL.createObjectURL(e.target.files[0]));
+      var files = e.target.files;
+      if (!files || files.length === 0) { addImgFileInput.value = ''; return; }
+      // Single file -> existing flow (preview/edit/name/save)
+      if (files.length === 1) {
+        processAddImg(URL.createObjectURL(files[0]));
+      } else {
+        // 2+ files -> batch flow: show all in one grid with select/download/delete/save-all
+        processBatchAddImg(files);
+      }
       addImgFileInput.value = '';
     });
 
@@ -1906,10 +2185,218 @@
       document.getElementById('addImgStep1').style.display = 'flex';
       document.getElementById('addImgStep2').classList.remove('visible');
       document.getElementById('addImgStep3').classList.remove('visible');
+      var batchStep = document.getElementById('addImgStepBatch');
+      if (batchStep) batchStep.classList.remove('visible');
       document.getElementById('addImgNameInput').value = '';
       document.getElementById('addImgSaveBtn').disabled = true;
       newExtraImg = null;
+      // Clear any previous batch selection
+      batchImages = [];
+      batchSelectedIds = new Set();
     }
+
+    /* ===== BATCH IMAGE FLOW (2+ files selected at once) =====
+       Mirrors the table's select-mode pattern: a grid of image thumbnails,
+       each with a select icon; bulk Download (zip), bulk Remove (from batch),
+       and Save All (push each as an extraImage to the current student). */
+    var batchImages = [];      // [{id, src, name, file}]
+    var batchSelectedIds = new Set();
+
+    function processBatchAddImg(files) {
+      batchImages = [];
+      batchSelectedIds = new Set();
+      var grid = document.getElementById('batchGrid');
+      if (grid) grid.innerHTML = '';
+      var fileArr = Array.prototype.slice.call(files);
+      fileArr.forEach(function (file, idx) {
+        var id = 'batch_' + idx + '_' + Date.now();
+        var src = URL.createObjectURL(file);
+        var item = { id: id, src: src, name: file.name || ('image_' + (idx + 1)), file: file };
+        batchImages.push(item);
+        appendBatchItem(item);
+      });
+      // Hide step1/2/3, show batch step
+      document.getElementById('addImgStep1').style.display = 'none';
+      document.getElementById('addImgStep2').classList.remove('visible');
+      document.getElementById('addImgStep3').classList.remove('visible');
+      var batchStep = document.getElementById('addImgStepBatch');
+      if (batchStep) batchStep.classList.add('visible');
+      updateBatchUI();
+    }
+
+    function appendBatchItem(item) {
+      var grid = document.getElementById('batchGrid');
+      if (!grid) return;
+      var el = document.createElement('div');
+      el.className = 'batch-item';
+      el.dataset.id = item.id;
+      el.innerHTML = '<div class="batch-check"></div><img src="' + item.src + '" alt="' + escapeHtml(item.name) + '"><div class="batch-filename">' + escapeHtml(item.name) + '</div>';
+      el.addEventListener('click', function () { toggleBatchSelect(item.id, el); });
+      grid.appendChild(el);
+    }
+
+    function escapeHtml(s) {
+      return (s || '').replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function toggleBatchSelect(id, el) {
+      if (batchSelectedIds.has(id)) {
+        batchSelectedIds.delete(id);
+        el.classList.remove('selected');
+      } else {
+        batchSelectedIds.add(id);
+        el.classList.add('selected');
+      }
+      updateBatchUI();
+    }
+
+    function updateBatchUI() {
+      var countText = document.getElementById('batchCountText');
+      if (countText) countText.textContent = batchSelectedIds.size + ' of ' + batchImages.length + ' selected';
+      var dlBtn = document.getElementById('batchDownloadBtn');
+      var delBtn = document.getElementById('batchDeleteBtn');
+      var saveAllBtn = document.getElementById('batchSaveAllBtn');
+      if (dlBtn) dlBtn.disabled = batchSelectedIds.size === 0;
+      if (delBtn) delBtn.disabled = batchSelectedIds.size === 0;
+      if (saveAllBtn) saveAllBtn.disabled = batchImages.length === 0;
+    }
+
+    // Select All / Deselect All toggle
+    document.getElementById('batchSelectAllBtn').addEventListener('click', function () {
+      var allSelected = batchImages.length > 0 && batchImages.every(function (it) { return batchSelectedIds.has(it.id); });
+      if (allSelected) {
+        batchImages.forEach(function (it) { batchSelectedIds.delete(it.id); });
+      } else {
+        batchImages.forEach(function (it) { batchSelectedIds.add(it.id); });
+      }
+      document.querySelectorAll('.batch-item').forEach(function (el) {
+        el.classList.toggle('selected', batchSelectedIds.has(el.dataset.id));
+      });
+      updateBatchUI();
+    });
+
+    // Download selected as ZIP (same pattern as table's downloadQrSelBtn)
+    document.getElementById('batchDownloadBtn').addEventListener('click', async function () {
+      if (batchSelectedIds.size === 0) return;
+      uploadText.textContent = 'Preparing Images...'; uploadSub.textContent = 'Please wait';
+      uploadOfflineNote.style.display = 'none'; uploadOverlay.classList.add('active');
+      try {
+        var zip = new JSZip();
+        var selected = batchImages.filter(function (it) { return batchSelectedIds.has(it.id); });
+        var usedNames = {};
+        for (var i = 0; i < selected.length; i++) {
+          var it = selected[i];
+          // Read file as base64
+          var b64 = await fileToBase64(it.file);
+          var base64Data = b64.split(',')[1];
+          // Make filename unique
+          var safeName = (it.name || ('image_' + (i + 1))).replace(/[^\w.\-]+/g, '_');
+          if (!safeName.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+            var ext = (it.file.type || 'image/jpeg').split('/')[1] || 'jpg';
+            safeName += '.' + ext;
+          }
+          if (usedNames[safeName]) { usedNames[safeName]++; safeName = safeName.replace(/(\.[^.]+)$/, '_' + usedNames[safeName] + '$1'); }
+          else { usedNames[safeName] = 1; }
+          zip.file(safeName, base64Data, { base64: true });
+        }
+        var content = await zip.generateAsync({ type: 'blob' });
+        var link = document.createElement('a');
+        link.href = URL.createObjectURL(content);
+        link.download = 'Images_' + Date.now() + '.zip';
+        document.body.appendChild(link); link.click();
+        document.body.removeChild(link); URL.revokeObjectURL(link.href);
+        uploadOverlay.classList.remove('active');
+        showToast('<i class="fa-solid fa-check-circle"></i> ' + selected.length + ' image(s) downloaded!');
+      } catch (err) {
+        console.error(err);
+        uploadOverlay.classList.remove('active');
+        showToast('<i class="fa-solid fa-triangle-exclamation"></i> Error creating ZIP');
+      }
+    });
+
+    // Helper: convert a File to base64 data URL
+    function fileToBase64(file) {
+      return new Promise(function (resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function (e) { resolve(e.target.result); };
+        reader.onerror = function (e) { reject(e); };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Remove selected images from the batch list (NOT from the database)
+    document.getElementById('batchDeleteBtn').addEventListener('click', function () {
+      if (batchSelectedIds.size === 0) return;
+      if (!window.confirm('Remove ' + batchSelectedIds.size + ' selected image(s) from this batch? (Database is not affected)')) return;
+      batchImages = batchImages.filter(function (it) {
+        var wasSelected = batchSelectedIds.has(it.id);
+        if (wasSelected) {
+          // Revoke object URL to free memory
+          try { URL.revokeObjectURL(it.src); } catch (e) {}
+        }
+        return !wasSelected;
+      });
+      batchSelectedIds.clear();
+      // Re-render grid
+      var grid = document.getElementById('batchGrid');
+      if (grid) grid.innerHTML = '';
+      batchImages.forEach(function (it) { appendBatchItem(it); });
+      updateBatchUI();
+      showToast('<i class="fa-solid fa-trash"></i> Removed from batch');
+    });
+
+    // Save All: push every image (or just selected) as extraImages to current student
+    document.getElementById('batchSaveAllBtn').addEventListener('click', async function () {
+      if (batchImages.length === 0 || !currentDetailId) return;
+      // If user has some selected, ask whether to save only selected or all
+      var toSave = batchImages;
+      if (batchSelectedIds.size > 0 && batchSelectedIds.size < batchImages.length) {
+        var ok = window.confirm('You have ' + batchSelectedIds.size + ' image(s) selected.\n\nOK = Save only selected\nCancel = Save all ' + batchImages.length + ' images');
+        if (ok) {
+          toSave = batchImages.filter(function (it) { return batchSelectedIds.has(it.id); });
+        }
+      }
+      uploadText.textContent = 'Saving Images...'; uploadSub.textContent = 'Uploading ' + toSave.length + ' image(s)';
+      uploadOfflineNote.style.display = 'none'; uploadOverlay.classList.add('active');
+      try {
+        var savedCount = 0;
+        var wasOffline = false;
+        for (var i = 0; i < toSave.length; i++) {
+          var it = toSave[i];
+          var base64 = await compressImage(it.src, 0.6, 1200);
+          // Derive a clean name from the file name (without extension)
+          var cleanName = (it.name || ('image_' + (i + 1))).replace(/\.[^.]+$/, '');
+          var entry = { name: cleanName, image: base64 };
+          var result = await restPush(currentDetailView + '/' + currentDetailId + '/extraImages', entry);
+          if (result.offline) wasOffline = true;
+          if (viewDataCache[currentDetailView] && viewDataCache[currentDetailView][currentDetailId]) {
+            if (!viewDataCache[currentDetailView][currentDetailId].extraImages) {
+              viewDataCache[currentDetailView][currentDetailId].extraImages = {};
+            }
+            var newEid = result.name || ('local_' + Date.now() + '_' + i);
+            viewDataCache[currentDetailView][currentDetailId].extraImages[newEid] = entry;
+            savedCount++;
+          }
+        }
+        cacheView(currentDetailView, viewDataCache[currentDetailView]);
+        uploadOverlay.classList.remove('active');
+        addImgOverlay.classList.remove('active');
+        if (wasOffline) {
+          showToast('<i class="fa-solid fa-wifi-slash"></i> ' + savedCount + ' image(s) saved offline');
+        } else {
+          showToast('<i class="fa-solid fa-check"></i> ' + savedCount + ' image(s) added!');
+        }
+        // Reopen detail to show new images
+        var docData = viewDataCache[currentDetailView] ? viewDataCache[currentDetailView][currentDetailId] : null;
+        if (docData) openDetail(currentDetailView, currentDetailId, docData);
+      } catch (err) {
+        console.error(err);
+        uploadOverlay.classList.remove('active');
+        showToast('<i class="fa-solid fa-triangle-exclamation"></i> Error saving batch');
+      }
+    });
 
     function processAddImg(src) {
       newExtraImg = src;
