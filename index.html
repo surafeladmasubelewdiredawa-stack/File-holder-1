@@ -2256,11 +2256,15 @@
     addImgFileInput.addEventListener('change', function (e) {
       var files = e.target.files;
       if (!files || files.length === 0) { addImgFileInput.value = ''; return; }
-      // ANY file selection (1 or many) -> DIRECT SAVE: skip the Edit and
-      // Enter name popup entirely. The filename (without extension) becomes
-      // the image name. The popup (Step 2 Edit / Step 3 Enter name) is now
-      // only used by the Camera capture flow, which has no filename.
-      directSaveBatchFiles(files);
+      if (files.length === 1) {
+        // Single file -> keep the Edit + Enter name popup so the user can
+        // crop/rename before saving.
+        processAddImg(URL.createObjectURL(files[0]));
+      } else {
+        // 2+ files (bulk) -> DIRECT SAVE: skip the Edit and Enter name popup
+        // entirely. Each file's name is derived from its filename.
+        directSaveBatchFiles(files);
+      }
       addImgFileInput.value = '';
     });
 
