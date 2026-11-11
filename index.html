@@ -2256,14 +2256,11 @@
     addImgFileInput.addEventListener('change', function (e) {
       var files = e.target.files;
       if (!files || files.length === 0) { addImgFileInput.value = ''; return; }
-      if (files.length === 1) {
-        // Single file -> existing flow (preview/edit/name/save)
-        processAddImg(URL.createObjectURL(files[0]));
-      } else {
-        // 2+ files -> DIRECT SAVE: skip the popup step entirely, save them all
-        // immediately as extraImages, then close the Add Image overlay.
-        directSaveBatchFiles(files);
-      }
+      // ANY file selection (1 or many) -> DIRECT SAVE: skip the Edit and
+      // Enter name popup entirely. The filename (without extension) becomes
+      // the image name. The popup (Step 2 Edit / Step 3 Enter name) is now
+      // only used by the Camera capture flow, which has no filename.
+      directSaveBatchFiles(files);
       addImgFileInput.value = '';
     });
 
