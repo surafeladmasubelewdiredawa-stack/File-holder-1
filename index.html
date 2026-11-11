@@ -246,8 +246,10 @@
     .extra-grid-item{position:relative;border-radius:10px;overflow:hidden;border:2px solid var(--border);cursor:pointer;transition:all .25s;background:rgba(0,0,0,.3);aspect-ratio:1;animation:imgIntro .35s cubic-bezier(.22,1,.36,1) both}
     .extra-grid-item img{width:100%;height:100%;object-fit:cover;display:block}
     .extra-grid-item:hover{border-color:var(--gold);box-shadow:0 0 14px var(--gold-glow);transform:translateY(-2px)}
-    .extra-grid-item .grid-filename{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;font-size:.62rem;color:var(--fg);background:linear-gradient(to top,rgba(0,0,0,.85),transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Space Grotesk',sans-serif}
-    .extra-grid-item .grid-tap-hint{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.55);color:#fff;border-radius:6px;padding:2px 6px;font-size:.6rem;font-family:'Space Grotesk',sans-serif;opacity:0;transition:opacity .25s}
+    /* Centered image name overlay on each grid thumbnail */
+    .extra-grid-item .grid-name-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:6px;background:rgba(0,0,0,.35);pointer-events:none}
+    .extra-grid-item .grid-name-center span{font-family:'Space Grotesk',sans-serif;font-size:.72rem;font-weight:700;color:#fff;text-align:center;line-height:1.2;text-shadow:0 1px 4px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.7);word-break:break-word;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+    .extra-grid-item .grid-tap-hint{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.55);color:#fff;border-radius:6px;padding:2px 6px;font-size:.6rem;font-family:'Space Grotesk',sans-serif;opacity:0;transition:opacity .25s}
     .extra-grid-item:hover .grid-tap-hint{opacity:1}
     .extra-grid-empty{font-size:.78rem;color:var(--muted);text-align:center;padding:14px;font-family:'Space Grotesk',sans-serif}
     .extra-grid-header{display:flex;align-items:center;justify-content:space-between;padding:6px 4px;margin-top:6px}
@@ -255,7 +257,7 @@
     .extra-grid-header .egh-title i{color:var(--gold)}
     .extra-grid-header .egh-count{font-family:'Space Grotesk',sans-serif;font-size:.72rem;color:var(--muted)}
 
-    /* LIGHTBOX POPUP for grid image */
+    /* LIGHTBOX POPUP for grid images - scrollable list of ALL images */
     .img-popup-overlay{position:fixed;inset:0;z-index:170;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.85);animation:overlayIntro .25s ease-out both}
     .img-popup-overlay.active{display:flex}
     .img-popup-box{position:relative;z-index:1;width:94vw;max-width:520px;max-height:92vh;background:rgba(22,22,30,.97);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px;animation:boxIntro .3s cubic-bezier(.22,1,.36,1) both}
@@ -264,10 +266,16 @@
     .img-popup-title i{color:var(--gold);flex-shrink:0}
     .img-popup-close{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s;flex-shrink:0}
     .img-popup-close:hover{color:var(--fg);border-color:rgba(255,255,255,.2)}
-    .img-popup-stage{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;overflow:hidden}
-    .img-popup-stage img{max-width:100%;max-height:60vh;object-fit:contain;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.3)}
+    .img-popup-stage{flex:1;display:flex;flex-direction:column;gap:16px;min-height:0;overflow-y:auto;padding-right:4px}
+    .img-popup-stage::-webkit-scrollbar{width:4px}.img-popup-stage::-webkit-scrollbar-thumb{background:var(--muted);border-radius:4px}
     .img-popup-actions{display:flex;gap:10px;flex-shrink:0}
     .img-popup-actions .download-btn,.img-popup-actions .delete-btn{flex:1;justify-content:center}
+    /* Each scrollable image item inside the popup */
+    .popup-img-item{display:flex;flex-direction:column;align-items:center;gap:8px;animation:imgIntro .35s cubic-bezier(.22,1,.36,1) both}
+    .popup-img-item img{max-width:100%;max-height:50vh;object-fit:contain;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.3)}
+    .popup-img-item .popup-img-name{font-family:'Space Grotesk',sans-serif;font-size:.82rem;font-weight:600;color:var(--fg);text-align:center}
+    .popup-img-item .popup-img-actions{display:flex;gap:10px;width:100%}
+    .popup-img-item .popup-img-actions .download-btn,.popup-img-item .popup-img-actions .delete-btn{flex:1;justify-content:center;padding:8px 14px;font-size:.76rem}
 
     .addimg-cancel:hover{color:var(--fg);border-color:rgba(255,255,255,.15)}
     .popup-box{width:320px;max-width:90vw;background:rgba(22,22,30,.96);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:16px}
@@ -533,13 +541,25 @@
   <!-- IMAGE POPUP (lightbox) - shown when a grid image is clicked in detail preview -->
   <div class="img-popup-overlay" id="imgPopupOverlay"><div class="overlay-bg"></div><div class="img-popup-box">
     <div class="img-popup-header">
-      <div class="img-popup-title"><i class="fa-solid fa-image"></i> <span id="imgPopupTitle">Image</span></div>
+      <div class="img-popup-title"><i class="fa-solid fa-images"></i> <span id="imgPopupTitle">Images</span></div>
       <button class="img-popup-close" id="imgPopupCloseBtn"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div class="img-popup-stage"><img id="imgPopupImg" src="" alt="Image"></div>
+    <div class="img-popup-stage" id="imgPopupStage"></div>
+  </div></div>
+
+  <!-- BATCH NAME POPUP - shown when 1+ files are selected, asks for image name -->
+  <div class="img-popup-overlay" id="batchNameOverlay" style="z-index:175"><div class="overlay-bg"></div><div class="img-popup-box" style="max-width:380px">
+    <div class="img-popup-header">
+      <div class="img-popup-title"><i class="fa-solid fa-tag"></i> <span id="batchNameTitle">Enter Image Name</span></div>
+      <button class="img-popup-close" id="batchNameCloseBtn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="input-group">
+      <label for="batchNameInput" id="batchNameLabel">Image Name</label>
+      <input type="text" id="batchNameInput" placeholder="e.g. Birthday 2024" enterkeyhint="done">
+      <div class="error-msg" id="batchNameError"></div>
+    </div>
     <div class="img-popup-actions">
-      <button class="download-btn" id="imgPopupDownloadBtn"><i class="fa-solid fa-download"></i> Download</button>
-      <button class="delete-btn" id="imgPopupDeleteBtn"><i class="fa-solid fa-trash-can"></i> Delete</button>
+      <button class="finished-btn" id="batchNameSaveBtn" style="flex:1"><i class="fa-solid fa-check"></i> <span id="batchNameSaveBtnText">Save</span></button>
     </div>
   </div></div>
 
@@ -1871,10 +1891,11 @@
       detailImages.appendChild(item);
     }
 
-    /* ===== EXTRA IMAGES GRID + LIGHTBOX POPUP =====
-       Extra images are rendered as a grid (not vertical list). Clicking a
-       grid item opens the popup (imgPopupOverlay) showing that image with
-       Download / Delete buttons. */
+    /* ===== EXTRA IMAGES GRID + SCROLLABLE LIGHTBOX POPUP =====
+       Extra images are rendered as a grid of small thumbnails with the image
+       name centered on each. Clicking any thumbnail opens a single popup that
+       shows ALL extra images in a scrollable list; each image has its own
+       Download + Delete buttons below it. */
 
     // Build the grid section that holds all extra images for the current doc
     function buildExtraImagesGrid(doc, view, id) {
@@ -1906,9 +1927,11 @@
         item.className = 'extra-grid-item';
         item.dataset.id = eid;
         var safeName = escapeHtml(edoc.name || 'Image');
-        item.innerHTML = '<span class="grid-tap-hint"><i class="fa-solid fa-expand"></i> Tap</span><img src="' + edoc.image + '" alt="' + safeName + '"><div class="grid-filename">' + safeName + '</div>';
+        // Name is overlaid in the CENTER of the thumbnail
+        item.innerHTML = '<span class="grid-tap-hint"><i class="fa-solid fa-expand"></i> Tap</span><img src="' + edoc.image + '" alt="' + safeName + '"><div class="grid-name-center"><span>' + safeName + '</span></div>';
+        // Clicking any thumbnail opens the SAME popup showing ALL extra images
         item.addEventListener('click', function () {
-          openImagePopup(edoc.image, edoc.name || 'Image', doc.user, eid, view, id);
+          openImagePopup(doc, view, id, eid);
         });
         grid.appendChild(item);
       });
@@ -1916,75 +1939,104 @@
       return section;
     }
 
-    // Open the lightbox popup for one extra image
-    function openImagePopup(src, name, user, eid, view, parentId) {
+    // Open the scrollable popup showing ALL extra images for the current doc.
+    // focusEid (optional) is the image to auto-scroll to.
+    function openImagePopup(doc, view, parentId, focusEid) {
       var overlay = document.getElementById('imgPopupOverlay');
-      var img = document.getElementById('imgPopupImg');
+      var stage = document.getElementById('imgPopupStage');
       var title = document.getElementById('imgPopupTitle');
-      img.src = src;
-      title.textContent = name + (user ? ' - ' + user : '');
+      var extras = doc.extraImages || {};
+      var entries = Object.entries(extras);
+      if (entries.length === 0) {
+        closeImagePopup();
+        return;
+      }
+      var userName = doc.user || '';
+      title.textContent = (entries.length + ' image' + (entries.length === 1 ? '' : 's')) + (userName ? ' - ' + userName : '');
+      stage.innerHTML = '';
+      entries.forEach(function (e) {
+        var eid = e[0], edoc = e[1];
+        var safeName = escapeHtml(edoc.name || 'Image');
+        var item = document.createElement('div');
+        item.className = 'popup-img-item';
+        item.dataset.eid = eid;
+        item.innerHTML = '<img src="' + edoc.image + '" alt="' + safeName + '"><div class="popup-img-name">' + safeName + '</div><div class="popup-img-actions"><button class="download-btn"><i class="fa-solid fa-download"></i> Download</button><button class="delete-btn"><i class="fa-solid fa-trash-can"></i> Delete</button></div>';
+        // Per-image Download
+        item.querySelector('.download-btn').addEventListener('click', function () {
+          var src = edoc.image;
+          if (!src) return;
+          fetch(src).then(function (r) { return r.blob(); }).then(function (blob) {
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a'); a.href = url;
+            a.download = (userName || 'User') + ' (' + (edoc.name || 'Image') + ').png';
+            document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+          });
+        });
+        // Per-image Delete
+        item.querySelector('.delete-btn').addEventListener('click', function () {
+          requireAuth(async function () {
+            try {
+              var delPath = view + '/' + parentId + '/extraImages/' + eid;
+              var delResult = await restDelete(delPath);
+              var parentData = viewDataCache[view];
+              if (parentData && parentId && parentData[parentId] && parentData[parentId].extraImages) {
+                delete parentData[parentId].extraImages[eid];
+                cacheView(view, parentData);
+              }
+              // Remove the popup item with animation (popup stays open)
+              item.style.animation = 'imgOutro .3s ease forwards';
+              setTimeout(function () {
+                item.remove();
+                // Update popup title count
+                var remaining = stage.querySelectorAll('.popup-img-item').length;
+                title.textContent = (remaining + ' image' + (remaining === 1 ? '' : 's')) + (userName ? ' - ' + userName : '');
+                if (remaining === 0) closeImagePopup();
+              }, 300);
+              // Also remove the corresponding grid thumbnail (without re-rendering detail)
+              var gridItem = document.querySelector('#extraGridSection .extra-grid-item[data-id="' + eid + '"]');
+              if (gridItem) {
+                gridItem.style.animation = 'imgOutro .3s ease forwards';
+                setTimeout(function () {
+                  gridItem.remove();
+                  // Update the grid count text
+                  var gridCountEl = document.getElementById('extraGridCount');
+                  if (gridCountEl) {
+                    var remainingGrid = document.querySelectorAll('#extraGridSection .extra-grid-item').length;
+                    gridCountEl.textContent = remainingGrid + ' image' + (remainingGrid === 1 ? '' : 's');
+                  }
+                }, 300);
+              }
+              if (delResult.offline) {
+                showToast('<i class="fa-solid fa-wifi-slash"></i> Deleted offline - will sync', 3000);
+              } else {
+                showToast('<i class="fa-solid fa-trash"></i> Deleted successfully!');
+              }
+            } catch (err) { showToast('Delete error'); }
+          });
+        });
+        stage.appendChild(item);
+      });
       overlay.classList.add('active');
-      // Stash context for download/delete handlers
-      overlay.dataset.src = src;
-      overlay.dataset.name = name;
-      overlay.dataset.user = user || '';
-      overlay.dataset.eid = eid || '';
-      overlay.dataset.view = view || '';
-      overlay.dataset.parentId = parentId || '';
+      // Auto-scroll to the clicked image (focusEid) if provided
+      if (focusEid) {
+        setTimeout(function () {
+          var target = stage.querySelector('.popup-img-item[data-eid="' + focusEid + '"]');
+          if (target) target.scrollIntoView({ behavior: 'auto', block: 'center' });
+        }, 50);
+      }
     }
 
     function closeImagePopup() {
       var overlay = document.getElementById('imgPopupOverlay');
       overlay.classList.remove('active');
-      document.getElementById('imgPopupImg').src = '';
+      var stage = document.getElementById('imgPopupStage');
+      if (stage) stage.innerHTML = '';
     }
 
     document.getElementById('imgPopupCloseBtn').addEventListener('click', closeImagePopup);
     // Click on the dark backdrop (overlay-bg) also closes the popup
     document.getElementById('imgPopupOverlay').addEventListener('click', function (e) {
       if (e.target === this || e.target.classList.contains('overlay-bg')) closeImagePopup();
-    });
-
-    document.getElementById('imgPopupDownloadBtn').addEventListener('click', function () {
-      var overlay = document.getElementById('imgPopupOverlay');
-      var src = overlay.dataset.src;
-      var name = overlay.dataset.name;
-      var user = overlay.dataset.user;
-      if (!src) return;
-      fetch(src).then(function (r) { return r.blob(); }).then(function (blob) {
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement('a'); a.href = url;
-        a.download = (user || 'User') + ' (' + (name || 'Image') + ').png';
-        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-      });
-    });
-
-    document.getElementById('imgPopupDeleteBtn').addEventListener('click', function () {
-      var overlay = document.getElementById('imgPopupOverlay');
-      var eid = overlay.dataset.eid;
-      var view = overlay.dataset.view;
-      var parentId = overlay.dataset.parentId;
-      if (!eid || !view || !parentId) return;
-      requireAuth(async function () {
-        try {
-          var delPath = view + '/' + parentId + '/extraImages/' + eid;
-          var delResult = await restDelete(delPath);
-          var parentData = viewDataCache[view];
-          if (parentData && parentId && parentData[parentId] && parentData[parentId].extraImages) {
-            delete parentData[parentId].extraImages[eid];
-            cacheView(view, parentData);
-          }
-          closeImagePopup();
-          if (delResult.offline) {
-            showToast('<i class="fa-solid fa-wifi-slash"></i> Deleted offline - will sync', 3000);
-          } else {
-            showToast('<i class="fa-solid fa-trash"></i> Deleted successfully!');
-          }
-          // Re-render the detail overlay so the grid updates
-          var docData = viewDataCache[view] ? viewDataCache[view][parentId] : null;
-          if (docData) openDetail(view, parentId, docData);
-        } catch (e) { showToast('Delete error'); }
-      });
     });
 
     async function openDetail(view, id, doc) {
@@ -2256,16 +2308,91 @@
     addImgFileInput.addEventListener('change', function (e) {
       var files = e.target.files;
       if (!files || files.length === 0) { addImgFileInput.value = ''; return; }
-      if (files.length === 1) {
-        // Single file -> keep the Edit + Enter name popup so the user can
-        // crop/rename before saving.
-        processAddImg(URL.createObjectURL(files[0]));
-      } else {
-        // 2+ files (bulk) -> DIRECT SAVE: skip the Edit and Enter name popup
-        // entirely. Each file's name is derived from its filename.
-        directSaveBatchFiles(files);
-      }
+      // Snapshot the FileList into a real array BEFORE clearing the input value,
+      // otherwise clearing input.value empties the live FileList and the
+      // pending batch reference would become empty.
+      var filesArray = Array.prototype.slice.call(files);
+      // ANY file selection (1 or many) -> show the mini name popup first,
+      // then save. Single image uses the same popup as bulk (the user enters
+      // a name and the image is saved with that name - no index suffix).
+      // The old Edit (Step 2) + Enter name (Step 3) flow is no longer used
+      // for file selection; it's only used by the Camera capture flow.
+      showBatchNamePopup(filesArray);
       addImgFileInput.value = '';
+    });
+
+    /* ===== BATCH NAME POPUP =====
+       When 1+ files are selected, this popup asks the user for an image name.
+       - Single file: saved with the entered name as-is (no index).
+       - 2+ files (bulk): each saved as "name 1", "name 2", ...
+       On Save, directSaveBatchFiles is called with the entered baseName. */
+    var pendingBatchFiles = null;
+
+    function showBatchNamePopup(files) {
+      pendingBatchFiles = files;
+      var input = document.getElementById('batchNameInput');
+      var errorEl = document.getElementById('batchNameError');
+      var titleEl = document.getElementById('batchNameTitle');
+      var labelEl = document.getElementById('batchNameLabel');
+      var saveBtnText = document.getElementById('batchNameSaveBtnText');
+      var count = files.length;
+      if (count === 1) {
+        titleEl.textContent = 'Enter Image Name';
+        labelEl.textContent = 'Image Name';
+        if (saveBtnText) saveBtnText.textContent = 'Save';
+      } else {
+        titleEl.textContent = 'Name ' + count + ' Images';
+        labelEl.textContent = 'Image Name (will be saved as "Name 1", "Name 2", ...)';
+        if (saveBtnText) saveBtnText.textContent = 'Save All';
+      }
+      input.value = '';
+      errorEl.textContent = '';
+      // Pre-fill with a sensible default based on the first file's name
+      try {
+        var firstFile = files[0];
+        var defaultName = (firstFile.name || 'Image').replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim();
+        if (defaultName) input.value = defaultName;
+      } catch (e) {}
+      document.getElementById('batchNameOverlay').classList.add('active');
+      setTimeout(function () { input.focus(); input.select(); }, 100);
+    }
+
+    function closeBatchNamePopup() {
+      document.getElementById('batchNameOverlay').classList.remove('active');
+      pendingBatchFiles = null;
+    }
+
+    document.getElementById('batchNameCloseBtn').addEventListener('click', closeBatchNamePopup);
+    // Click on the dark backdrop also closes the popup (cancels the bulk add)
+    document.getElementById('batchNameOverlay').addEventListener('click', function (e) {
+      if (e.target === this || e.target.classList.contains('overlay-bg')) closeBatchNamePopup();
+    });
+
+    document.getElementById('batchNameInput').addEventListener('input', function () {
+      document.getElementById('batchNameError').textContent = '';
+    });
+    document.getElementById('batchNameInput').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('batchNameSaveBtn').click();
+      }
+    });
+
+    document.getElementById('batchNameSaveBtn').addEventListener('click', async function () {
+      var baseName = document.getElementById('batchNameInput').value.trim();
+      if (!baseName) {
+        document.getElementById('batchNameError').textContent = 'Please enter an image name';
+        return;
+      }
+      if (!pendingBatchFiles || pendingBatchFiles.length === 0) {
+        closeBatchNamePopup();
+        return;
+      }
+      var filesToSave = pendingBatchFiles;
+      closeBatchNamePopup();
+      // Close the Add Image overlay too (no Edit / Enter name popup for bulk)
+      addImgOverlay.classList.remove('active');
+      await directSaveBatchFiles(filesToSave, baseName);
     });
 
     document.getElementById('addImgCamBtn').addEventListener('click', async function () {
@@ -2310,11 +2437,12 @@
       });
     }
 
-    /* ===== DIRECT SAVE BATCH (no popup) =====
-       When 2+ files are selected in Add Image, skip the preview/name popup
-       entirely and save them all immediately as extraImages for the current
-       student. Each file's display name is derived from its filename. */
-    async function directSaveBatchFiles(files) {
+    /* ===== DIRECT SAVE BATCH =====
+       When 2+ files are selected in Add Image (and the user has entered a
+       base name via the mini popup), save them all immediately as extraImages.
+       Each image is named "baseName 1", "baseName 2", ... If baseName is not
+       provided, falls back to the filename (without extension). */
+    async function directSaveBatchFiles(files, baseName) {
       if (!files || files.length === 0 || !currentDetailId) {
         showToast('<i class="fa-solid fa-triangle-exclamation"></i> No student selected');
         return;
@@ -2322,7 +2450,7 @@
       var fileArr = Array.prototype.slice.call(files);
       uploadText.textContent = 'Adding Images...'; uploadSub.textContent = 'Saving ' + fileArr.length + ' image(s)';
       uploadOfflineNote.style.display = 'none'; uploadOverlay.classList.add('active');
-      // Close the Add Image overlay immediately ("remove the popup")
+      // Close the Add Image overlay immediately (no Edit / Enter name popup for bulk)
       addImgOverlay.classList.remove('active');
       try {
         var savedCount = 0;
@@ -2332,8 +2460,18 @@
           // Read the file as a data URL so compressImage can process it
           var srcDataUrl = await fileToBase64(file);
           var base64 = await compressImage(srcDataUrl, 0.6, 1200);
-          // Derive a clean name from the file name (without extension)
-          var cleanName = (file.name || ('image_' + (i + 1))).replace(/\.[^.]+$/, '');
+          // Use baseName for naming. For single file, just use baseName as-is.
+          // For bulk (2+), append " " + (i+1) to distinguish each image.
+          var cleanName;
+          if (baseName) {
+            if (fileArr.length === 1) {
+              cleanName = baseName;
+            } else {
+              cleanName = baseName + ' ' + (i + 1);
+            }
+          } else {
+            cleanName = (file.name || ('image_' + (i + 1))).replace(/\.[^.]+$/, '');
+          }
           var entry = { name: cleanName, image: base64 };
           var result = await restPush(currentDetailView + '/' + currentDetailId + '/extraImages', entry);
           if (result.offline) wasOffline = true;
