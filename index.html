@@ -1937,14 +1937,10 @@
 
       var header = document.createElement('div');
       header.className = 'extra-grid-header';
-      header.innerHTML = '<div class="egh-title"><i class="fa-solid fa-images"></i> Extra Images</div><div class="egh-count" id="extraGridCount">' + totalImages + ' image' + (totalImages === 1 ? '' : 's') + ' / ' + groups.length + ' group' + (groups.length === 1 ? '' : 's') + '</div>';
+      header.innerHTML = '<div class="egh-title"><i class="fa-solid fa-images"></i> Extra Images</div><div class="egh-count" id="extraGridCount">' + totalImages + ' image' + (totalImages === 1 ? '' : 's') + '</div>';
       section.appendChild(header);
 
       if (groups.length === 0) {
-        var empty = document.createElement('div');
-        empty.className = 'extra-grid-empty';
-        empty.textContent = 'No extra images yet. Tap "Add Image" above to add more.';
-        section.appendChild(empty);
         return section;
       }
 
@@ -2080,7 +2076,7 @@
       if (!countEl) return;
       var totalImages = Object.keys(extras || {}).length;
       var groups = groupExtraImages(extras);
-      countEl.textContent = totalImages + ' image' + (totalImages === 1 ? '' : 's') + ' / ' + groups.length + ' group' + (groups.length === 1 ? '' : 's');
+      countEl.textContent = totalImages + ' image' + (totalImages === 1 ? '' : 's');
     }
 
     function closeImagePopup() {
